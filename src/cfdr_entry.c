@@ -1,5 +1,5 @@
 // $File: test.c
-// $Last-Modified: "2025-08-23 13:49:05"
+// $Last-Modified: "2025-08-29 11:14:12"
 // $Author: Matyas Constans.
 // $Notice: (C) Matyas Constans, Horvath Zoltan 2025 - All Rights Reserved.
 // $License: You may use, distribute and modify this code under the terms of the MIT license.
@@ -15,17 +15,25 @@
 // - 4. Menu-bar. Time slider.
 // - 5. Vector field.
 
-#include "core/core_module.h"
-#include "core/core_module.c"
+#include "alice/core/core_module.h"
+#include "alice/core/core_module.c"
 
-#include "gfx/gfx_module.h"
-#include "gfx/gfx_module.c"
+#include "alice/gfx/gfx_module.h"
+#include "alice/gfx/gfx_module.c"
 
-#include "geo/geo_module.h"
-#include "geo/geo_module.c"
+#include "alice/geo/geo_module.h"
+#include "alice/geo/geo_module.c"
 
-#include "cfdr/cfdr_module.h"
-#include "cfdr/cfdr_module.c"
+#include "alice/cfdr/cfdr_module.h"
+#include "alice/cfdr/cfdr_module.c"
+
+#define ENCAS_IMPLEMENTATION
+#include "cfdr_external/encas.h"
+#include "cfdr_layer.h"
+#include "cfdr_menu.h"
+
+#include "cfdr_layer.c"
+#include "cfdr_menu.c"
 
 Str08 case_file = {};
 
