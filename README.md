@@ -6,6 +6,6 @@ It was developed by Matyas Constans and Horvath Zoltan, in partnership with the 
 # Supported Formats
 
 CFDR currently can visualize the following data formats:
-- (Ensight GOLD)[https://www.scribd.com/document/156786965/Ensight-File-Format-Manual]
-- (VTK: Legacy, and XML variants)[https://docs.vtk.org/en/latest/vtk_file_formats/index.html]
-- (NetCDF)[https://www.unidata.ucar.edu/software/netcdf/]
+- [Ensight GOLD](https://www.scribd.com/document/156786965/Ensight-File-Format-Manual)
+- [VTK: Legacy, and XML variants](https://docs.vtk.org/en/latest/vtk_file_formats/index.html)
+- [NetCDF](https://www.unidata.ucar.edu/software/netcdf/)
