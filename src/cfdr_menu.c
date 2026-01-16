@@ -2,7 +2,6 @@
 // $Last-Modified: "2025-08-14 12:01:16"
 // $Author: Matyas Constans.
 // $Notice: (C) Matyas Constans, Horvath Zoltan 2025 - All Rights Reserved.
-:q
 // $License: You may use, distribute and modify this code under the terms of the MIT license.
 // $Note: CFDR menu bar rendering and update logic.
 

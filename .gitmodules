@@ -1,3 +1,6 @@
 [submodule "alice"]
 	path = alice
 	url = https://github.com/matt-const/alice.git
+[submodule "src/alice"]
+	path = src/alice
+	url = https://github.com/matt-const/alice.git

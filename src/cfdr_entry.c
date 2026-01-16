@@ -1,550 +1,641 @@
-// $File: test.c
-// $Last-Modified: "2025-08-29 11:14:12"
-// $Author: Matyas Constans.
-// $Notice: (C) Matyas Constans, Horvath Zoltan 2025 - All Rights Reserved.
-// $License: You may use, distribute and modify this code under the terms of the MIT license.
-// $Note: Test file.
+#include "core/core_build.h"
+#include "core/core_build.c"
 
-// TODO(cmat):
-// OK - 0. Camera movement.
-// OK - 1. Load FAU 3D model.
-// OK - 1.5. Metal Depth Buffer.
-// OK - 1.75. Variable-based coloring.
-// OK - 2. Animated model in time.
-// - 3. Animation: interpolation over time.
-// - 4. Menu-bar. Time slider.
-// - 5. Vector field.
+#include "base/base_build.h"
+#include "base/base_build.c"
+#include "base/base_test.c"
 
-#include "alice/core/core_module.h"
-#include "alice/core/core_module.c"
+#include "platform/platform_build.h"
+#include "platform/platform_build.c"
 
-#include "alice/gfx/gfx_module.h"
-#include "alice/gfx/gfx_module.c"
+#include "render/render_build.h"
+#include "render/render_build.c"
 
-#include "alice/geo/geo_module.h"
-#include "alice/geo/geo_module.c"
+#include "geometry/geometry_build.h"
+#include "geometry/geometry_build.c"
 
-#include "alice/cfdr/cfdr_module.h"
-#include "alice/cfdr/cfdr_module.c"
+#include "font/font_build.h"
+#include "font/font_build.c"
 
-#define ENCAS_IMPLEMENTATION
-#include "cfdr_external/encas.h"
-#include "cfdr_layer.h"
-#include "cfdr_menu.h"
+#include "graphics/graphics_build.h"
+#include "graphics/graphics_build.c"
 
-#include "cfdr_layer.c"
-#include "cfdr_menu.c"
+#include "ui/ui_build.h"
+#include "ui/ui_build.c"
 
-Str08 case_file = {};
+#include "http/http_wasm.c"
 
-GFX_Font Font  = {};
-Pool Pool_Font = {};
+#include "stl.h"
 
-CFDR_Layer_Text  layer_text  = {};
-CFDR_Layer_Image layer_image = {};
-CFDR_Layer_Graph layer_graph = {};
-CFDR_Menu        menu = {};
+#include "figtree_regular.c"
+#include "font_awesome_7_solid.c"
 
-GPU_Buffer   model_world = {};
-GPU_Pipeline model_pipeline = {};
-F32          model_camera_elevation = .25f * PI_F32;
-F32          model_camera_azimuth = .25f * PI_F32;
-F32          model_camera_radius  = 4.0f;
+U32 fps_at = 0;
+F32 fps_ring[200] = { };
 
-void color_bar(GFX_Font *font, V2 bottom_left, V2 size, Str08 label, V2F range) {
-  // GFX_IM_2D_Push_Rect(bottom_left, size, .color = v4(.5f, .5f, .5f, 1.f));
-  F32 title_height = size.y * .30f;
-  F32 title_border = size.y * .075f;
-  F32 label_height = size.y * .20f;
-  F32 label_border = size.y * 0.05f;
-  F32 bar_height   = size.y - title_height - label_height - title_border - label_border;
-  F32 label_font_height = .75f * label_height;
-  
-  V2 label_from = bottom_left;
-  V2 bar_from   = v2_add(label_from, v2(0, label_height + label_border));
-  V2 title_from = v2_add(bar_from, v2(0, bar_height + title_border));
+#define ICON_FA_PLAY          "\xef\x81\x8b" // U+f04b
+#define ICON_FA_PAUSE         "\xef\x81\x8c" // U+f04c
+#define ICON_FA_FORWARD       "\xef\x81\x8e" // U+f04e
+#define ICON_FA_FORWARD_FAST  "\xef\x81\x90" // U+f050
+#define ICON_FA_FORWARD_STEP  "\xef\x81\x91" // U+f051
+#define ICON_FA_FONT          "\xef\x80\xb1" // U+f031
+#define ICON_FA_EYE           "\xef\x81\xae" // U+f06e
+#define ICON_FA_EYE_SLASH     "\xef\x81\xb0"	// U+f070
 
-  // GFX_IM_2D_Push_Rect(label_from, v2(size.x, label_height), .color = v4(.8f, .5f, .5f, 1.f));
-  // GFX_IM_2D_Push_Rect(title_from, v2(size.x, title_height), .color = v4(.5f, .5f, .8f, 1.f));
+#define ICON_FA_FILE          "\xef\x85\x9b" // U+f15b
+#define ICON_FA_CUBE          "\xef\x86\xb2" // U+f1b2
+#define ICON_FA_CAMERA_RETRO  "\xef\x82\x83"
 
-  Iter_U32(it, 0, 512) {
-    F32 t = (F32)it / (F32)512;
-    V3 hsv = gfx_rgb_from_hsv(v3(t, 1, 1));
-    GFX_IM_2D_Push_Rect(v2_add(bar_from, v2(it * size.x / 512.0f, 0)),
-                        v2(size.x / 512.0f, bar_height), .color = v4(hsv.x, hsv.y, hsv.z, 1));
-  }
-  
-  F32 font_width = gfx_font_text_width(font, label, title_height);
+#define TEST_STR ICON_FA_PLAY "              " ICON_FA_PAUSE "  " ICON_FA_FILE
 
-  GFX_IM_2D_Push_Text(label, &Font, v2(title_from.x + (size.x - font_width) / 2, title_from.y), title_height);
+var_global FO_Font  UI_Font_Text       = { };
+var_global FO_Font  UI_Font_Icon       = { };
+var_global Arena    Permanent_Storage  = { };
 
-  F32 label_width = gfx_font_text_width(font, Str08_Literal("0.00e00"), label_font_height);
-  I32 subdiv      = (I32)(size.x / (label_width * 1.5f));
+var_global B32      context_menu       = 0;
+var_global V2F      context_menu_at    = { };
 
-  Iter_U32(it, 0, subdiv + 1) {
-    F32 x = (size.x / (F32)subdiv) * it;
-    F32 t = (F32)(it) / (F32)(subdiv + 1);
-    
-    char buffer[16];
-    U32 buffer_len = stbsp_snprintf(buffer, 16, "%.2e", (1 - t) * range.x + t * range.y);
-    Str08 label = { .txt = (U08 *)buffer, .len = buffer_len };
-    
-    F32 text_w = gfx_font_text_width(font, label, label_font_height);
-    GFX_IM_2D_Push_Text(label, &Font, v2(label_from.x + x - .5f * text_w, label_from.y), label_font_height);
-    GFX_IM_2D_Push_Rect(v2(label_from.x + x - .5f * Max(1, .05 * bar_height), bar_from.y - .25f * label_height), v2(Max(1, .05 * bar_height), .5f * label_height));
-  }
-}
+Arena        request_arena  = { };
+HTTP_Request request        = { };
 
-typedef struct {
-  GPU_Buffer         vertices;
-  GPU_Buffer         indices;
-  U32                vertex_count;
-  U32                index_count;
-  GPU_Vertex_XCU_3D *vertex_data;
-  Encas_Case        *encas;
-  Encas_MeshArray   *encas_mesh;
-  Encas_ShellParams  encas_shell;
-} CFDR_Shell;
+R_Buffer    index_buffer;
+R_Buffer    vertex_buffer;
+R_Buffer    world_buffer;
+R_Pipeline  pipeline;
 
-Global_Variable CFDR_Shell Model_Shell;
+B32         loaded_model;
+R_Buffer    model_index_buffer;
+R_Buffer    model_vertex_buffer;
+U32         model_index_count;
+R_Pipeline  model_pipeline;
 
-CFDR_Shell cfdr_model_load_shell(void) {
-  CFDR_Shell model = {};
+R_Buffer    slice_index_buffer;
+R_Buffer    slice_vertex_buffer;
+U32         slice_index_count;
+R_Pipeline  slice_pipeline;
 
-  char file_buffer[512] = {};
-  Memory_Copy(file_buffer, case_file.txt, case_file.len)
-  
-  Encas_Case *encas           = Encas_ReadCase(file_buffer);
-  Encas_MeshArray *encas_mesh = Encas_LoadGeometry(encas, 0);
+R_Texture_2D transfer_texture = { };
+B32          hsv_map = 1;
+B32          hsv_map_update = 0;
 
-  Variable_Name_Count = encas->variable->len;
-  Iter_U32(it, 0, encas->variable->len) {
-    Log_Info("%u # Name :: %.*s, Type :: %u",
-             it,
-             encas->variable->elems[it]->description.len,
-             encas->variable->elems[it]->description.buffer,
-             encas->variable->elems[it]->type);
+B32          slice_mode = 0;
 
-    Variable_Name_Array[it] = (Str08) {
-      .txt = encas->variable->elems[it]->description.buffer,
-      .len = encas->variable->elems[it]->description.len
-    };
-
-    Variable_Dim_Array[it] = encas->variable->elems[it]->type == 2 ? 1 : 3;
-  }
-
-  Timestamp_Count = encas->times->elems[0]->number_of_steps;
-  
-  Encas_ShellParams params = {
-    .vbo = 0,
-    .vbo_size = 0,
-    .vbo_orig_idx = 0,
-    .ebo = 0,
-    .ebo_size = 0,
-    .tria_global_idx = 0,
-    .global_ebo_size = 0,
-  };
-
-  F32 *var_vbo = 0;
-  Encas_LoadGeometryShell(encas, encas_mesh, &params);
-
-  Pool work_pool = {};
-  Pool_Init(&work_pool);
-
-  V3 min_bounds = v3(F32_Maximum_Positive, F32_Maximum_Positive, F32_Maximum_Positive);
-  V3 max_bounds = v3(F32_Smallest_Negative, F32_Smallest_Negative, F32_Smallest_Negative);
-
-  Iter_U32(it, 0, params.vbo_size) {
-    V3 X = v3(params.vbo[3*it + 0], params.vbo[3*it+1], params.vbo[3*it+2]);
-    min_bounds = v3(Min(X.x, min_bounds.x), Min(X.y, min_bounds.y), Min(X.z, min_bounds.z));
-    max_bounds = v3(Max(X.x, max_bounds.x), Max(X.y, max_bounds.y), Max(X.z, max_bounds.z));
-  } 
-
-  F32 largest_axis = Max(max_bounds.z - min_bounds.z, Max(max_bounds.x - min_bounds.x, max_bounds.y - min_bounds.y));
-  
-  GPU_Vertex_XCU_3D *model_vertex_data = Pool_Push_Array(&work_pool, GPU_Vertex_XCU_3D, params.ebo_size);
-  Iter_U32(it, 0, params.ebo_size) {
-
-    V3 X_src = v3(params.vbo[3 * params.ebo[it] + 0], params.vbo[3 * params.ebo[it]+1], params.vbo[3 * params.ebo[it]+2]);
-      
-    V3 X = {};
-    X.x = X_src.x - min_bounds.x + .5f * (largest_axis - (max_bounds.x - min_bounds.x));
-    X.y = X_src.y - min_bounds.y + .5f * (largest_axis - (max_bounds.y - min_bounds.y));
-    X.z = X_src.z - min_bounds.z + .5f * (largest_axis - (max_bounds.z - min_bounds.z));
-
-    X.x /= largest_axis;
-    X.y /= largest_axis;
-    X.z /= largest_axis;
-       
-    X.x = X.x * 2.f - 1.f;
-    X.y = X.y * 2.f - 1.f;
-    X.z = X.z * 2.f - 1.f;
-    
-    model_vertex_data[it] = (GPU_Vertex_XCU_3D) {
-      .X = v3(X.x, X.z, X.y),
-      .C = 0xFF000000,
-      .U = v2(0, 0),
-      .Texture_Slot = 0,
-    };
-  }
-
-  U32 *model_index_data = Pool_Push_Array(&work_pool, U32, params.ebo_size);
-  Iter_U32(it, 0, params.ebo_size) model_index_data[it] = it;
-  
-  model.vertices = gpu_buffer_allocate(&(GPU_Buffer_Config) { .capacity = sizeof(GPU_Vertex_XCU_3D) * params.ebo_size, .dynamic = 0 });
-  gpu_buffer_download(&model.vertices, 0, sizeof(GPU_Vertex_XCU_3D) * params.vbo_size, model_vertex_data);
-
-  model.indices = gpu_buffer_allocate(&(GPU_Buffer_Config) { .capacity = sizeof(U32) * params.ebo_size, .dynamic = 0 });
-  gpu_buffer_download(&model.indices, 0, sizeof(U32) * params.ebo_size, model_index_data);
-
-  model.index_count = params.ebo_size;
-  model.vertex_count = params.ebo_size; // params.vbo_size;
-  model.encas = encas;
-  model.encas_mesh = encas_mesh;
-  model.encas_shell = params;
-  model.vertex_data = model_vertex_data;
-  
-  return model;
-}
-
-F32 Var_Min = 0;
-F32 Var_Max = 0;
-
-void cfdr_model_recolor_shell(CFDR_Shell *shell, U32 var_idx, U32 time_idx) {
-  F32 *var_vbo = 0;
-  //Encas_LoadVariableOnShell_Vertices(shell->encas, shell->encas_mesh, var_idx, time_idx, &shell->encas_shell, &var_vbo);
-  Encas_LoadVariableOnShell_Elements(shell->encas, shell->encas_mesh, var_idx, time_idx, &shell->encas_shell, &var_vbo);
-  
-  F32 scalar_min = F32_Maximum_Positive;
-  F32 scalar_max = F32_Smallest_Negative;
-
-
-  U32 tri_count = shell->vertex_count / 3;
-  
-  Iter_U32(it, 0, tri_count) {
-    F32 x = var_vbo[it];
-
-    if (Variable_Dim_Array[var_idx] == 3) {
-      x = square_root(var_vbo[it]                 * var_vbo[it] +
-                      var_vbo[it + tri_count]     * var_vbo[it + tri_count] +
-                      var_vbo[it + 2 * tri_count] * var_vbo[it + 2 * tri_count]);
-    }
-    
-    
-    scalar_min = Min(x, scalar_min);
-    scalar_max = Max(x, scalar_max);
-  }
-
-  Var_Min = scalar_min;
-  Var_Max = scalar_max;
-  
-  Iter_U32(it, 0, shell->vertex_count) {
-    F32 x = var_vbo[it / 3];
-    if (Variable_Dim_Array[var_idx] == 3) {
-      x = square_root(var_vbo[it/3]                 * var_vbo[it/3] +
-                      var_vbo[it/3 + tri_count]     * var_vbo[it/3 + tri_count] +
-                      var_vbo[it/3 + 2 * tri_count] * var_vbo[it/3 + 2 * tri_count]);
-    }
-    
-    F32 normalized_scalar = (x - scalar_min) / (scalar_max - scalar_min);
-    GFX_RGB C = gfx_rgb_from_hsv(v3(normalized_scalar, 1.f, 1.f));
-    shell->vertex_data[it].C = gfx_abgr_u32_from_rgba_f128(v4(C.r, C.g, C.b, 1.f));
-  }
- 
-  ENCAS_FREE(var_vbo);
-
-  gpu_buffer_download(&shell->vertices, 0, sizeof(GPU_Vertex_XCU_3D) * shell->vertex_count, shell->vertex_data);
-}
+F32 slice_timer = 0;
 
 #if 0
+var_global Str files[] = {
+  str_lit("data/velocity_0.vol32"),
+  str_lit("data/velocity_1.vol32"),
+  str_lit("data/velocity_2.vol32"),
+  str_lit("data/velocity_3.vol32"),
+  str_lit("data/velocity_4.vol32"),
+  str_lit("data/velocity_5.vol32"),
+  str_lit("data/velocity_6.vol32"),
 
-void model_load(void) {
-  Encas_Case *encas           = Encas_ReadCase("export_2/combined.case");
-  Encas_MeshArray *encas_mesh = Encas_LoadGeometry(encas, 0);
+  str_lit("data/velocity_7.vol32"),
+  str_lit("data/velocity_8.vol32"),
+  str_lit("data/velocity_9.vol32"),
+  str_lit("data/velocity_10.vol32"),
+  str_lit("data/velocity_11.vol32"),
 
-  Iter_U32(it, 0, encas->variable->len) {
-    Log_Info("%u # Name :: %.*s, Type :: %u",
-             it,
-             encas->variable->elems[it]->description.len,
-             encas->variable->elems[it]->description.buffer,
-             encas->variable->elems[it]->type);
-  }
+  str_lit("data/velocity_12.vol32"),
+  str_lit("data/velocity_13.vol32"),
+  str_lit("data/velocity_14.vol32"),
+  str_lit("data/velocity_15.vol32"),
+  str_lit("data/velocity_16.vol32"),
+  str_lit("data/velocity_17.vol32"),
+  str_lit("data/velocity_18.vol32"),
+  str_lit("data/velocity_19.vol32"),
+  str_lit("data/velocity_20.vol32"),
+  str_lit("data/velocity_21.vol32"),
+  str_lit("data/velocity_22.vol32"),
 
-  U32 last_time_index = encas->times->elems[0]->number_of_steps - 1;
-  Iter_U32(it, 0, encas->times->elems[0]->number_of_steps) {
-    Log_Info("Time :: %f", encas->times->elems[0]->time_values[it]);
-  }
-  
-  Encas_ShellParams params = {
-    .vbo = 0,
-    .vbo_size = 0,
-    .vbo_orig_idx = 0,
-    .ebo = 0,
-    .ebo_size = 0,
-    .tria_global_idx = 0,
-    .global_ebo_size = 0,
-  };
+  str_lit("data/velocity_23.vol32"),
+  str_lit("data/velocity_24.vol32"),
+};
+#else
+var_global Str files[] = {
+  str_lit("data_small/velocity_0.vol32"),
+  str_lit("data_small/velocity_1.vol32"),
+  str_lit("data_small/velocity_2.vol32"),
+  str_lit("data_small/velocity_3.vol32"),
+  str_lit("data_small/velocity_4.vol32"),
+  str_lit("data_small/velocity_5.vol32"),
+  str_lit("data_small/velocity_6.vol32"),
 
-  char var_buffer[512] = {};
-  snprintf(var_buffer, 511, "%.*s",
-           encas->variable->elems[0]->description.len,
-           encas->variable->elems[0]->description.buffer);
+  str_lit("data_small/velocity_7.vol32"),
+  str_lit("data_small/velocity_8.vol32"),
+  str_lit("data_small/velocity_9.vol32"),
+  str_lit("data_small/velocity_10.vol32"),
+  str_lit("data_small/velocity_11.vol32"),
 
-  F32 *var_vbo = 0;
-  Encas_LoadGeometryShell(encas, encas_mesh, &params);
-  Encas_LoadVariableOnShell_Vertices(encas, encas_mesh, 0, last_time_index, &params, &var_vbo); 
-
-  Pool work_pool = {};
-  Pool_Init(&work_pool);
-
-  V3 min_bounds = v3(F32_Maximum_Positive, F32_Maximum_Positive, F32_Maximum_Positive);
-  V3 max_bounds = v3(F32_Smallest_Negative, F32_Smallest_Negative, F32_Smallest_Negative);
-  Iter_U32(it, 0, params.vbo_size) {
-    V3 X = v3(params.vbo[3*it + 0], params.vbo[3*it+1], params.vbo[3*it+2]);
-    min_bounds = v3(Min(X.x, min_bounds.x), Min(X.y, min_bounds.y), Min(X.z, min_bounds.z));
-    max_bounds = v3(Max(X.x, max_bounds.x), Max(X.y, max_bounds.y), Max(X.z, max_bounds.z));
-  } 
-
-
-  F32 scalar_min = F32_Maximum_Positive;
-  F32 scalar_max = F32_Smallest_Negative;
-
-  Iter_U32(it, 0, params.vbo_size) {
-    scalar_min = Min(var_vbo[it], scalar_min);
-    scalar_max = Max(var_vbo[it], scalar_max);
-  }
-  
-  Log_Info("Bounds (%f %f %f), (%f %f %f)", min_bounds.x, min_bounds.y, min_bounds.z,
-           max_bounds.x, max_bounds.y, max_bounds.z);
-
-  F32 largest_axis = Max(max_bounds.z - min_bounds.z, Max(max_bounds.x - min_bounds.x, max_bounds.y - min_bounds.y));
-  
-  GPU_Vertex_XCU_3D *model_vertex_data = Pool_Push_Array(&work_pool, GPU_Vertex_XCU_3D, params.vbo_size);
-  Iter_U32(it, 0, params.vbo_size) {
-    V3 X_src = v3(params.vbo[3*it + 0], params.vbo[3*it+1], params.vbo[3*it+2]);
-
-    V3 X = {};
-    X.x = ((X_src.x - min_bounds.x) / largest_axis * 2.f) - 1.f;
-    X.z = ((X_src.y - min_bounds.y) / largest_axis * 2.f) - 1.f;
-    X.y = ((X_src.z - min_bounds.z) / largest_axis * 2.f) - 1.f;
-
-    // Log_Info("%f, %f, %f", X.x, X.y, X.z);
-    F32 normalized_scalar = (var_vbo[it] - scalar_min) / (scalar_max - scalar_min);
-    GFX_RGB C = gfx_rgb_from_hsv(v3(normalized_scalar, 1.f, 1.f));
-
-    
-    model_vertex_data[it] = (GPU_Vertex_XCU_3D) {
-
-      .X = X,
-      .C = gfx_abgr_u32_from_rgba_f128(v4(C.r, C.g, C.b, 1.f)),
-      .U = v2(0, 0),
-      .Texture_Slot = 0,
-    };
-  }
-  
-  model_vertices = gpu_buffer_allocate(&(GPU_Buffer_Config) { .capacity = sizeof(GPU_Vertex_XCU_3D) * params.vbo_size, .dynamic = 0 });
-  gpu_buffer_download(&model_vertices, 0, sizeof(GPU_Vertex_XCU_3D) * params.vbo_size, model_vertex_data);
-
-  model_indices = gpu_buffer_allocate(&(GPU_Buffer_Config) { .capacity = sizeof(U32) * params.ebo_size, .dynamic = 0 });
-  gpu_buffer_download(&model_indices, 0, sizeof(U32) * params.ebo_size, params.ebo);
-
-  model_index_count = params.ebo_size;
-}
-
+};
 #endif
 
-void update_and_render(void *user_data) {
-  gfx_im_2D_frame_begin();
+I32          volume_at                          = 0;
+Arena        volume_arenas[sarray_len(files)]   = { };
+U32          volume_loaded[sarray_len(files)]   = { };
+R_Texture_3D volume_textures[sarray_len(files)] = { };
+HTTP_Request volume_requests[sarray_len(files)] = { };
+
+typedef struct Camera {
+  V3F look_at;
+  F32 radius_m;
+  F32 theta_deg;
+  F32 phi_deg;
+
+  F32 radius_m_t;
+  F32 theta_deg_t;
+  F32 phi_deg_t;
+
+  F32 near_m;
+  F32 far_m;
+  F32 fov_deg;
+
+  B32 orthographic;
+  F32 orthographic_t;
+
+  F32 computed_aspect_ratio;
+  V3F computed_position_m;
+} Camera;
+
+var_global Camera camera = {
+  .look_at      = { 0, 0, 0 },
+  .radius_m     = 10.f,
+  .theta_deg    = 45.f,
+  .phi_deg      = 45.f,
+  .near_m       = 0.25f,
+  .far_m        = 100.f,
+  .fov_deg      = 60.f,
+  .orthographic = 0,
+};
+
+fn_internal M4F camera_view(Camera *camera) {
+  M4F view = m4f_hom_look_at(v3f(0, 1, 0), camera->computed_position_m, camera->look_at);
+  return view;
+}
+
+fn_internal void camera_update(Camera *camera, R2F draw_region) {
+  F32 frame_delta = pl_display()->frame_delta;
   
-  Local_Persist B32 init = 0;
-  if (!init) {
-    init = 1;
-    Pool_Init(&Pool_Font);
-    Font = gfx_font_load(&Pool_Font, "noto_serif.png", "noto_serif.bin");
+  camera->radius_m = f32_clamp(camera->radius_m, 3.f, 50.f);
+  camera->phi_deg  = f32_clamp(camera->phi_deg,  0.01f, 179.99f);
 
-    // model_load();
-    Model_Shell = cfdr_model_load_shell();
-    
-    model_world = gpu_buffer_allocate(&(GPU_Buffer_Config) { .capacity = sizeof(GPU_Constant_Buffer_World_3D), .dynamic = 0 });
-    
-    model_pipeline = gpu_pipeline_create(&(GPU_Pipeline_Config) {
-        .shader = GPU_Shader_Flat_3D,
-        .format = GPU_Vertex_Format_XCU_3D,
-      });
-    
-    layer_text = (CFDR_Layer_Text) {
-      .font = &Font,
-      .string = Str08_Literal("Strasbourg Demo - t = 130"),
-      .underline = 1,
-    };
+  camera->radius_m_t  = f32_exp_smoothing(camera->radius_m_t,     camera->radius_m,     frame_delta * 15.f);
+  camera->theta_deg_t = f32_exp_smoothing(camera->theta_deg_t,    camera->theta_deg,    frame_delta * 15.f);
+  camera->phi_deg_t   = f32_exp_smoothing(camera->phi_deg_t,      camera->phi_deg,      frame_delta * 15.f);
 
-    stbi_set_flip_vertically_on_load(1);
-    I32 image_width, image_height;
-    U08 *image_data = stbi_load("logo.png", &image_width, &image_height, 0, 4);
-    GPU_Texture image_texture = gpu_texture_allocate(&(GPU_Texture_Config) {
-      .format = GPU_Texture_Format_RGBA_U08_Normalized,
-      .width  = image_width,
-      .height = image_height,
-    });
+  camera->orthographic_t  = f32_exp_smoothing(camera->orthographic_t, camera->orthographic, frame_delta * 15.f);
 
-    gpu_texture_download(&image_texture, image_data);
-    layer_image = (CFDR_Layer_Image) {
-      .texture = image_texture,
-      .width   = image_width,
-      .height  = image_height,
-    };
+  F32 theta_rad = f32_radians_from_degrees(camera->theta_deg_t);
+  F32 phi_rad   = f32_radians_from_degrees(camera->phi_deg_t);
 
-    layer_graph = (CFDR_Layer_Graph) {
-      .title_font = &Font,
-      .label_font = &Font,
+  camera->computed_aspect_ratio = (draw_region.x1 - draw_region.x0) / (draw_region.y1 - draw_region.y0);
+  camera->computed_position_m = v3f_mul(camera->radius_m_t, v3f(f32_cos(theta_rad) * f32_sin(phi_rad),
+                                        f32_cos(phi_rad),
+                                        f32_sin(theta_rad) * f32_sin(phi_rad)));
 
-      .title = Str08_Literal("FitzHugh–Nagumo Model"),
-      .x_axis_label = Str08_Literal("Nodes"),
-      
-      .aspect_ratio = 1.5f,
-    };
+}
 
+fn_internal M4F camera_projection(Camera *camera) {
+  F32 fov_rad = f32_radians_from_degrees(camera->fov_deg);
 
-    cfdr_menu_init(&menu, &Font);
-  }
-
-  Local_Persist B32 cache_init = 0;
-  Local_Persist U32 cache_var  = 0;
-  Local_Persist U32 cache_time = 0;
+  M4F projection = { };
+  M4F perspective = m4f_hom_perspective(camera->computed_aspect_ratio, fov_rad, camera->near_m, camera->far_m);
  
-  if (!cache_init) {
-    cache_init = 1;
-    cache_var =  Surface_Var_IDX_Array[0];
-    cache_time = Timestamp_At;
-    cfdr_model_recolor_shell(&Model_Shell, Surface_Var_IDX_Array[0], 130);
+  F32 h        = 2.f * camera->radius_m_t * f32_tan(.5f * fov_rad);
+  F32 w        = h * camera->computed_aspect_ratio;
+
+  V2F bottom_left = v2f(-.5f * w, -.5f * h);
+  V2F top_right   = v2f(+.5f * w, +.5f * h);
+  M4F orthographic = m4f_hom_orthographic(bottom_left, top_right, 0, 0);
+  
+  projection = m4f_lerp(camera->orthographic_t, perspective, orthographic);
+  return projection;
+}
+
+fn_internal void draw_viewport(UI_Response *response, R2F draw_region, void *user_data) {
+  V2F position = draw_region.min;
+  V2F size     = v2f_sub(draw_region.max, draw_region.min);
+
+  g2_draw_rect(position, size, .color = v4f(.05f, .05f, .05f, 1));
+  g2_submit_draw();
+
+  if (response->down) {
+    camera.theta_deg += 10.f * pl_display()->frame_delta * pl_input()->mouse.position_dt.x;
+    camera.phi_deg   += 10.f * pl_display()->frame_delta * pl_input()->mouse.position_dt.y;
   }
 
-  if (cache_var  != Surface_Var_IDX_Array[0] || cache_time != Timestamp_At) {
-    cache_var =  Surface_Var_IDX_Array[0];
-    cache_time = Timestamp_At;
-    cfdr_model_recolor_shell(&Model_Shell, Surface_Var_IDX_Array[0], 130);
-  }
-  
-  
-  GPU_Command_Draw draw = {
-    .index_count           = Model_Shell.index_count,
-    .index_buffer_offset   = 0,
-    .vertex_buffer         = Model_Shell.vertices,
-    .index_buffer          = Model_Shell.indices,
-    .pipeline              = model_pipeline,
-    .texture_slots         = { },
-    .sampler_slots         = { },
-    .constant_buffer_count = 1,
-    .constant_buffers      = model_world,
-    .depth_testing         = 1,
+  camera.radius_m += pl_input()->mouse.scroll_dt.y * .025f;
+
+  camera_update(&camera, draw_region);
+
+  M4F view = camera_view(&camera);
+  M4F projection = camera_projection(&camera);
+  M4F world_view_projection = m4f_mul(view, projection);
+
+  R_Constant_Buffer_World_3D test_world = {
+    .World_View_Projection = world_view_projection,
+    .Eye_Position          = camera.computed_position_m,
   };
 
-  Iter_U32(it, 0, GPU_Texture_Slot_Count) { draw.texture_slots[it] = GPU_Texture_White;        }
-  Iter_U32(it, 0, GPU_Sampler_Slot_Count) { draw.sampler_slots[it] = GPU_Sampler_Linear_Clamp; }
+  world_buffer = r_buffer_allocate(sizeof(R_Constant_Buffer_World_3D), R_Buffer_Mode_Static);
+  r_buffer_download(world_buffer, 0, sizeof(test_world), &test_world);
 
-  if (platform_input()->mouse.right.down) {
-    model_camera_azimuth   -= .005f * platform_input()->mouse.position_delta.x;
-    model_camera_elevation += .005f * platform_input()->mouse.position_delta.y;
-  }
-
-  model_camera_radius -= .1f * platform_input()->mouse.scroll_delta.y;
-  model_camera_radius  = Clamp(model_camera_radius, 0.5f, 8.f);
-  
-  model_camera_elevation = Clamp(model_camera_elevation, .1f, PI_F32 - .1f);
-  
-  V3 camera_position = v3(model_camera_radius * cosf(model_camera_azimuth) * sinf(model_camera_elevation),
-                          model_camera_radius * cosf(model_camera_elevation),
-                          model_camera_radius * sinf(model_camera_azimuth) * sinf(model_camera_elevation));
-  V3 camera_look_at  = v3(0, 0, 0);  
-  V3 camera_up       = v3(0, 1, 0);
-  
-  V3 camera_basis_z = v3_noz(v3_sub(camera_look_at, camera_position));
-  V3 camera_basis_x = v3_noz(v3_cross(camera_up, camera_basis_z));
-  V3 camera_basis_y = v3_noz(v3_cross(camera_basis_z, camera_basis_x));
-  
-  M4 model_view       = m4_look_at(camera_basis_x, camera_basis_y, camera_basis_z, camera_position); 
-  M4 model_projection = m4_projection(degrees_to_radians(60.f), platform_input()->display.aspect_ratio, .001f, 10.f);
-  
-  GPU_Constant_Buffer_World_3D world_3D = {
-    .World_View_Projection = m4_transpose(m4_mul(model_view, model_projection)),
-    .Eye_Position          = v3(0, 0, 0),
-  };
-  
-  gpu_buffer_download(&model_world, 0, sizeof(world_3D), &world_3D);
-  gpu_command_draw(&draw);
-
- 
 #if 1
-  
-  CFDR_Layer layer_array[] = {
-    (CFDR_Layer) {
-      .type       = CFDR_Layer_Type_Text,
-      .layout_x   = CFDR_Layer_Layout_Center,
-      .layout_y   = CFDR_Layer_Layout_Top,
-      .margin_x   = { .metric = CFDR_Layer_Scale_Metric_Display_Ratio, .value = 1.0 },
-      .margin_y   = { .metric = CFDR_Layer_Scale_Metric_Display_Ratio, .value = 1.0 },
-      .scale      = { .metric = CFDR_Layer_Scale_Metric_Display_Ratio, .value = 6.0 },
-      .visible    = 1,
-      .color      = v4(.98f, .98f, .8f, 1),
-      .layer_text = &layer_text,
-    },
 
-    
-    (CFDR_Layer) {
-      .type       = CFDR_Layer_Type_Image,
-      .layout_x   = CFDR_Layer_Layout_Left,
-      .layout_y   = CFDR_Layer_Layout_Bottom,
-      .margin_x   = { .metric = CFDR_Layer_Scale_Metric_Display_Ratio, .value = 1.0 },
-      .margin_y   = { .metric = CFDR_Layer_Scale_Metric_Display_Ratio, .value = 1.0 },
-      .scale      = { .metric = CFDR_Layer_Scale_Metric_Display_Ratio, .value = 8.0 },
-      .visible    = 1,
-      .color      = v4(1, 1, 1, 1),
-      .layer_image = &layer_image,
-    },
+  R2I pixel_draw_region = r2i(draw_region.x0, draw_region.y0, draw_region.x1, draw_region.y1);
+ 
+  R_Command_Draw draw_grid = {
+    .constant_buffer  = world_buffer,
+    .vertex_buffer    = vertex_buffer,
+    .index_buffer     = index_buffer,
+    .pipeline         = pipeline,
+    .texture          = R_Texture_2D_White,
+    .texture_volume   = R_Texture_3D_White,
+    .sampler          = R_Sampler_Linear_Clamp,
 
-    #if 0
-    (CFDR_Layer) {
-      .type       = CFDR_Layer_Type_Graph,
-      .layout_x   = CFDR_Layer_Layout_Center,
-      .layout_y   = CFDR_Layer_Layout_Center,
-      .margin_x   = { .metric = CFDR_Layer_Scale_Metric_Display_Ratio, .value = 1.0 },
-      .margin_y   = { .metric = CFDR_Layer_Scale_Metric_Display_Ratio, .value = 1.0 },
-      .scale      = { .metric = CFDR_Layer_Scale_Metric_Display_Ratio, .value = 80.0 },
-      .visible    = 1,
-      .color      = v4(1, 1, 1, 1),
-      .layer_graph = &layer_graph,
-    },
-    #endif
+    .draw_index_count = 6,
+    .draw_index_offset = 0,
 
+    .depth_test        = 1,
+    .draw_region       = pixel_draw_region,
+    .clip_region       = pixel_draw_region,
   };
 
-  V2 color_bar_size = v2(4, 1);
-  color_bar_size.x *= 0.1f * platform_input()->display.size.y;
-  color_bar_size.y *= 0.1f * platform_input()->display.size.y;
-  color_bar(&Font, v2(platform_input()->display.size.x - color_bar_size.x - 100, 25), color_bar_size, Variable_Name_Array[Surface_Var_IDX_Array[0]], v2(Var_Min, Var_Max));
-
-  F32 menu_px     = 60;
-  F32 timeline_px = 60;
-  
-  R2 content_region  = { .min = v2(0, 0), .max = v2(platform_input()->display.size.x, platform_input()->display.size.y - menu_px - timeline_px) };
-  R2 timeline_region = { .min = v2(0, content_region.max.y), .max = v2(platform_input()->display.size.x, platform_input()->display.size.y - menu_px) };
-  R2 menu_region     = { .min = v2(0, timeline_region.max.y), .max = v2(platform_input()->display.size.x, platform_input()->display.size.y ) };
-  
-  Iter_U32(it, 0, Stack_Array_Size(layer_array)) {
-    cfdr_layer_render(&layer_array[it], content_region);
+  if (!slice_mode) {
+    r_command_push_draw(&draw_grid);
   }
 
-  Local_Persist F32 time = 0;
-  cfdr_timeline_render(&Font, &time, v2(0, 11), timeline_region);
-  cfdr_menu_render(&menu, menu_region);
-  
-  gfx_im_2D_frame_end();
+  if (!slice_mode) {
+    if (loaded_model && volume_loaded[volume_at]) {
+      R_Command_Draw draw_model = {
+        .constant_buffer  = world_buffer,
+        .vertex_buffer    = model_vertex_buffer,
+        .index_buffer     = model_index_buffer,
+        .pipeline         = model_pipeline,
+        .texture          = transfer_texture,
+        .texture_volume   = volume_textures[volume_at],
+        .sampler          = R_Sampler_Linear_Clamp,
+
+        .draw_index_count  = model_index_count,
+        .draw_index_offset = 0,
+
+        .depth_test        = 1,
+        .draw_region       = pixel_draw_region,
+        .clip_region       = pixel_draw_region,
+      };
+
+      r_command_push_draw(&draw_model);
+    }
+  } else {
+    if (volume_loaded[volume_at]) {
+      R_Command_Draw draw_model = {
+        .constant_buffer   = world_buffer,
+        .vertex_buffer     = slice_vertex_buffer,
+        .index_buffer      = slice_index_buffer,
+        .pipeline          = slice_pipeline,
+        .texture           = transfer_texture,
+        .texture_volume    = volume_textures[volume_at],
+        .sampler           = R_Sampler_Linear_Clamp,
+
+        .draw_index_count  = slice_index_count,
+        .draw_index_offset = 0,
+
+        .depth_test        = 1,
+        .draw_region       = pixel_draw_region,
+        .clip_region       = pixel_draw_region,
+      };
+
+      r_command_push_draw(&draw_model);
+    }
+  }
+
+
 #endif
 }
 
-void platform_entry_point(Platform_Entry_Config *entry_config, Array_Str08 *command_line) {
-  entry_config->next_frame = update_and_render;
-  logger_push_hook(Logger_Default_Write_Hook, Logger_Default_Format_Hook);
+fn_internal void next_frame(B32 first_frame, PL_Render_Context *render_context) {
+  If_Unlikely(first_frame) {
+    r_init(render_context);
+    g2_init();
 
-  case_file = command_line->dat[1]; 
+    Codepoint icon_codepoints[] = {
+      codepoint_from_utf8(str_lit(ICON_FA_FILE), 0),
+      codepoint_from_utf8(str_lit(ICON_FA_PAUSE), 0),
+      codepoint_from_utf8(str_lit(ICON_FA_PLAY), 0),
+      codepoint_from_utf8(str_lit(ICON_FA_CUBE), 0),
+      codepoint_from_utf8(str_lit(ICON_FA_FORWARD), 0),
+      codepoint_from_utf8(str_lit(ICON_FA_FORWARD_FAST), 0),
+      codepoint_from_utf8(str_lit(ICON_FA_FORWARD_STEP), 0),
+      codepoint_from_utf8(str_lit(ICON_FA_FONT), 0),
+      codepoint_from_utf8(str_lit(ICON_FA_EYE), 0),
+      codepoint_from_utf8(str_lit(ICON_FA_EYE_SLASH), 0),
+      codepoint_from_utf8(str_lit(ICON_FA_CAMERA_RETRO), 0),
+    };
+
+    // TODO(cmat): Should update dynamically with display resize.
+    U32 font_size = 0;
+    if (pl_display()->resolution.y <= 1080) {
+      font_size = 20;
+    } else if (pl_display()->resolution.y <= 1400) {
+      font_size = 26;
+    } else {
+      font_size = 32;
+    }
+
+    fo_font_init(&UI_Font_Text, &Permanent_Storage,
+                 str(figtree_regular_ttf_len, figtree_regular_ttf),
+                 font_size, v2_u16(512, 512), Codepoints_ASCII);
+
+    fo_font_init(&UI_Font_Icon, &Permanent_Storage,
+                 str(Font_Awesome_7_Free_Solid_900_otf_len, Font_Awesome_7_Free_Solid_900_otf),
+                 font_size, v2_u16(512, 512), array_from_sarray(Array_Codepoint, icon_codepoints));
+
+    ui_init(&UI_Font_Text);
+
+    arena_init(&request_arena);
+    http_request_send(&request,        &request_arena, str_lit("cube.stl"));
+
+    For_U32(it, sarray_len(volume_requests)) {
+      arena_init(&volume_arenas[it]);
+      http_request_send(volume_requests + it, &volume_arenas[it], files[it]);
+    }
+
+    F32 scale = 1000.0f;
+    F32 vmin = -1.f * scale;
+    F32 vmax = +1.f * scale;
+
+    R_Vertex_XUC_3D test_vertices[] = {
+      { .X = v3f(vmin, 0, vmin), .U = v2f(0.f, 0.f),      .C = abgr_u32_from_rgba_premul(v4f(1.f, 0.f, 0.f, 1.f)), },
+      { .X = v3f(vmax, 0, vmin), .U = v2f(scale, 0.f),    .C = abgr_u32_from_rgba_premul(v4f(1.f, 1.f, 0.f, 1.f)), },
+      { .X = v3f(vmax, 0, vmax), .U = v2f(scale, scale),  .C = abgr_u32_from_rgba_premul(v4f(1.f, 0.f, 1.f, 1.f)), },
+      { .X = v3f(vmin, 0, vmax), .U = v2f(0.f, scale),    .C = abgr_u32_from_rgba_premul(v4f(1.f, 1.f, 1.f, 1.f)), },
+    };
+
+    U32 test_indices[] = { 0, 2, 1, 0, 3, 2 };
+
+    pipeline       = r_pipeline_create(R_Shader_Grid_3D, &R_Vertex_Format_XUC_3D, 0);
+    model_pipeline = r_pipeline_create(R_Shader_DVR_3D,  &R_Vertex_Format_XUC_3D, 1);
+    slice_pipeline = r_pipeline_create(R_Shader_SLI_3D,  &R_Vertex_Format_XUC_3D, 1);
+
+    vertex_buffer = r_buffer_allocate(sizeof(test_vertices), R_Buffer_Mode_Static);
+    r_buffer_download(vertex_buffer, 0, sizeof(test_vertices), test_vertices);
+
+    index_buffer = r_buffer_allocate(sizeof(test_indices), R_Buffer_Mode_Static);
+    r_buffer_download(index_buffer, 0, sizeof(test_indices), test_indices);
+
+    transfer_texture = r_texture_2D_allocate(R_Texture_Format_RGBA_U08_Normalized, 1024, 1);
+    hsv_map_update = 1;
+
+
+    slice_index_count = 6;
+ 
+    U32 slice_indices[] = { 0, 2, 1, 0, 3, 2 };
+    R_Vertex_XUC_3D slice_vertices[] = {
+      { .X = v3f(-1, 0, -1), .U = v2f(0.f, 0.f),  .C = abgr_u32_from_rgba_premul(v4f(1.f, 1.f, 1.f, 1.f)), },
+      { .X = v3f(+1, 0, -1), .U = v2f(1.f, 0.f),  .C = abgr_u32_from_rgba_premul(v4f(1.f, 1.f, 1.f, 1.f)), },
+      { .X = v3f(+1, 0, +1), .U = v2f(1.f, 1.f),  .C = abgr_u32_from_rgba_premul(v4f(1.f, 1.f, 1.f, 1.f)), },
+      { .X = v3f(-1, 0, +1), .U = v2f(0.f, 1.f),  .C = abgr_u32_from_rgba_premul(v4f(1.f, 1.f, 1.f, 1.f)), },
+    };
+ 
+    slice_vertex_buffer = r_buffer_allocate(sizeof(slice_vertices), R_Buffer_Mode_Static);
+    r_buffer_download(slice_vertex_buffer, 0, sizeof(slice_vertices), slice_vertices);
+
+    slice_index_buffer = r_buffer_allocate(sizeof(slice_indices), R_Buffer_Mode_Static);
+    r_buffer_download(slice_index_buffer, 0, sizeof(slice_indices), slice_indices);
+  }
+
+  slice_timer += 2.f * pl_display()->frame_delta;
+  F32 slice_height = f32_sin(slice_timer);
+  R_Vertex_XUC_3D slice_vertices[] = {
+    { .X = v3f(-1, slice_height, -1), .U = v2f(0.f, 0.f),  .C = abgr_u32_from_rgba_premul(v4f(1.f, 1.f, 1.f, 1.f)), },
+    { .X = v3f(+1, slice_height, -1), .U = v2f(1.f, 0.f),  .C = abgr_u32_from_rgba_premul(v4f(1.f, 1.f, 1.f, 1.f)), },
+    { .X = v3f(+1, slice_height, +1), .U = v2f(1.f, 1.f),  .C = abgr_u32_from_rgba_premul(v4f(1.f, 1.f, 1.f, 1.f)), },
+    { .X = v3f(-1, slice_height, +1), .U = v2f(0.f, 1.f),  .C = abgr_u32_from_rgba_premul(v4f(1.f, 1.f, 1.f, 1.f)), },
+  };
+
+  r_buffer_download(slice_vertex_buffer, 0, sizeof(slice_vertices), slice_vertices);
+
+  if (!loaded_model && request.status == HTTP_Status_Done) {
+    loaded_model = 1;
+
+    U32 tri_count = 0;
+    R_Vertex_XUC_3D *vertices = stl_parse_binary(&request_arena, request.bytes_total, request.bytes_data, &tri_count);
+    log_info("Loaded STL: %u triangles", tri_count);
+
+    model_vertex_buffer = r_buffer_allocate(3 * sizeof(R_Vertex_XUC_3D) * tri_count, R_Buffer_Mode_Static);
+    r_buffer_download(model_vertex_buffer, 0, 3 * sizeof(R_Vertex_XUC_3D) * tri_count, vertices);
+
+    U32 *indices = (U32 *)arena_push_size(&request_arena, 3 * sizeof(U32) * tri_count);
+    For_U32 (it, 3 * tri_count) {
+      indices[it] = it;
+    }
+
+    model_index_buffer = r_buffer_allocate(3 * sizeof(U32) * tri_count, R_Buffer_Mode_Static);
+    model_index_count  = 3 * tri_count;
+    r_buffer_download(model_index_buffer, 0, 3 * sizeof(U32) * tri_count, indices);
+  }
+
+  if (!volume_loaded[volume_at] && volume_requests[volume_at].status == HTTP_Status_Done) {
+    volume_loaded[volume_at] = 1;
+
+    Scratch scratch = { };
+    Scratch_Scope(&scratch, 0) {
+      U08 *data_view = volume_requests[volume_at].bytes_data;
+
+      U32 X = *(U32 *)(data_view); data_view += sizeof(U32);
+      U32 Y = *(U32 *)(data_view); data_view += sizeof(U32);
+      U32 Z = *(U32 *)(data_view); data_view += sizeof(U32);
+
+      log_info("Voxel Dimensions: %u %u %u", X, Y, Z);
+      U32 bytes_total = X * Y * Z * sizeof(F32);
+      log_info("Expected: %u, Got: %u", bytes_total + sizeof(U32) * 3, volume_requests[volume_at].bytes_total);
+
+      F32 min_range = f32_largest_positive;
+      F32 max_range = f32_largest_negative;
+
+      F32 *data = (F32 *)data_view;
+      For_U32(it, X * Y * Z) {
+        min_range = f32_min(min_range, data[it]);
+        max_range = f32_max(max_range, data[it]);
+      }
+
+      log_info("min: %f, max: %f", min_range, max_range);
+      For_U32(it, X * Y * Z) {
+        if (min_range == max_range) {
+          data[it] = 1.0f;
+        } else {
+          data[it] = (data[it] - min_range) / (max_range - min_range);
+        }
+      }
+
+
+      volume_textures[volume_at] = r_texture_3D_allocate(R_Texture_Format_F32, X, Y, Z);
+      r_texture_3D_download(volume_textures[volume_at], R_Texture_Format_F32, r3i(0, 0, 0, X, Y, Z), data_view);
+    }
+  }
+
+  ui_frame_begin();
+
+  if (pl_input()->mouse.right.down_first_frame) {
+    context_menu = 1;
+    context_menu_at = v2f(pl_input()->mouse.position.x, pl_display()->resolution.y - pl_input()->mouse.position.y);
+  }
+
+  if (context_menu && pl_input()->mouse.left.down_first_frame) {
+    context_menu = 0;
+  }
+
+  UI_Node *workspace = ui_container(str_lit("workspace"), UI_Container_Mode_Box, Axis2_X, UI_Size_Fill, UI_Size_Fill);
+  UI_Parent_Scope(workspace) {
+    UI_Node *left_panel = ui_container(str_lit("left_panel"), UI_Container_Mode_Box, Axis2_Y, UI_Size_Fixed(400), UI_Size_Fill);
+    UI_Parent_Scope(left_panel) {
+      UI_Node *layers = ui_container(str_lit("layers"), UI_Container_Mode_Box, Axis2_Y, UI_Size_Fill, UI_Size_Fixed(600));
+      UI_Parent_Scope(layers) {
+
+        UI_Parent_Scope(ui_container(str_lit("menu_bar"), UI_Container_Mode_Box, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
+          ui_button(str_lit("View"));
+          ui_button(str_lit("Filter"));
+        }
+
+
+        UI_Node *entry_2 = ui_container(str_lit("entry_2"), UI_Container_Mode_Box, Axis2_X, UI_Size_Fill, UI_Size_Fit);
+        UI_Parent_Scope(entry_2) {
+          UI_Font_Scope(&UI_Font_Icon) { ui_label(str_lit(ICON_FA_FONT)); }
+          ui_label(str_lit("Title"));
+          ui_container(str_lit("center_padding"), UI_Container_Mode_None, Axis2_X, UI_Size_Fill, UI_Size_Fit);
+          UI_Font_Scope(&UI_Font_Icon) { ui_button(str_lit(ICON_FA_EYE)); }
+        }
+
+        UI_Node *entry_1 = ui_container(str_lit("entry_1"), UI_Container_Mode_Box, Axis2_X, UI_Size_Fill, UI_Size_Fit);
+        UI_Parent_Scope(entry_1) {
+          UI_Font_Scope(&UI_Font_Icon) { ui_label(str_lit(ICON_FA_CUBE)); }
+          ui_label(str_lit("Volumetric Data"));
+          ui_container(str_lit("center_padding"), UI_Container_Mode_None, Axis2_X, UI_Size_Fill, UI_Size_Fit);
+          UI_Font_Scope(&UI_Font_Icon) { ui_button(str_lit(ICON_FA_EYE)); }
+        }
+      }
+      UI_Node *properties = ui_container(str_lit("properties"), UI_Container_Mode_Box, Axis2_Y, UI_Size_Fill, UI_Size_Fill);
+      UI_Parent_Scope(properties) {
+        UI_Parent_Scope(ui_container(str_lit("menu_bar"), UI_Container_Mode_Box, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
+          ui_button(str_lit("View"));
+          ui_button(str_lit("Mode"));
+        }
+
+        if (ui_checkbox(str_lit("hsv colormap"), &hsv_map).press) {
+          hsv_map_update = 1;
+          // hsv_map = !hsv_map;
+        }
+
+        ui_checkbox(str_lit("slice mode"), &slice_mode);
+
+        var_local_persist F32 test = 0;
+        ui_f32_edit(str_lit("test"), &test);
+      }
+    }
+
+    UI_Node *viewport = ui_container(str_lit("viewport"), UI_Container_Mode_Box, Axis2_Y, UI_Size_Fill, UI_Size_Fill);
+    UI_Parent_Scope(viewport) {
+      UI_Parent_Scope(ui_container(str_lit("menu_bar"), UI_Container_Mode_Box, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
+
+        if (ui_button(str_lit("prev")).press) {
+          volume_at = i32_max(volume_at - 1, 0);
+        }
+
+        if (ui_button(str_lit("next")).press) {
+          volume_at = i32_min(volume_at + 1, sarray_len(volume_requests) - 1);
+        }
+
+        // ui_dropdown(str_lit("View"));
+
+        // ui_button(str_lit("Render"));
+      }
+
+      UI_Node *content = ui_container(str_lit("content"), UI_Container_Mode_None, Axis2_X, UI_Size_Fill, UI_Size_Fill);
+      UI_Parent_Scope(content) {
+
+        UI_Node *draw_region = ui_container(str_lit("draw_region"), UI_Container_Mode_Box, Axis2_X, UI_Size_Fill, UI_Size_Fill);
+        draw_region->flags |= UI_Flag_Draw_Content_Hook;
+        draw_region->draw.content_hook = draw_viewport;
+      }
+    }
+  }
+
+  if (hsv_map_update) {
+    Scratch scratch = { };
+    Scratch_Scope(&scratch, 0) {
+      U32 texture_width = 1024;
+      U08 *texture_data = arena_push_size(scratch.arena, 4 * texture_width);
+
+      For_U32 (it, texture_width) {
+        F32 t = (F32)it / (texture_width - 1);
+        V3F c = { };
+        if (hsv_map) {
+          c = rgb_from_hsv(v3f(t, 1.0f, 1.0f));
+        } else {
+          c = v3f_lerp(t, v3f(0, 0, 0), v3f(1, 1, 1));
+        }
+
+        texture_data[4 * it + 0] = 255 * c.r;
+        texture_data[4 * it + 1] = 255 * c.g;
+        texture_data[4 * it + 2] = 255 * c.b;
+        texture_data[4 * it + 3] = t;
+      }
+
+      r_texture_2D_download(transfer_texture, R_Texture_Format_RGBA_U08_Normalized, r2i(0, 0, 1024, 1), texture_data);
+    }
+  }
+
+  ui_frame_end();
+
+  if (pl_input()->keyboard.state[PL_KB_F]) {
+    g2_clip_region(G2_Clip_None);
+
+    fps_ring[fps_at] = f32_div_safe(1, pl_display()->frame_delta);
+    fps_at = (fps_at + 1) % sarray_len(fps_ring);
+
+    F32 fps_avg = 0;
+    F32 fps_max = 0;
+    For_U32(it, sarray_len(fps_ring)) {
+      fps_avg += fps_ring[it];
+      fps_max = f32_max(fps_ring[it], fps_max);
+    }
+
+    F32 bar_w  = 2.f;
+    F32 bar_s  = 1.f;
+    F32 offset = (bar_w + bar_s);
+    For_U32(it, sarray_len(fps_ring)) {
+      g2_draw_rect(v2f(offset * it, 0), v2f(1.f, (fps_ring[it] / fps_max) * 300.f));
+    }
+
+    fps_avg /= sarray_len(fps_ring);
+
+    char buffer[512];
+    stbsp_snprintf(buffer, 512, "%.2f", fps_avg);
+
+    g2_draw_text(str_from_cstr(buffer), &UI_Font_Text, v2f(10, 300));
+  }
+
+  g2_frame_flush();
+  r_frame_flush();
 }
+
+fn_internal void log_co_context(void) {
+  Log_Zone_Scope("hardware info") {
+    log_info("CPU: %.*s",            str_expand(co_context()->cpu_name));
+    log_info("Logical Cores: %llu",  co_context()->cpu_logical_cores);
+    log_info("Page Size: %$$llu",    co_context()->mmu_page_bytes);
+    log_info("RAM Capacity: %$$llu", co_context()->ram_capacity_bytes);
+  }
+}
+
+fn_internal void pl_entry_point(Array_Str command_line, PL_Bootstrap *boot) {
+  boot->next_frame = next_frame;
+  boot->title = str_lit("Alice Engine");
+
+  logger_push_hook(logger_write_entry_standard_stream, logger_format_entry_minimal);
+  log_co_context();
+} 
+
+
