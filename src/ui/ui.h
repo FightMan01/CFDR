@@ -1,0 +1,174 @@
+// (C) Copyright 2025 Matyas Constans
+// Licensed under the MIT License (https://opensource.org/license/mit/)
+
+// NOTE(cmat): UI system-design based on these resources:
+// - Casey Muratori's initial ImGUI talk:   https://youtu.be/Z1qyvQsjK5Y?si=LAjyAcb8h94JujiS
+// - Ryan J. Fleury's articles:             https://www.rfleury.com/p/ui-part-2-build-it-every-frame-immediate
+// - Clay UI layout:                        https://www.youtube.com/watch?v=by9lQvpvMIc
+
+#define UI_Root_Label str_lit("##root")
+
+typedef U32 UI_Flags;
+enum {
+
+  // NOTE(cmat): No flags (invisible container purely for layout purposes).
+  UI_Flag_None                     = 0,
+
+  // NOTE(cmat): Action Response.
+  UI_Flag_Response_Hover           = 1 << 0,
+  UI_Flag_Response_Down            = 1 << 1,
+
+  UI_Flag_Response_Press           = 1 << 2, // NOTE(cmat): A press triggers ONCE, after a mouse click.
+  UI_Flag_Response_Release         = 1 << 3, // NOTE(cmat): A release triggers ONCE, after the mouse is released.
+  UI_Flag_Response_Drag            = 1 << 4,
+
+  // NOTE(cmat): Layout.
+  UI_Flag_Layout_Float_X           = 1 << 5,
+  UI_Flag_Layout_Float_Y           = 1 << 6,
+
+  // NOTE(cmat): Draw flags.
+  UI_Flag_Draw_Background          = 1 << 7,
+  UI_Flag_Draw_Shadow              = 1 << 8,
+  UI_Flag_Draw_Rounded             = 1 << 9,
+  UI_Flag_Draw_Label               = 1 << 10,
+  UI_Flag_Draw_Clip_Content        = 1 << 11,
+  UI_Flag_Draw_Content_Hook        = 1 << 12,
+  UI_Flag_Draw_Border              = 1 << 13,
+  UI_Flag_Draw_Inner_Fill          = 1 << 14,
+  UI_Flag_Draw_Label_Centered      = 1 << 15,
+
+  // NOTE(cmat): Animation flags.
+  UI_Flag_Animation_Grow_X         = 1 << 16,
+  UI_Flag_Animation_Grow_Y         = 1 << 17,
+  UI_Flag_Animation_Fade_In        = 1 << 18,
+
+  // NOTE(cmat): Trigger flags.
+  UI_Flag_Trigger_Context_Collapse = 1 << 19,
+};
+
+typedef struct UI_Response {
+  B32 hover;
+
+  B32 down;
+  B32 press;
+  B32 release;
+
+  B32 press_secondary;
+
+  B32 drag;
+  V2F drag_origin;
+  V2F drag_position;
+  V2F drag_change;
+
+  // NOTE(cmat): Relative, cliped position of last drag_position.
+  V2F picked_position;
+
+  B32 in_region;
+} UI_Response;
+
+typedef U32 UI_Size_Type;
+enum {
+  UI_Size_Type_Fit = 0, // NOTE(cmat): Default.
+  UI_Size_Type_Fill,
+  UI_Size_Type_Fixed,
+  UI_Size_Type_Text,
+};
+
+typedef struct UI_Size {
+  UI_Size_Type  type;
+  F32           value;
+} UI_Size;
+
+#define UI_Size_Fixed(pixels_)  (UI_Size) { .type = UI_Size_Type_Fixed, .value = (F32)(pixels_) }
+#define UI_Size_Text            (UI_Size) { .type = UI_Size_Type_Text                           }
+#define UI_Size_Fit             (UI_Size) { .type = UI_Size_Type_Fit                            }
+#define UI_Size_Fill            (UI_Size) { .type = UI_Size_Type_Fill                           }
+
+typedef struct UI_Layout {
+  Axis2   direction;
+  UI_Size size        [Axis2_Count];
+  F32     gap_border  [Axis2_Count];
+  F32     gap_child;
+
+  F32     float_position[Axis2_Count];
+} UI_Layout;
+
+typedef struct UI_Color_Palette {
+  HSV inactive;
+  HSV idle;
+  HSV hover;
+  HSV down;
+  HSV border;
+
+  HSV inner_fill;
+} UI_Color_Palette;
+
+#define UI_DRAW_CONTENT_HOOK(name_) void name_(UI_Response *response, R2F draw_region, void *user_data);
+typedef UI_DRAW_CONTENT_HOOK(UI_Draw_Content_Hook);
+
+typedef struct UI_Draw {
+  G2_Font              *font;
+  F32                   inner_fill_border;
+
+  UI_Draw_Content_Hook *content_hook;
+  void                 *content_user_data;
+
+  B32                   flip_label;
+} UI_Draw;
+
+typedef struct UI_Animation {
+  F32 spawn_t;
+  F32 hover_t;
+  F32 down_t;
+} UI_Animation;
+
+// NOTE(cmat): Solved location, size.
+typedef struct UI_Solved {
+  Str text;
+  V2F size;
+  V2F position_relative;
+  R2F region_absolute;
+} UI_Solved;
+
+struct UI_Node;
+typedef struct UI_Node UI_Node;
+typedef struct UI_Node_Tree {
+  UI_Node *parent;
+  UI_Node *first;
+  UI_Node *last;
+  UI_Node *next;
+  UI_Node *first_child;
+} UI_Node_Tree;
+
+typedef U32 UI_ID;
+typedef struct UI_Node {
+  UI_Node          *hash_next;
+  UI_Node          *overlay_next;
+  U64               frame_index;
+
+  UI_ID             id;
+  Str               label;
+
+  UI_Flags          flags;
+  UI_Node_Tree      tree;
+  UI_Layout         layout;
+  UI_Draw           draw;
+  UI_Color_Palette  palette;
+  UI_Animation      animation;
+  UI_Response       response;
+  UI_Solved         solved;
+} UI_Node;
+
+typedef struct UI_Node_List {
+  UI_Node *first;
+  UI_Node *last;
+} UI_Node_List;
+
+typedef Array_Type(UI_Node) UI_Node_Array;
+
+typedef U32 UI_Node_Location;
+enum {
+  UI_Node_Location_None,
+  UI_Node_Location_Context,
+  UI_Node_Location_Overlay,
+};

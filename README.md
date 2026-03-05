@@ -1,11 +1,31 @@
-# CFDR - CFD Rendering Toolkit
+# CFDR: CFD-Rendering Toolkit
 
-CFDR is a scientific data-visualization program, aimed to visualize large CFD simulation results (structured or unstructured) from the web.
-It was developed by Matyas Constans and Horvath Zoltan, in partnership with the [HidALGO 2 project](http://hidalgo2.eu/), at the [Széchenyi István University of Győr, Hungary](https://uni.sze.hu).
+CFDR is a scientific data-visualization program developed and maintained by Matyas Constans,
+with the primary aim to visualize simulation results in different ways in order to get
+a good understanding of the data.
 
-# Supported Formats
+It was built on top of the [ALICE Engine](https://github.com/matt-const/alice), by the same author.
 
-CFDR currently can visualize the following data formats:
-- [Ensight GOLD](https://www.scribd.com/document/156786965/Ensight-File-Format-Manual)
-- [VTK: Legacy, and XML variants](https://docs.vtk.org/en/latest/vtk_file_formats/index.html)
-- [NetCDF](https://www.unidata.ucar.edu/software/netcdf/)
+It is available both as a native desktop application and web-based visualization tool that can be
+integrated in other workflows.
+
+Visualizations can scripted and configured through it's own language (.CFDR files).
+
+It was developed during the [HidALGO 2 project](http://hidalgo2.eu/), funded by the EU.
+
+## Build Instructions
+
+### Web (WASM + JS)
+Requires `clang` and `lld` to be installed.  
+Build with: ``./build.sh web [build-flags]``
+
+You can run the web-page locally, by running a simple http server,
+by running:
+
+``cd build/ && python -m http.server 8080``
+
+Then accessing the URL ``localhost:8080`` in the browser of your choice.
+
+### Optional Build Flags
+
+`debug`: Run an un-optimized debug build (-O0, debug symbols).
