@@ -1,5 +1,7 @@
 # CFDR: CFD-Rendering Toolkit
 
+![Build](https://github.com/sze-hidalgo-2/CFDR/actions/workflows/ci.yml/badge.svg)
+
 CFDR is a scientific data-visualization program developed and maintained by Matyas Constans,
 with the primary aim to visualize simulation results in different ways in order to get
 a good understanding of the data.
