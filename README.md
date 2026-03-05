@@ -15,6 +15,14 @@ It was developed during the [HidALGO 2 project](http://hidalgo2.eu/), funded by 
 
 ## Build Instructions
 
+### Windows
+Requires `MSVC` to be installed (`cl`)
+Build with ``./build.bat [build-flags]``
+
+### Linux, Macos
+Requires `clang` to be installed.
+Build with ``./build.sh [build-flags]``
+
 ### Web (WASM + JS)
 Requires `clang` and `lld` to be installed.  
 Build with: ``./build.sh web [build-flags]``
