@@ -3127,6 +3127,7 @@ LARGE_OBJECT	src/thirdparty/walloc.c	/^  LARGE_OBJECT = 255$/;"	e	enum:chunk_kin
 LARGE_OBJECT_GRANULE_THRESHOLD	src/thirdparty/walloc.c	/^#define LARGE_OBJECT_GRANULE_THRESHOLD /;"	d	file:
 LARGE_OBJECT_HEADER_SIZE	src/thirdparty/walloc.c	/^#define LARGE_OBJECT_HEADER_SIZE /;"	d	file:
 LARGE_OBJECT_THRESHOLD	src/thirdparty/walloc.c	/^#define LARGE_OBJECT_THRESHOLD /;"	d	file:
+Linux, Macos	README.md	/^### Linux, Macos$/;"	S	section:CFDR: CFD-Rendering Toolkit""Build Instructions
 Local_Time	src/core/core.h	/^} Local_Time;$/;"	t	typeref:struct:__anon7d0f04f30208
 Log_Zone_Scope	src/base/base.h	/^#define Log_Zone_Scope(/;"	d
 Logger	src/base/base.c	/^var_global Logger_State Logger = {$/;"	v	typeref:typename:var_global Logger_State
@@ -5186,6 +5187,7 @@ WebGPU_Texture_Format_Lookup_Name	build/alice_canvas.js	/^const WebGPU_Texture_F
 WebGPU_Texture_Format_Lookup_Name	src/web/alice_canvas.js	/^const WebGPU_Texture_Format_Lookup_Name = [$/;"	v
 WebGPU_Vertex_Attribute_Format_Lookup_Name	build/alice_canvas.js	/^const WebGPU_Vertex_Attribute_Format_Lookup_Name = [$/;"	v
 WebGPU_Vertex_Attribute_Format_Lookup_Name	src/web/alice_canvas.js	/^const WebGPU_Vertex_Attribute_Format_Lookup_Name = [$/;"	v
+Windows	README.md	/^### Windows$/;"	S	section:CFDR: CFD-Rendering Toolkit""Build Instructions
 World_View_Projection	src/render/render.h	/^  alignas(16) M4F World_View_Projection;$/;"	m	struct:__anon6ca781411108	typeref:typename:M4F
 YCbCr_to_RGB_kernel	src/thirdparty/stb_image.h	/^   void (*YCbCr_to_RGB_kernel)(stbi_uc *out, const stbi_uc *y, const stbi_uc *pcb, const stbi_uc/;"	m	struct:__anoncf96c9f70808	typeref:typename:void (*)(stbi_uc * out,const stbi_uc * y,const stbi_uc * pcb,const stbi_uc * pcr,int count,int step)
 __STB_INCLUDE_STB_TRUETYPE_H__	src/thirdparty/stb_truetype.h	/^#define __STB_INCLUDE_STB_TRUETYPE_H__$/;"	d
