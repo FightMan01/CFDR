@@ -103,7 +103,6 @@ const Keyboard_Code_Map = {
   Count:         85
 };
 
-// document.body.style.cursor = "crosshair";
 const MSAA_Sample_Count = 4;
 
 const wasm_context = {
@@ -183,6 +182,9 @@ const HTTP_Status_Failed      = 0;
 const HTTP_Status_Done        = 1;
 const HTTP_Status_In_Progress = 2;
 
+// NOTE(cmat): If no authentification function has been defined before including
+// this script, create a stub version.
+
 function js_http_request_send(request_ptr, arena_ptr, url_len, url_txt) {
   
   const url = js_string_from_c_string(url_len, url_txt);
@@ -193,6 +195,10 @@ function js_http_request_send(request_ptr, arena_ptr, url_len, url_txt) {
   xhr.setRequestHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   xhr.setRequestHeader("Pragma", "no-cache");
   xhr.setRequestHeader("Expires", "0");
+
+  if (typeof auth_set_xhr_header === 'function') {
+    auth_set_xhr_header(xhr);
+  }
 
   // NOTE(cmat): Download in progress.
   xhr.onprogress = function(event) {

@@ -1,6 +1,4 @@
 #!/bin/bash
-# (C) Copyright 2025 Matyas Constans, Zoltan Horvath
-# Licensed under the MIT License (https://opensource.org/license/mit/)
 echo "build started."
 
 debug=1
@@ -88,15 +86,17 @@ linker_flags+=" -Wl,-allow-undefined"
 linker_flags+=" -o alice_canvas.wasm"
 
 # NOTE(cmat): Copy required resources to build folder.
-cp "${source_folder}/web/index.html"      "${build_folder}/"
-cp "${source_folder}/web/alice_canvas.js" "${build_folder}/"
+cp "${source_folder}/cfdr_portal/index.html"              "${build_folder}/"
+cp "${source_folder}/cfdr_portal/auth_portal.js"          "${build_folder}/"
+cp "${source_folder}/cfdr_portal/silent-check-sso.html"   "${build_folder}/"
+cp "${source_folder}/web/alice_canvas.js"                 "${build_folder}/"
 
 # NOTE(cmat): Compile with walloc.c
 # TODO(cmat): We want to remove this dependency as soon as possible.
 source_files+=" ${source_folder}/thirdparty/walloc.c"
 
 # ------------------------------------------------------------
-# Invoke compiler
+# NOTE(cmat): Invoke compiler
 pushd build > /dev/null 2>&1
 
 echo "compiler flags: ${compiler_flags}"
