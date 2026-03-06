@@ -39,3 +39,4 @@ Then accessing the URL ``localhost:8080`` in the browser of your choice.
 ### Optional Build Flags
 
 `debug`: Run an un-optimized debug build (-O0, debug symbols).
+`portal`: Build with support for the SZE-portal, using keycloak for authentification.
