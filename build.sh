@@ -2,6 +2,7 @@
 echo "build started."
 
 debug=1
+portal=1
 
 # NOTE(cmat): Generate tags file.
 ctags -R .
@@ -86,10 +87,15 @@ linker_flags+=" -Wl,-allow-undefined"
 linker_flags+=" -o alice_canvas.wasm"
 
 # NOTE(cmat): Copy required resources to build folder.
+if [[ -n ${portal-} ]]; then
 cp "${source_folder}/cfdr_portal/index.html"              "${build_folder}/"
 cp "${source_folder}/cfdr_portal/auth_portal.js"          "${build_folder}/"
 cp "${source_folder}/cfdr_portal/silent-check-sso.html"   "${build_folder}/"
 cp "${source_folder}/web/alice_canvas.js"                 "${build_folder}/"
+else
+cp "${source_folder}/web/index.html"                      "${build_folder}/"
+cp "${source_folder}/web/alice_canvas.js"                 "${build_folder}/"
+fi
 
 # NOTE(cmat): Compile with walloc.c
 # TODO(cmat): We want to remove this dependency as soon as possible.
