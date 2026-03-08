@@ -235,7 +235,7 @@ BracketRight	build/alice_canvas.js	/^  BracketRight:  55,$/;"	p	variable:Keyboar
 BracketRight	src/web/alice_canvas.js	/^  BracketRight:  55,$/;"	p	variable:Keyboard_Code_Map
 Build Instructions	README.md	/^## Build Instructions$/;"	s	chapter:CFDR: CFD-Rendering Toolkit
 CFDR	build/index.html	/^    <title>CFDR<\/title>$/;"	j
-CFDR	src/cfdr_portal/index.html	/^    <title>CFDR<\/title>$/;"	j
+CFDR	src/cfdr_sze_portal/index.html	/^    <title>CFDR<\/title>$/;"	j
 CFDR	src/web/index.html	/^    <title>CFDR<\/title>$/;"	j
 CFDR: CFD-Rendering Toolkit	README.md	/^# CFDR: CFD-Rendering Toolkit$/;"	c
 CFDR_Array_Layer	src/cfdr/cfdr_layer.h	/^typedef Array_Type(CFDR_Layer) CFDR_Array_Layer;$/;"	t
@@ -5613,7 +5613,7 @@ active_clip_region	src/graphics/graphics.c	/^  R2I                 active_clip_r
 address_align	src/core/core.h	/^inline fn_internal U64 address_align(U64 address, U64 align) {$/;"	f	typeref:typename:fn_internal U64
 advance	src/thirdparty/stb_truetype.h	/^   int advance;$/;"	m	struct:stbtt_kerningentry	typeref:typename:int
 alice_canvas	build/index.html	/^      <canvas id="alice_canvas"> <\/canvas>$/;"	I
-alice_canvas	src/cfdr_portal/index.html	/^      <canvas id="alice_canvas"> <\/canvas>$/;"	I
+alice_canvas	src/cfdr_sze_portal/index.html	/^      <canvas id="alice_canvas"> <\/canvas>$/;"	I
 alice_canvas	src/web/index.html	/^      <canvas id="alice_canvas"> <\/canvas>$/;"	I
 align	src/base/base.h	/^  U32             align;$/;"	m	struct:__anon3048dd970208	typeref:typename:U32
 align	src/cfdr/cfdr_eval.h	/^    Align2             align;$/;"	m	union:CFDR_Value::__anond0538a06020a	typeref:typename:Align2
@@ -5632,6 +5632,7 @@ alpha	src/web/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor
 alphaMode	build/alice_canvas.js	/^    alphaMode: 'premultiplied'$/;"	p	variable:anonymousObject7fd8f7880505
 alphaMode	src/web/alice_canvas.js	/^    alphaMode: 'premultiplied'$/;"	p	variable:anonymousObjectd474d1cd0505
 animation	src/ui/ui.h	/^  UI_Animation      animation;$/;"	m	struct:UI_Node	typeref:typename:UI_Animation
+anonymousObject530e070b0105	src/cfdr_sze_portal/auth_sze_portal.js	/^const g_keycloak = new Keycloak({$/;"	v
 anonymousObject5437c4b20105	build/auth_portal.js	/^const g_keycloak = new Keycloak({$/;"	v
 anonymousObject7fd8f7880305	build/alice_canvas.js	/^  wasm_context.webgpu.depth_texture = wasm_context.webgpu.device.createTexture({$/;"	v
 anonymousObject7fd8f7880405	build/alice_canvas.js	/^  wasm_context.webgpu.color_texture = wasm_context.webgpu.device.createTexture({$/;"	v
@@ -5658,7 +5659,6 @@ anonymousObject7fd8f7881805	build/alice_canvas.js	/^  const bind_group = wasm_co
 anonymousObject7fd8f7881905	build/alice_canvas.js	/^    colorAttachments: [{$/;"	v	variable:canvas_next_frame.render_pass_descriptor
 anonymousObject7fd8f7881a05	build/alice_canvas.js	/^  const memory = new WebAssembly.Memory({$/;"	v	function:wasm_module_load
 anonymousObject7fd8f7881b05	build/alice_canvas.js	/^      }, { passive: false });$/;"	v
-anonymousObjecta4aa1be90105	src/cfdr_portal/auth_portal.js	/^const g_keycloak = new Keycloak({$/;"	v
 anonymousObjectd474d1cd0305	src/web/alice_canvas.js	/^  wasm_context.webgpu.depth_texture = wasm_context.webgpu.device.createTexture({$/;"	v
 anonymousObjectd474d1cd0405	src/web/alice_canvas.js	/^  wasm_context.webgpu.color_texture = wasm_context.webgpu.device.createTexture({$/;"	v
 anonymousObjectd474d1cd0505	src/web/alice_canvas.js	/^  webgpu_context.configure({$/;"	v
@@ -5755,9 +5755,9 @@ attribute_byte_count	src/mesh/mesh_stl.h	/^  U16 attribute_byte_count;$/;"	m	str
 attributes	build/alice_canvas.js	/^          attributes: attribute_list,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.vertex.anonymousObject7fd8f7881505
 attributes	src/web/alice_canvas.js	/^          attributes: attribute_list,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405.vertex.anonymousObjectd474d1cd1505
 auth_set_xhr_header	build/auth_portal.js	/^function auth_set_xhr_header(xhr) {$/;"	f
-auth_set_xhr_header	src/cfdr_portal/auth_portal.js	/^function auth_set_xhr_header(xhr) {$/;"	f
+auth_set_xhr_header	src/cfdr_sze_portal/auth_sze_portal.js	/^function auth_set_xhr_header(xhr) {$/;"	f
 authenticated	build/auth_portal.js	/^    const authenticated = await g_keycloak.init($/;"	C
-authenticated	src/cfdr_portal/auth_portal.js	/^    const authenticated = await g_keycloak.init($/;"	C
+authenticated	src/cfdr_sze_portal/auth_sze_portal.js	/^    const authenticated = await g_keycloak.init($/;"	C
 b	build/alice_canvas.js	/^      clearValue: { r:0, g:0, b:0, a:1 },$/;"	p	property:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881905.clearValue
 b	src/base/base.h	/^  struct { F32 r, g, b, a; };$/;"	m	struct:__anon3048dd97850a::__anon3048dd978708	typeref:typename:F32
 b	src/base/base.h	/^  struct { F32 r, g, b; };$/;"	m	struct:__anon3048dd97420a::__anon3048dd974408	typeref:typename:F32
@@ -5957,7 +5957,7 @@ chunks	src/thirdparty/walloc.c	/^    struct chunk chunks[CHUNKS_PER_PAGE];$/;"	m
 clearValue	build/alice_canvas.js	/^      clearValue: { r:0, g:0, b:0, a:1 },$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881905
 clearValue	src/web/alice_canvas.js	/^      clearValue: { r:0, g:0, b:0, a:1 },$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObjectd474d1cd1905
 clientId	build/auth_portal.js	/^    clientId: "dashboard-ui"$/;"	p	variable:anonymousObject5437c4b20105
-clientId	src/cfdr_portal/auth_portal.js	/^    clientId: "dashboard-ui"$/;"	p	variable:anonymousObjecta4aa1be90105
+clientId	src/cfdr_sze_portal/auth_sze_portal.js	/^    clientId: "dashboard-ui"$/;"	p	variable:anonymousObject530e070b0105
 clip_region	src/render/render.h	/^  R2I           clip_region;$/;"	m	struct:R_Command_Draw	typeref:typename:R2I
 clip_region	src/ui/ui.c	/^  R2I clip_region;$/;"	m	struct:UI_Draw_Context	typeref:typename:R2I	file:
 co_context	src/core/core_linux.c	/^fn_internal CO_Context *co_context(void) {$/;"	f	typeref:typename:fn_internal CO_Context *
@@ -6555,7 +6555,7 @@ g2_material_delete	src/graphics/graphics.c	/^fn_internal void g2_material_delete
 g2_push_draw	src/graphics/graphics.c	/^fn_internal G2_Draw_Entry g2_push_draw(U32 vertex_count, U32 index_count, G2_Material material, /;"	f	typeref:typename:fn_internal G2_Draw_Entry
 g2_submit_draw	src/graphics/graphics.c	/^fn_internal void g2_submit_draw(void) {$/;"	f	typeref:typename:fn_internal void
 g_keycloak	build/auth_portal.js	/^const g_keycloak = new Keycloak({$/;"	C
-g_keycloak	src/cfdr_portal/auth_portal.js	/^const g_keycloak = new Keycloak({$/;"	C
+g_keycloak	src/cfdr_sze_portal/auth_sze_portal.js	/^const g_keycloak = new Keycloak({$/;"	C
 gap_border	src/ui/ui.h	/^  F32     gap_border  [Axis2_Count];$/;"	m	struct:UI_Layout	typeref:typename:F32[]
 gap_child	src/ui/ui.h	/^  F32     gap_child;$/;"	m	struct:UI_Layout	typeref:typename:F32
 gb	src/base/base.h	/^  struct { F32 _pad_3; V2_F32 gb; };$/;"	m	struct:__anon3048dd97420a::__anon3048dd974908	typeref:typename:V2_F32
@@ -7351,7 +7351,7 @@ rbga_u32	src/base/base.h	/^#define rbga_u32(/;"	d
 read	src/thirdparty/stb_image.h	/^   int      (*read)  (void *user,char *data,int size);   \/\/ fill 'data' with 'size' bytes.  re/;"	m	struct:__anoncf96c9f70208	typeref:typename:int (*)(void * user,char * data,int size)
 read_from_callbacks	src/thirdparty/stb_image.h	/^   int read_from_callbacks;$/;"	m	struct:__anoncf96c9f70308	typeref:typename:int
 realm	build/auth_portal.js	/^    realm:    "hidalgo",$/;"	p	variable:anonymousObject5437c4b20105
-realm	src/cfdr_portal/auth_portal.js	/^    realm:    "hidalgo",$/;"	p	variable:anonymousObjecta4aa1be90105
+realm	src/cfdr_sze_portal/auth_sze_portal.js	/^    realm:    "hidalgo",$/;"	p	variable:anonymousObject530e070b0105
 region_absolute	src/ui/ui.h	/^  R2F region_absolute;$/;"	m	struct:UI_Solved	typeref:typename:R2F
 release	src/ui/ui.h	/^  B32 release;$/;"	m	struct:UI_Response	typeref:typename:B32
 remove	build/alice_canvas.js	/^    remove(user_handle)  { this.map.delete(user_handle);     }$/;"	m	variable:webgpu_init.webgpu_handle_map
@@ -8290,7 +8290,7 @@ ui_solve_region	src/ui/ui.c	/^fn_internal void ui_solve_region(UI_Node *node, V2
 uint8_t	src/thirdparty/walloc.c	/^typedef __UINT8_TYPE__ uint8_t;$/;"	t	typeref:typename:__UINT8_TYPE__	file:
 uintptr_t	src/thirdparty/walloc.c	/^typedef __UINTPTR_TYPE__ uintptr_t;$/;"	t	typeref:typename:__UINTPTR_TYPE__	file:
 url	build/auth_portal.js	/^    url:      "idm.testportal.mathso.sze.hu",$/;"	p	variable:anonymousObject5437c4b20105
-url	src/cfdr_portal/auth_portal.js	/^    url:      "idm.testportal.mathso.sze.hu",$/;"	p	variable:anonymousObjecta4aa1be90105
+url	src/cfdr_sze_portal/auth_sze_portal.js	/^    url:      "idm.testportal.mathso.sze.hu",$/;"	p	variable:anonymousObject530e070b0105
 usage	build/alice_canvas.js	/^    usage:    GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,$/;"	p	variable:js_webgpu_texture_2D_allocate.anonymousObject7fd8f7880c05
 usage	build/alice_canvas.js	/^    usage:    GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,$/;"	p	variable:js_webgpu_texture_3D_allocate.anonymousObject7fd8f7880805
 usage	build/alice_canvas.js	/^    usage:  GPUBufferUsage.VERTEX   |$/;"	p	variable:js_webgpu_buffer_allocate.anonymousObject7fd8f7880605
