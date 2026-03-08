@@ -1,8 +1,10 @@
 #!/bin/bash
 echo "build started."
 
-debug=1
-portal=1
+# NOTE(cmat): Unpack arguments.
+for arg in "$@"; do
+  declare $arg='1';
+done
 
 # NOTE(cmat): Generate tags file.
 ctags -R .
@@ -23,10 +25,10 @@ include_folders="-I${source_folder}"
 
 define_flags=""
 
-if [[ -n ${debug-} ]]; then
-define_flags+=" -DBUILD_DEBUG=1 -DBUILD_ASSERT=1"
-else
+if [[ -n ${release-} ]]; then
 define_flags+=" -DBUILD_DEBUG=0 -DBUILD_ASSERT=0"
+else
+define_flags+=" -DBUILD_DEBUG=1 -DBUILD_ASSERT=1"
 fi
 
 compiler_exec=""
@@ -54,21 +56,18 @@ compiler_exec+="clang"
 # compiler_flags+=" -fsanitize-address-use-after-scope"
 # compiler_flags+=" -fno-omit-frame-pointer"
 
-if [[ -n ${debug-} ]]; then
+if [[ -n ${release-} ]]; then
+compiler_flags+=" -O3"
+else
 compiler_flags+=" -O0"
 compiler_flags+=" -g"
+fi
 
-else
-compiler_flags+=" -O3"
 
 # TODO(cmat): strlen optimizations are probably significant enough
 # that we want to roll our own strlen
-
 # NOTE(cmat): Clang will insert strlen calls, which calls into the CRT,
 # which we have disabled.
-
-fi
-
 compiler_flags+=" -fno-builtin-strlen"
 
 compiler_flags+=" -std=c23"
@@ -87,11 +86,11 @@ linker_flags+=" -Wl,-allow-undefined"
 linker_flags+=" -o alice_canvas.wasm"
 
 # NOTE(cmat): Copy required resources to build folder.
-if [[ -n ${portal-} ]]; then
-cp "${source_folder}/cfdr_portal/index.html"              "${build_folder}/"
-cp "${source_folder}/cfdr_portal/auth_portal.js"          "${build_folder}/"
-cp "${source_folder}/cfdr_portal/silent-check-sso.html"   "${build_folder}/"
-cp "${source_folder}/web/alice_canvas.js"                 "${build_folder}/"
+if [[ -n ${sze_portal-} ]]; then
+cp "${source_folder}/cfdr_sze_portal/index.html"              "${build_folder}/"
+cp "${source_folder}/cfdr_sze_portal/auth_sze_portal.js"      "${build_folder}/"
+cp "${source_folder}/cfdr_sze_portal/silent-check-sso.html"   "${build_folder}/"
+cp "${source_folder}/web/alice_canvas.js"                     "${build_folder}/"
 else
 cp "${source_folder}/web/index.html"                      "${build_folder}/"
 cp "${source_folder}/web/alice_canvas.js"                 "${build_folder}/"
