@@ -196,10 +196,6 @@ function js_http_request_send(request_ptr, arena_ptr, url_len, url_txt) {
   xhr.setRequestHeader("Pragma", "no-cache");
   xhr.setRequestHeader("Expires", "0");
 
-  if (typeof auth_set_xhr_header === 'function') {
-    auth_set_xhr_header(xhr);
-  }
-
   // NOTE(cmat): Download in progress.
   xhr.onprogress = function(event) {
     if (event.lengthComputable) {
@@ -249,7 +245,17 @@ function js_http_request_send(request_ptr, arena_ptr, url_len, url_txt) {
     }
   };
 
-  xhr.send();
+  if (typeof auth_set_xhr_header === 'function') {
+    Promise.resolve(auth_set_xhr_header(xhr))
+      .catch(function(error) {
+        console.error('failed to prepare authenticated request:', error);
+      })
+      .finally(function() {
+        xhr.send();
+      });
+  } else {
+    xhr.send();
+  }
 }
 
 function js_web_current_url(url_cap, url_ptr) {

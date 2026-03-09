@@ -4,31 +4,34 @@ const g_keycloak = new Keycloak({
     clientId: "dashboard-ui"
 });
 
-try {
-    const authenticated = await g_keycloak.init(
-      {
-        onLoad:                     'login-required',
-        silentCheckSsoRedirectUri:  `${location.origin}/silent-check-sso.html`,
-        checkLoginIframe:           0
-      }
-    );
+const g_keycloak_ready = init_sze_portal_auth();
+
+async function init_sze_portal_auth() {
+  try {
+    const authenticated = await g_keycloak.init({
+      onLoad:                    'login-required',
+      silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
+      checkLoginIframe:          false
+    });
 
     if (authenticated) {
-        console.log('keycloak authentification successfull');
+      console.log('keycloak authentification successfull');
     } else {
-        console.error('keycloak authentification failed');
+      console.error('keycloak authentification failed');
     }
-} catch (error) {
+  } catch (error) {
     console.error('keycloak adapter initialization failed:', error);
+    throw error;
+  }
 }
 
-function auth_set_xhr_header(xhr) {
-  g_keycloak.updateToken(30).then(function(refreshed) {
-    if (refreshed) {
-      xhr.setRequestHeader("Authorization", "Bearer " + g_keycloak.token);
-    } else {
-      console.error('keycloak token refresh failed');
-    }
-  });
+async function auth_set_xhr_header(xhr) {
+  await g_keycloak_ready;
+  await g_keycloak.updateToken(30);
+
+  if (!g_keycloak.token) {
+    throw new Error('missing keycloak token');
+  }
+
   xhr.setRequestHeader("Authorization", "Bearer " + g_keycloak.token);
 }
