@@ -188,8 +188,11 @@ const HTTP_Status_In_Progress = 2;
 function js_http_request_send(request_ptr, arena_ptr, url_len, url_txt) {
   
   const url = js_string_from_c_string(url_len, url_txt);
+  const request_url = typeof auth_resolve_request_url === 'function'
+    ? auth_resolve_request_url(url)
+    : url;
   const xhr = new XMLHttpRequest();
-  xhr.open("GET", url, true);
+  xhr.open("GET", request_url, true);
   xhr.responseType = "arraybuffer";
 
   xhr.setRequestHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -245,7 +248,17 @@ function js_http_request_send(request_ptr, arena_ptr, url_len, url_txt) {
     }
   };
 
-  xhr.send();
+  if (typeof auth_set_xhr_header === 'function') {
+    Promise.resolve(auth_set_xhr_header(xhr, request_url))
+      .catch(function(error) {
+        console.error('failed to prepare authenticated request:', error);
+      })
+      .finally(function() {
+        xhr.send();
+      });
+  } else {
+    xhr.send();
+  }
 }
 
 function js_web_current_url(url_cap, url_ptr) {

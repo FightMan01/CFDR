@@ -26,7 +26,12 @@ async function init_sze_portal_auth() {
   }
 }
 
-async function auth_set_xhr_header(xhr) {
+async function auth_set_xhr_header(xhr, request_url) {
+  const resolved = new URL(request_url, location.href);
+  if (resolved.origin !== location.origin || !resolved.pathname.startsWith("/project/")) {
+    return;
+  }
+
   await g_keycloak_ready;
   await g_keycloak.updateToken(30);
 
@@ -35,4 +40,15 @@ async function auth_set_xhr_header(xhr) {
   }
 
   xhr.setRequestHeader("Authorization", "Bearer " + g_keycloak.token);
+}
+
+function auth_resolve_request_url(url) {
+  const resolved = new URL(url, location.href);
+
+  if (resolved.origin !== location.origin) {
+    return resolved.href;
+  }
+
+  const project_path = resolved.pathname.replace(/^\/+/, "");
+  return `/project/${project_path}${resolved.search}${resolved.hash}`;
 }
