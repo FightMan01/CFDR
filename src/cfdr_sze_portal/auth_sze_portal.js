@@ -9,9 +9,10 @@ const g_keycloak_ready = init_sze_portal_auth();
 async function init_sze_portal_auth() {
   try {
     const authenticated = await g_keycloak.init({
-      onLoad:                    'login-required',
-      silentCheckSsoRedirectUri: `${location.origin}/silent-check-sso.html`,
-      checkLoginIframe:          false
+        onLoad:           'login-required',
+        pkceMethod:       'S256',
+        checkLoginIframe: false,
+        scope:            'openid',
     });
 
     if (authenticated) {
