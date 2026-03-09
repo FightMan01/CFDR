@@ -90,7 +90,7 @@ if [[ -n ${sze_portal-} ]]; then
 cp "${source_folder}/cfdr_sze_portal/index.html"              "${build_folder}/"
 cp "${source_folder}/cfdr_sze_portal/auth_sze_portal.js"      "${build_folder}/"
 cp "${source_folder}/cfdr_sze_portal/silent-check-sso.html"   "${build_folder}/"
-cp "${source_folder}/web/alice_canvas.js"                     "${build_folder}/"
+cp "${source_folder}/cfdr_sze_portal/alice_canvas.js"         "${build_folder}/"
 else
 cp "${source_folder}/web/index.html"                      "${build_folder}/"
 cp "${source_folder}/web/alice_canvas.js"                 "${build_folder}/"
