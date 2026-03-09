@@ -10,14 +10,15 @@
       canvas     { display:block; width:100vw; height:100vh; border:0px; }
     </style>
     
-    <!-- NOTE(cmat): HTML5 canvas -->
-    <body>
-      <canvas id="alice_canvas"> </canvas>
-
-      <!-- NOTE(cmat): Portal authentification setup -->
-      <script src=https://idm.testportal.mathso.sze.hu/js/keycloak.js> </script>
-      <script src="auth_sze_portal.js"> </script>
-      <script src="alice_canvas.js"> </script>
-    </body>
   </head>
+  
+  <!-- NOTE(cmat): HTML5 canvas -->
+  <body>
+    <canvas id="alice_canvas"> </canvas>
+
+    <!-- NOTE(cmat): Portal authentification setup -->
+    <script src="https://idm.testportal.mathso.sze.hu/js/keycloak.js"></script>
+    <script src="auth_sze_portal.js"></script>
+    <script src="alice_canvas.js"></script>
+  </body>
 </html>
