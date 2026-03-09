@@ -1,13 +1,16 @@
 const g_keycloak = new Keycloak({
-    url:      "idm.testportal.mathso.sze.hu",
+    url:      "https://idm.testportal.mathso.sze.hu",
     realm:    "hidalgo",
     clientId: "dashboard-ui"
 });
 
 try {
     const authenticated = await g_keycloak.init(
-      onLoad:                     'check-sso',
-      silentCheckSsoRedirectUri:  `${location.origin}/silent-check-sso.html`
+      {
+        onLoad:                     'login-required',
+        silentCheckSsoRedirectUri:  `${location.origin}/silent-check-sso.html`,
+        checkLoginIframe:           0
+      }
     );
 
     if (authenticated) {
@@ -20,6 +23,12 @@ try {
 }
 
 function auth_set_xhr_header(xhr) {
-  await g_keycloak.updateToken(30);
+  g_keycloak.updateToken(30).then(function(refreshed) {
+    if (refreshed) {
+      xhr.setRequestHeader("Authorization", "Bearer " + g_keycloak.token);
+    } else {
+      console.error('keycloak token refresh failed');
+    }
+  });
   xhr.setRequestHeader("Authorization", "Bearer " + g_keycloak.token);
 }
