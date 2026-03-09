@@ -21,6 +21,7 @@ var_global struct {
   U32           font_stack_cap;
   U32           font_stack_len; 
   G2_Font     **font_stack;
+  F32           scale;
 
   UI_Node_Location next_location;
   UI_Node         *root;
@@ -38,6 +39,18 @@ var_global struct {
 } UI_State = { };
 
 #define UI_Font_Scope(font_ptr_) Defer_Scope(ui_font_push(font_ptr_), ui_font_pop())
+
+fn_internal F32 ui_scale_get(void) {
+  return UI_State.scale > 0.f ? UI_State.scale : 1.f;
+}
+
+fn_internal void ui_set_scale(F32 scale) {
+  UI_State.scale = f32_max(scale, 0.5f);
+}
+
+fn_internal F32 ui_px(F32 pixels) {
+  return pixels * ui_scale_get();
+}
 
 fn_internal void ui_font_push(G2_Font *font) {
   Assert(UI_State.font_stack_len <= UI_State.font_stack_cap, "ui_font_push() exceeding stack size");
@@ -76,6 +89,7 @@ fn_internal void ui_init(void) {
   UI_State.font_stack_cap = 32;
   UI_State.font_stack_len = 0;
   UI_State.font_stack     = arena_push_count(&UI_State.arena, G2_Font *, UI_State.font_stack_cap);
+  UI_State.scale          = 1.f;
 
   UI_State.parent_stack_cap = 2048;
   UI_State.parent_stack_len = 0;
@@ -617,11 +631,11 @@ fn_internal void ui_draw(UI_Node *node, UI_Draw_Context *context) {
 
     F32 rounding = 0.f;
     if (node->flags & UI_Flag_Draw_Rounded) {
-      rounding = 6;
+      rounding = ui_px(6);
     }
 
     R2F region = node->solved.region_absolute;
-    if (region.max.y - region.min.y <= 5) rounding = 0;
+    if (region.max.y - region.min.y <= ui_px(5)) rounding = 0;
 
     F32 opacity = context->opacity;
     if (node->flags & UI_Flag_Animation_Fade_In) {
@@ -834,8 +848,8 @@ fn_internal UI_Node *ui_container(Str label, UI_Container_Mode mode, Axis2 layou
   node->layout.size[Axis2_Y]       = size_y;
 
   if (mode == UI_Container_Box) {
-    node->layout.gap_border[Axis2_X] = 4;
-    node->layout.gap_border[Axis2_Y] = 4;
+    node->layout.gap_border[Axis2_X] = ui_px(4);
+    node->layout.gap_border[Axis2_Y] = ui_px(4);
     node->layout.gap_child           = 0;
   }
 
@@ -917,7 +931,7 @@ fn_internal UI_Response ui_separator(Str label) {
 
   UI_Node *node = ui_node_push(label, flags);
   node->layout.size[Axis2_X] = UI_Size_Fill;
-  node->layout.size[Axis2_Y] = UI_Size_Fixed(1);
+  node->layout.size[Axis2_Y] = UI_Size_Fixed(ui_px(1));
 
   node->palette.idle = hsv_u32(0, 0, 50);
 
@@ -1007,12 +1021,12 @@ fn_internal UI_Response ui_checkbox_fixed(Str label, B32 *value) {
   Assert(value, "value is null");
   If_Likely (value) {
     UI_Node *container = ui_container(label, UI_Container_None, Axis2_X, UI_Size_Fit, UI_Size_Fit);
-    container->layout.gap_child = 5.0f;
+    container->layout.gap_child = ui_px(5);
 
     UI_Parent_Scope(container) {
       ui_label(label);
 
-      ui_container(str_lit("##padding"), UI_Container_None, Axis2_X, UI_Size_Fixed(5), UI_Size_Fill);
+      ui_container(str_lit("##padding"), UI_Container_None, Axis2_X, UI_Size_Fixed(ui_px(5)), UI_Size_Fill);
 
       UI_Flags flags =
         UI_Flag_Response_Hover   |
@@ -1073,7 +1087,7 @@ fn_internal UI_Response ui_checkbox(Str label, B32 *value) {
   Assert(value, "value is null");
   If_Likely (value) {
     UI_Node *container = ui_container(label, UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit);
-    container->layout.gap_child = 5.0f;
+    container->layout.gap_child = ui_px(5);
 
     UI_Parent_Scope(container) {
       ui_label(label);
@@ -1137,7 +1151,7 @@ fn_internal void ui_f32_edit_static(Str label, F32 *value, F32 value_min, F32 va
   UI_Parent_Scope(ui_container(label, UI_Container_None, Axis2_X, UI_Size_Fit, UI_Size_Fit)) {
     ui_label(label);
 
-    ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(5), UI_Size_Fit);
+    ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(ui_px(5)), UI_Size_Fit);
 
     UI_Flags flags = 
       UI_Flag_Response_Hover   |
@@ -1181,7 +1195,7 @@ fn_internal void ui_f32_edit(Str label, F32 *value, F32 value_min, F32 value_max
   UI_Parent_Scope(ui_container(label, UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
     ui_label(label);
 
-    ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(5), UI_Size_Fit);
+    ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(ui_px(5)), UI_Size_Fit);
     ui_container(str_lit("##padding_2"), UI_Container_None, Axis2_X, UI_Size_Fill,      UI_Size_Fill);
 
     UI_Flags flags = 
@@ -1231,7 +1245,7 @@ fn_internal void ui_list(Str label, I32 *entry_selection, I32 entry_count, Str *
     stbsp_snprintf(buffer, 512, "%.*s##label", str_expand(label));
     ui_label(str_from_cstr(buffer));
 
-    ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(5), UI_Size_Fit);
+    ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(ui_px(5)), UI_Size_Fit);
     ui_container(str_lit("##padding_2"), UI_Container_None, Axis2_X, UI_Size_Fill,      UI_Size_Fill);
 
 
@@ -1289,7 +1303,7 @@ fn_internal void ui_list_fixed(Str label, I32 *entry_selection, I32 entry_count,
     stbsp_snprintf(buffer, 512, "%.*s##label", str_expand(label));
     ui_label(str_from_cstr(buffer));
 
-    ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(5), UI_Size_Fit);
+    ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(ui_px(5)), UI_Size_Fit);
     // ui_container(str_lit("##padding_2"), UI_Container_None, Axis2_X, UI_Size_Fill,      UI_Size_Fill);
 
 
@@ -1390,7 +1404,7 @@ fn_internal void ui_dropdown(Str label, I32 *entry_selection, I32 entry_count, U
         UI_Font_Scope(entry->icon_font) { ui_label(entry->icon); };
         ui_label(entry->text);
         ui_container(str_lit("##padding_center"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fill);
-        ui_container(str_lit("##gap"), UI_Container_None, Axis2_X, UI_Size_Fixed(40), UI_Size_Fill);
+        ui_container(str_lit("##gap"), UI_Container_None, Axis2_X, UI_Size_Fixed(ui_px(40)), UI_Size_Fill);
         ui_label(entry->keybind);
       }
 
@@ -1428,7 +1442,7 @@ fn_internal void ui_hook_draw_color_picker_hsv_sv(UI_Response *response, R2F dra
     }
   }
 
-  F32 picker_size = 6;
+  F32 picker_size = ui_px(6);
 
   V2F size        = r2f_size(draw_region);
   V2F sv          = v2f(response->picked_position.x / size.x, response->picked_position.y / size.y);
@@ -1473,12 +1487,12 @@ fn_internal void ui_hook_draw_color_picker_hsv_h(UI_Response *response, R2F draw
 
 fn_internal void ui_color_picker_hsv(Str label, HSV *color) {
   UI_Node *container = ui_container(label, UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fill);
-  container->layout.gap_child = 15.f;
-  container->layout.gap_border[Axis2_X] = 7.f;
-  container->layout.gap_border[Axis2_Y] = 7.f;
+  container->layout.gap_child = ui_px(15);
+  container->layout.gap_border[Axis2_X] = ui_px(7);
+  container->layout.gap_border[Axis2_Y] = ui_px(7);
   UI_Parent_Scope(container) {
 
-    UI_Node *sv_picker = ui_container(str_lit("##sv_picker"), UI_Container_None, Axis2_X, UI_Size_Fixed(256), UI_Size_Fixed(256));
+    UI_Node *sv_picker = ui_container(str_lit("##sv_picker"), UI_Container_None, Axis2_X, UI_Size_Fixed(ui_px(256)), UI_Size_Fixed(ui_px(256)));
     sv_picker->flags |= UI_Flag_Draw_Content_Hook;
     sv_picker->draw.content_hook = ui_hook_draw_color_picker_hsv_sv;
     memory_copy(&sv_picker->draw.content_user_data, &color->h, sizeof(F32));
@@ -1495,7 +1509,7 @@ fn_internal void ui_color_picker_hsv(Str label, HSV *color) {
       sv_picker->response.picked_position = v2f_had(color->sv, size);
     }
 
-    UI_Node *h_picker = ui_container(str_lit("##h_picker"), UI_Container_None, Axis2_X, UI_Size_Fixed(25), UI_Size_Fixed(256));
+    UI_Node *h_picker = ui_container(str_lit("##h_picker"), UI_Container_None, Axis2_X, UI_Size_Fixed(ui_px(25)), UI_Size_Fixed(ui_px(256)));
     h_picker->flags |= UI_Flag_Draw_Content_Hook;
     h_picker->draw.content_hook = ui_hook_draw_color_picker_hsv_h;
     h_picker->layout.gap_border[Axis2_X] = 0;
@@ -1511,7 +1525,7 @@ fn_internal void ui_color_picker_hsv(Str label, HSV *color) {
     }
 
     UI_Node *numeric_edit = ui_container(str_lit("##numeric"), UI_Container_None, Axis2_Y, UI_Size_Fit, UI_Size_Fill);
-    numeric_edit->layout.gap_child = 5.f;
+    numeric_edit->layout.gap_child = ui_px(5);
     UI_Parent_Scope(numeric_edit) {
 
       V3F color_hsv = v3f((I32)(color->h * 360), (I32)(color->s * 100), (I32)(color->v * 100));
@@ -1537,7 +1551,7 @@ fn_internal void ui_color_hsv(Str label, HSV *color_hsv) {
   UI_Parent_Scope(ui_container(label, UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
 
     ui_label(label);
-    ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(5), UI_Size_Fit);
+    ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(ui_px(5)), UI_Size_Fit);
     ui_container(str_lit("##padding_2"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit);
 
     UI_Flags flags =
@@ -1561,7 +1575,7 @@ fn_internal void ui_color_hsv(Str label, HSV *color_hsv) {
     node->palette.border = hsv_u32(200, 50, 40);
 
     if (node->response.press) {
-      V2F spawn_at = v2f(node->solved.region_absolute.x0, pl_display()->resolution.y - node->solved.region_absolute.y0 + 5);
+      V2F spawn_at = v2f(node->solved.region_absolute.x0, pl_display()->resolution.y - node->solved.region_absolute.y0 + ui_px(5));
       ui_context_spawn(node, spawn_at);
     }
 
@@ -1575,7 +1589,7 @@ fn_internal void ui_color_hsv_fixed(Str label, HSV *color_hsv) {
   UI_Parent_Scope(ui_container(label, UI_Container_None, Axis2_X, UI_Size_Fit, UI_Size_Fit)) {
 
     ui_label(label);
-    ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(5), UI_Size_Fit);
+    ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(ui_px(5)), UI_Size_Fit);
 
     UI_Flags flags =
       UI_Flag_Response_Hover   |
@@ -1598,7 +1612,7 @@ fn_internal void ui_color_hsv_fixed(Str label, HSV *color_hsv) {
     node->palette.border = hsv_u32(200, 50, 40);
 
     if (node->response.press) {
-      V2F spawn_at = v2f(node->solved.region_absolute.x0, pl_display()->resolution.y - node->solved.region_absolute.y0 + 5);
+      V2F spawn_at = v2f(node->solved.region_absolute.x0, pl_display()->resolution.y - node->solved.region_absolute.y0 + ui_px(5));
       ui_context_spawn(node, spawn_at);
     }
 
