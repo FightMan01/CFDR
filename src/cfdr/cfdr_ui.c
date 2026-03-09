@@ -63,6 +63,8 @@ typedef struct CFDR_UI_State {
   G2_Font font_text;
   G2_Font font_mono;
   G2_Font font_icon;
+  F32     scale;
+  I32     font_size;
 
   CFDR_UI_Split_Mode split_mode;
   B32                fullscreen;
@@ -75,20 +77,48 @@ fn_internal void cfdr_ui_viewport_draw_hook(UI_Response *response, R2F draw_regi
   cfdr_overlay_draw(&state->overlay, draw_region);
 }
 
-fn_internal void cfdr_ui_init(CFDR_UI_State *ui, CFDR_State *state) {
-  arena_init(&ui->arena);
+fn_internal F32 cfdr_ui_scale_from_resolution(V2F resolution) {
+  F32 scale_x = f32_div_safe(resolution.x, 2560.f);
+  F32 scale_y = f32_div_safe(resolution.y, 1440.f);
+  return f32_clamp(f32_min(scale_x, scale_y), 0.75f, 1.5f);
+}
 
+fn_internal void cfdr_ui_reload_fonts(CFDR_UI_State *ui, I32 font_size) {
   Codepoint icon_codepoints[] = {
 #undef  Icon_X
 #define Icon_X(name_, value_) codepoint_from_utf8(Icon_##name_, 0),
     Icon_List_All_X
   };
 
-  g2_font_init(&ui->font_text, &ui->arena, Text_Font_Baked, 22.f, v2_u16(512, 512), Codepoints_ASCII);
-  g2_font_init(&ui->font_mono, &ui->arena, Mono_Font_Baked, 22.f, v2_u16(512, 512), Codepoints_ASCII);
-  g2_font_init(&ui->font_icon, &ui->arena, Icon_Font_Baked, 22.f, v2_u16(512, 512), array_from_sarray(Array_Codepoint, icon_codepoints));
+  if (ui->font_text.init) { g2_font_destroy(&ui->font_text); }
+  if (ui->font_mono.init) { g2_font_destroy(&ui->font_mono); }
+  if (ui->font_icon.init) { g2_font_destroy(&ui->font_icon); }
 
+  arena_clear(&ui->arena);
+  g2_font_init(&ui->font_text, &ui->arena, Text_Font_Baked, font_size, v2_u16(512, 512), Codepoints_ASCII);
+  g2_font_init(&ui->font_mono, &ui->arena, Mono_Font_Baked, font_size, v2_u16(512, 512), Codepoints_ASCII);
+  g2_font_init(&ui->font_icon, &ui->arena, Icon_Font_Baked, font_size, v2_u16(512, 512), array_from_sarray(Array_Codepoint, icon_codepoints));
+  ui->font_size = font_size;
+}
+
+fn_internal void cfdr_ui_sync_scale(CFDR_UI_State *ui) {
+  F32 scale = cfdr_ui_scale_from_resolution(pl_display()->resolution);
+  I32 font_size = (I32)f32_ceil(22.f * scale);
+
+  ui->scale = scale;
+  ui_set_scale(scale);
+
+  if (ui->font_size != font_size) {
+    cfdr_ui_reload_fonts(ui, font_size);
+  }
+}
+
+fn_internal void cfdr_ui_init(CFDR_UI_State *ui, CFDR_State *state) {
+  arena_init(&ui->arena);
   ui->state = state;
+  ui->scale = 1.f;
+  ui->font_size = 0;
+  cfdr_ui_sync_scale(ui);
 }
 
 fn_internal void cfdr_ui_menu_bar(CFDR_UI_State *ui) {
@@ -133,14 +163,14 @@ fn_internal void cfdr_ui_viewport_menu_bar(CFDR_UI_State *ui, I32 viewport_index
     }
 
     UI_Parent_Scope(ui_container(str_lit("##left"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
-      ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(25), UI_Size_Fit);
+      ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(ui_px(25)), UI_Size_Fit);
       UI_Parent_Scope(ui_container(str_lit("##toolbar"), UI_Container_None, Axis2_X, UI_Size_Fit, UI_Size_Fit)) {
         ui_f32_edit_static(str_lit("Grid Level"), &ui->state->viewport.grid_level, 0.1f, 10.f, 0.01f);
 
-        ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(10), UI_Size_Fit);
+        ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(ui_px(10)), UI_Size_Fit);
         ui_color_hsv(str_lit("Grid Color"), &ui->state->viewport.grid_color.hsv);
 
-        ui_container(str_lit("##padding_2"), UI_Container_None, Axis2_X, UI_Size_Fixed(10), UI_Size_Fit);
+        ui_container(str_lit("##padding_2"), UI_Container_None, Axis2_X, UI_Size_Fixed(ui_px(10)), UI_Size_Fit);
         UI_Parent_Scope(ui_container(str_lit("##background_color"), UI_Container_None, Axis2_X, UI_Size_Fit, UI_Size_Fit)) {
           ui_color_hsv(str_lit("Background"), &ui->state->viewport.background.hsv);
         }
@@ -198,9 +228,9 @@ fn_internal void cfdr_ui_viewport(CFDR_UI_State *ui, I32 viewport_index) {
     UI_Context_Scope(content, str_lit("##context")) {
       UI_Node *container = ui_container(str_lit("##padding"), UI_Container_Box, Axis2_Y, UI_Size_Fit, UI_Size_Fit);
 
-      container->layout.gap_border[Axis2_X] = 5;
-      container->layout.gap_border[Axis2_Y] = 5;
-      container->layout.gap_child = 5;
+      container->layout.gap_border[Axis2_X] = ui_px(5);
+      container->layout.gap_border[Axis2_Y] = ui_px(5);
+      container->layout.gap_child = ui_px(5);
 
       UI_Parent_Scope(container) {
         UI_Parent_Scope(ui_container(str_lit("##viewport_tab"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fit)) {
@@ -244,8 +274,8 @@ fn_internal void cfdr_ui_overlay_panel(CFDR_UI_State *ui) {
 
     UI_Node *overlay_container = ui_container(str_lit("##overlay_container"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fit);
     UI_Parent_Scope(overlay_container) {
-      overlay_container->layout.gap_border[Axis2_X] = 2;
-      overlay_container->layout.gap_border[Axis2_Y] = 5;
+      overlay_container->layout.gap_border[Axis2_X] = ui_px(2);
+      overlay_container->layout.gap_border[Axis2_Y] = ui_px(5);
       overlay_container->layout.gap_child = 0;
 
 #if 0
@@ -264,8 +294,8 @@ fn_internal void cfdr_ui_overlay_panel(CFDR_UI_State *ui) {
 
         UI_Parent_Scope(ui_container(str_from_cstr(buffer), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
           UI_Node *node = ui_container(str_from_cstr(buffer), UI_Container_Box, Axis2_X, UI_Size_Fill, UI_Size_Fit);
-          node->layout.gap_border[Axis2_X] = 5;
-          node->layout.gap_border[Axis2_Y] = 5;
+          node->layout.gap_border[Axis2_X] = ui_px(5);
+          node->layout.gap_border[Axis2_Y] = ui_px(5);
           node->flags |= UI_Flag_Draw_Rounded;
 
           if (it != ui->state->overlay.active) {
@@ -328,9 +358,9 @@ fn_internal void cfdr_ui_property_overlay(CFDR_UI_State *ui) {
   UI_Node *container = ui_container(str_lit("##property_overlay"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fit);
   if (ui->state->overlay.active) {
     UI_Parent_Scope(container) {
-      container->layout.gap_border[Axis2_X] = 5;
-      container->layout.gap_border[Axis2_Y] = 5;
-      container->layout.gap_child = 5;
+      container->layout.gap_border[Axis2_X] = ui_px(5);
+      container->layout.gap_border[Axis2_Y] = ui_px(5);
+      container->layout.gap_child = ui_px(5);
 
       var_local_persist Str x_align_list[] = { str_lit("Left"),   str_lit("Right"), str_lit("Center"), };
       var_local_persist Str y_align_list[] = { str_lit("Bottom"), str_lit("Top"),   str_lit("Center"), };
@@ -359,9 +389,9 @@ fn_internal void cfdr_ui_property_overlay(CFDR_UI_State *ui) {
 
       if (shadow_flag) {
         UI_Node *shadow_container = ui_container(str_lit("##shadow"), UI_Container_Box, Axis2_Y, UI_Size_Fill, UI_Size_Fit);
-        shadow_container->layout.gap_border[Axis2_X] = 5;
-        shadow_container->layout.gap_border[Axis2_Y] = 5;
-        shadow_container->layout.gap_child = 5;
+        shadow_container->layout.gap_border[Axis2_X] = ui_px(5);
+        shadow_container->layout.gap_border[Axis2_Y] = ui_px(5);
+        shadow_container->layout.gap_child = ui_px(5);
         UI_Parent_Scope(shadow_container) {
           shadow_container->flags |= UI_Flag_Draw_Rounded;
           shadow_container->palette.idle  = hsv_u32(200, 10, 10);
@@ -379,9 +409,9 @@ fn_internal void cfdr_ui_property_overlay(CFDR_UI_State *ui) {
 fn_internal void cfdr_ui_property_surface(CFDR_UI_State *ui) {
   UI_Node *container = ui_container(str_lit("##property_panel"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fit);
   UI_Parent_Scope(container) {
-    container->layout.gap_border[Axis2_X] = 5;
-    container->layout.gap_border[Axis2_Y] = 5;
-    container->layout.gap_child = 5;
+    container->layout.gap_border[Axis2_X] = ui_px(5);
+    container->layout.gap_border[Axis2_Y] = ui_px(5);
+    container->layout.gap_child = ui_px(5);
 
     CFDR_Layer *layer = &CFDR_Res_State.layer_array.dat[CFDR_Res_State.layer_active];
     ui_color_hsv(str_lit("Color"), &layer->color.hsv);
@@ -399,9 +429,9 @@ fn_internal void cfdr_ui_property_surface(CFDR_UI_State *ui) {
 fn_internal void cfdr_ui_property_volume(CFDR_UI_State *ui) {
   UI_Node *container = ui_container(str_lit("##property_panel"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fit);
   UI_Parent_Scope(container) {
-    container->layout.gap_border[Axis2_X] = 5;
-    container->layout.gap_border[Axis2_Y] = 5;
-    container->layout.gap_child = 5;
+    container->layout.gap_border[Axis2_X] = ui_px(5);
+    container->layout.gap_border[Axis2_Y] = ui_px(5);
+    container->layout.gap_child = ui_px(5);
 
     CFDR_Layer *layer = &CFDR_Res_State.layer_array.dat[CFDR_Res_State.layer_active];
 
@@ -443,7 +473,7 @@ fn_internal void cfdr_ui_property_panel(CFDR_UI_State *ui) {
 }
 
 fn_internal void cfdr_ui_side_panel(CFDR_UI_State *ui) {
-  UI_Parent_Scope(ui_container(str_lit("##side_panel"), UI_Container_None, Axis2_Y, UI_Size_Fixed(450), UI_Size_Fill)) {
+  UI_Parent_Scope(ui_container(str_lit("##side_panel"), UI_Container_None, Axis2_Y, UI_Size_Fixed(ui_px(450)), UI_Size_Fill)) {
     cfdr_ui_overlay_panel   (ui);
     cfdr_ui_property_panel  (ui);
   }
@@ -502,7 +532,7 @@ fn_internal void cfdr_ui_workspace(CFDR_UI_State *ui) {
     UI_Parent_Scope(ui_container(str_lit("##container_1"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fill)) {
       cfdr_ui_viewport_all(ui);
 
-      UI_Parent_Scope(ui_container(str_lit("##container_2"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fixed(200))) {
+      UI_Parent_Scope(ui_container(str_lit("##container_2"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fixed(ui_px(200)))) {
         cfdr_ui_resource_panel(ui);
         cfdr_ui_log_panel(ui);
       }
@@ -511,6 +541,7 @@ fn_internal void cfdr_ui_workspace(CFDR_UI_State *ui) {
 }
 
 fn_internal void cfdr_ui(CFDR_UI_State *ui) {
+  cfdr_ui_sync_scale(ui);
   UI_Font_Scope(&ui->font_text) {
     if (pl_input()->keyboard.state[PL_KB_F].press) {
       ui->fullscreen = !ui->fullscreen;
