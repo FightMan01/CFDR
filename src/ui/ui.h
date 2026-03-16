@@ -17,7 +17,6 @@ enum {
   // NOTE(cmat): Action Response.
   UI_Flag_Response_Hover           = 1 << 0,
   UI_Flag_Response_Down            = 1 << 1,
-
   UI_Flag_Response_Press           = 1 << 2, // NOTE(cmat): A press triggers ONCE, after a mouse click.
   UI_Flag_Response_Release         = 1 << 3, // NOTE(cmat): A release triggers ONCE, after the mouse is released.
   UI_Flag_Response_Drag            = 1 << 4,

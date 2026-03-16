@@ -95,7 +95,6 @@ fn_internal B32 tc_packer_push(TC_Packer *sk, V2_U16 rect, U16 border, V2_U16 *p
     }
   }
 
-
   *packed_position = v2_u16(best_fit_x, best_fit_y);
   return result;
 }

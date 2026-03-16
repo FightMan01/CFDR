@@ -144,7 +144,7 @@
 # define If_Unlikely(x)   if(!!(x))
 #elif COMPILER_CLANG || COMPILER_GCC
 # define If_Likely(x)     if(__builtin_expect(!!(x), 1))
-# define If_Unlikely(x)   if(__builtin_expect(!!(x), 1))
+# define If_Unlikely(x)   if(__builtin_expect(!!(x), 0))
 #endif
 
 // ------------------------------------------------------------

@@ -77,7 +77,7 @@ fn_internal void co_memory_unreserve  (void *virtual_base, U64 bytes) {
 }
 
 fn_internal void co_memory_commit   (void *virtual_base, U64 bytes, CO_Commit_Flag mode)  { }
-fn_internal void co_memory_uncommit (void *virtual_base, U64 bytes)                         { }
+fn_internal void co_memory_uncommit (void *virtual_base, U64 bytes)                       { }
 
 // ------------------------------------------------------------
 // #-- WASM entry point.
