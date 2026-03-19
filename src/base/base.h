@@ -133,7 +133,7 @@ enum {
 
 typedef struct Arena_Init {
   Arena_Flag flags;
-  U64             reserve_initial;
+  U64        reserve_initial;
 } Arena_Init;
 
 typedef struct Arena {
@@ -1505,8 +1505,8 @@ typedef HSV_F32 HSV;
 typedef RGBA_F32 RGBA;
 typedef HSVA_F32 HSVA;
 
-#define rgb_u32(r_, g_, b_) v3f((r_) / 255.f, (g_) / 255.f, (b_) / 255.f)
-#define hsv_u32(h_, s_, v_) v3f((h_) / 360.f, (s_) / 100.f, (v_) / 100.f)
+#define rgb_u32(r_, g_, b_) (HSV) { (r_) / 255.f, (g_) / 255.f, (b_) / 255.f }
+#define hsv_u32(h_, s_, v_) (HSV) { (h_) / 360.f, (s_) / 100.f, (v_) / 100.f }
 
 #define rbga_u32(r_, g_, b_, a_) v4f((r_) / 255.f, (g_) / 255.f, (b_) / 255.f, (a_) / 255.f)
 #define hsva_u32(h_, s_, v_, a_) v4f((h_) / 360.f, (s_) / 100.f, (v_) / 100.f, (a_) / 255.f)

@@ -1,6 +1,9 @@
 #include "cfdr_resource.h"
 #include "cfdr_resource.c"
 
+#include "cfdr_scene.h"
+#include "cfdr_scene.c"
+
 #include "cfdr_overlay.h"
 #include "cfdr_overlay.c"
 

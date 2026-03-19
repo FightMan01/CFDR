@@ -1,49 +1,51 @@
 #define CFDR_VERSION_STRING "BETA v0.1"
 
 #define Icon_X(name_, value_)
-#define Icon_List_All_X                         \
-  Icon_X(FA_PLAY,             "\xef\x81\x8b")   \
-  Icon_X(FA_PAUSE,            "\xef\x81\x8c")   \
-  Icon_X(FA_FORWARD,          "\xef\x81\x8e")   \
-  Icon_X(FA_FORWARD_FAST,     "\xef\x81\x90")   \
-  Icon_X(FA_FORWARD_STEP,     "\xef\x81\x91")   \
-  Icon_X(FA_FONT,             "\xef\x80\xb1")   \
-  Icon_X(FA_EYE,              "\xef\x81\xae")   \
-  Icon_X(FA_EYE_SLASH,        "\xef\x81\xb0")   \
-  Icon_X(FA_FILE,             "\xef\x85\x9b")   \
-  Icon_X(FA_CUBE,             "\xef\x86\xb2")   \
-  Icon_X(FA_CUBES,            "\xef\x86\xb3")   \
-  Icon_X(FA_CHART_AREA,       "\xef\x87\xbe")   \
-  Icon_X(FA_TABLE,            "\xef\x83\x8e")   \
-  Icon_X(FA_CAMERA_RETRO,     "\xef\x82\x83")   \
-  Icon_X(FA_ANGLE_DOWN,       "\xef\x84\x87")   \
-  Icon_X(FA_ANGLES_DOWN,      "\xef\x84\x83")   \
-  Icon_X(FA_STICKY_NOTE,      "\xef\x89\x89")   \
-  Icon_X(FA_IMAGE,            "\xef\x80\xbe")   \
-  Icon_X(FA_ANGLES_RIGHT,     "\xef\x84\x81")   \
-  Icon_X(FA_WRENCH,           "\xef\x82\xad")   \
-  Icon_X(FA_ALIGN_JUSTIFY,    "\xef\x80\xb9")   \
-  Icon_X(FA_LIST_UL,          "\xef\x83\x8a")   \
-  Icon_X(FA_BOX_ARCHIVE,      "\xef\x86\x87")   \
-  Icon_X(FA_EXCLAMATION_TRIANGLE, "\xef\x81\xb1") \
-  Icon_X(FA_SQUARE_XMARK, "\xef\x8b\x93") \
-  Icon_X(FA_FLOPPY_DISK, "\xef\x83\x87") \
-  Icon_X(FA_TABLE_CELLS_LARGE, "\xef\x80\x89")
+#define Icon_List_All_X                                          \
+Icon_X(FA_PLAY,                                  "\xef\x81\x8b") \
+Icon_X(FA_PAUSE,                                 "\xef\x81\x8c") \
+Icon_X(FA_FORWARD,                               "\xef\x81\x8e") \
+Icon_X(FA_FORWARD_FAST,                          "\xef\x81\x90") \
+Icon_X(FA_FORWARD_STEP,                          "\xef\x81\x91") \
+Icon_X(FA_FONT,                                  "\xef\x80\xb1") \
+Icon_X(FA_EYE,                                   "\xef\x81\xae") \
+Icon_X(FA_EYE_SLASH,                             "\xef\x81\xb0") \
+Icon_X(FA_FILE,                                  "\xef\x85\x9b") \
+Icon_X(FA_CUBE,                                  "\xef\x86\xb2") \
+Icon_X(FA_CUBES,                                 "\xef\x86\xb3") \
+Icon_X(FA_CHART_AREA,                            "\xef\x87\xbe") \
+Icon_X(FA_TABLE,                                 "\xef\x83\x8e") \
+Icon_X(FA_CAMERA_RETRO,                          "\xef\x82\x83") \
+Icon_X(FA_ANGLE_DOWN,                            "\xef\x84\x87") \
+Icon_X(FA_ANGLES_DOWN,                           "\xef\x84\x83") \
+Icon_X(FA_STICKY_NOTE,                           "\xef\x89\x89") \
+Icon_X(FA_IMAGE,                                 "\xef\x80\xbe") \
+Icon_X(FA_ANGLES_RIGHT,                          "\xef\x84\x81") \
+Icon_X(FA_WRENCH,                                "\xef\x82\xad") \
+Icon_X(FA_ALIGN_JUSTIFY,                         "\xef\x80\xb9") \
+Icon_X(FA_LIST_UL,                               "\xef\x83\x8a") \
+Icon_X(FA_BOX_ARCHIVE,                           "\xef\x86\x87") \
+Icon_X(FA_EXCLAMATION_TRIANGLE,                  "\xef\x81\xb1") \
+Icon_X(FA_SQUARE_XMARK,                          "\xef\x8b\x93") \
+Icon_X(FA_FLOPPY_DISK,                           "\xef\x83\x87") \
+Icon_X(FA_TABLE_CELLS_LARGE,                     "\xef\x80\x89") \
+Icon_X(FA_SUN,                                   "\xef\x86\x85") \
+Icon_X(FA_MOON,                                  "\xef\x86\x86")
 
 #undef  Icon_X
 #define Icon_X(name_, value_) var_global Str Icon_##name_ = str_lit(value_);
 Icon_List_All_X
 
 var_global U08 Text_Font_Raw[] = {
-#embed "../cfdr_data/Geist-Regular.ttf"
+#embed"../cfdr_data/Geist-Regular.ttf"
 };
 
 var_global U08 Mono_Font_Raw[] = {
-#embed "../cfdr_data/RobotoMono-Regular.ttf"
+#embed"../cfdr_data/RobotoMono-Regular.ttf"
 };
 
 var_global U08 Icon_Font_Raw[] = {
-#embed "../cfdr_data/FontAwesome.otf"
+#embed"../cfdr_data/FontAwesome.otf"
 };
 
 var_global Str Text_Font_Baked = (Str) { .len = sizeof(Text_Font_Raw), .txt = Text_Font_Raw };
@@ -60,6 +62,10 @@ typedef struct CFDR_UI_State {
   CFDR_State *state;
 
   Arena   arena;
+  Arena   arena_font;
+
+  B32     font_init;
+  F32     font_size;
   G2_Font font_text;
   G2_Font font_mono;
   G2_Font font_icon;
@@ -68,6 +74,7 @@ typedef struct CFDR_UI_State {
 
   CFDR_UI_Split_Mode split_mode;
   B32                fullscreen;
+  B32                dark_mode;
 } CFDR_UI_State;
 
 fn_internal void cfdr_ui_viewport_draw_hook(UI_Response *response, R2F draw_region, void *user_data) {
@@ -77,58 +84,83 @@ fn_internal void cfdr_ui_viewport_draw_hook(UI_Response *response, R2F draw_regi
   cfdr_overlay_draw(&state->overlay, draw_region);
 }
 
-fn_internal F32 cfdr_ui_scale_from_resolution(V2F resolution) {
-  F32 scale_x = f32_div_safe(resolution.x, 2560.f);
-  F32 scale_y = f32_div_safe(resolution.y, 1440.f);
-  return f32_clamp(f32_min(scale_x, scale_y), 0.75f, 1.5f);
-}
+fn_internal void cfdr_ui_update_fonts(CFDR_UI_State *ui) {
+  F32 font_size = 22.f * js_web_device_pixel_ratio();
+  if (ui->font_size != font_size) {
+    if (ui->font_init) {
+      g2_font_destroy (&ui->font_text);
+      g2_font_destroy (&ui->font_mono);
+      g2_font_destroy (&ui->font_icon);
+      arena_clear     (&ui->arena_font);
+    }
 
-fn_internal void cfdr_ui_reload_fonts(CFDR_UI_State *ui, I32 font_size) {
-  Codepoint icon_codepoints[] = {
+    Codepoint icon_codepoints[] = {
 #undef  Icon_X
 #define Icon_X(name_, value_) codepoint_from_utf8(Icon_##name_, 0),
     Icon_List_All_X
-  };
+    };
 
-  if (ui->font_text.init) { g2_font_destroy(&ui->font_text); }
-  if (ui->font_mono.init) { g2_font_destroy(&ui->font_mono); }
-  if (ui->font_icon.init) { g2_font_destroy(&ui->font_icon); }
+    g2_font_init(&ui->font_text, &ui->arena_font, Text_Font_Baked, font_size, v2_u16(1024, 1024), Codepoints_ASCII);
+    g2_font_init(&ui->font_mono, &ui->arena_font, Mono_Font_Baked, font_size, v2_u16(1024, 1024), Codepoints_ASCII);
+    g2_font_init(&ui->font_icon, &ui->arena_font, Icon_Font_Baked, font_size, v2_u16(1024, 1024), array_from_sarray(Array_Codepoint, icon_codepoints));
 
-  arena_clear(&ui->arena);
-  g2_font_init(&ui->font_text, &ui->arena, Text_Font_Baked, font_size, v2_u16(512, 512), Codepoints_ASCII);
-  g2_font_init(&ui->font_mono, &ui->arena, Mono_Font_Baked, font_size, v2_u16(512, 512), Codepoints_ASCII);
-  g2_font_init(&ui->font_icon, &ui->arena, Icon_Font_Baked, font_size, v2_u16(512, 512), array_from_sarray(Array_Codepoint, icon_codepoints));
-  ui->font_size = font_size;
-}
 
-fn_internal void cfdr_ui_sync_scale(CFDR_UI_State *ui) {
-  F32 scale = cfdr_ui_scale_from_resolution(pl_display()->resolution);
-  I32 font_size = (I32)f32_ceil(22.f * scale);
-
-  ui->scale = scale;
-  ui_set_scale(scale);
-
-  if (ui->font_size != font_size) {
-    cfdr_ui_reload_fonts(ui, font_size);
+    ui->font_init = 1;
+    ui->font_size = font_size;
   }
 }
 
 fn_internal void cfdr_ui_init(CFDR_UI_State *ui, CFDR_State *state) {
   arena_init(&ui->arena);
-  ui->state = state;
-  ui->scale = 1.f;
+  arena_init(&ui->arena_font);
+
+  ui->state     = state;
+  ui->dark_mode = 1;
+
   ui->font_size = 0;
-  cfdr_ui_sync_scale(ui);
+  ui->font_init = 0;
+  cfdr_ui_update_fonts(ui);
 }
 
 fn_internal void cfdr_ui_menu_bar(CFDR_UI_State *ui) {
   UI_Node *menu_bar = ui_container(str_lit("##menu_bar"), UI_Container_Box, Axis2_X, UI_Size_Fill, UI_Size_Fit);
-  menu_bar->palette.idle  = hsv_u32(200, 10, 10);
-  menu_bar->palette.hover = hsv_u32(210, 10, 15);
-  menu_bar->palette.down  = hsv_u32(220, 10, 15);
+  // menu_bar->palette.idle  = hsv_u32(200, 10, 10);
+  // menu_bar->palette.hover = hsv_u32(210, 10, 15);
+  // menu_bar->palette.down  = hsv_u32(220, 10, 15);
 
   UI_Parent_Scope(menu_bar) {
+
+    if (ui_button(str_lit("File")).press) {
+      log_info("Button has been pressed");
+    }
+
+
     ui_button(str_lit("Export"));
+    ui_container(str_lit("##padding"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit);
+
+    UI_Font_Scope(&ui->font_icon) {
+      F32 icon_1_width = fo_text_width(&ui->font_icon.font, Icon_FA_MOON);
+      F32 icon_2_width = fo_text_width(&ui->font_icon.font, Icon_FA_SUN);
+      F32 icon_width   = f32_max(icon_1_width, icon_2_width);
+
+      UI_Node *theme_button = ui_container(ui->dark_mode ? Icon_FA_MOON : Icon_FA_SUN, UI_Container_Box, Axis2_X, UI_Size_Fixed(icon_width), UI_Size_Fill);
+      theme_button->flags  |= UI_Flag_Draw_Label;
+      theme_button->flags  |= UI_Flag_Draw_Label_Centered;
+      theme_button->flags  |= UI_Flag_Draw_Rounded;
+
+      theme_button->palette.idle  = hsv_u32(235, 27, 25);
+      theme_button->palette.hover = hsv_u32(235, 24, 44);
+      theme_button->palette.down  = hsv_u32(235, 10, 15);
+
+      if (theme_button->response.press) {
+        ui->dark_mode = !ui->dark_mode;
+        if (ui->dark_mode) {
+          UI_Theme_Active = UI_Theme_Dark;
+        } else {
+          UI_Theme_Active = UI_Theme_Light;
+        }
+      }
+    }
   }
 }
 
@@ -206,7 +238,7 @@ fn_internal void cfdr_ui_viewport_menu_bar(CFDR_UI_State *ui, I32 viewport_index
 fn_internal void cfdr_ui_viewport(CFDR_UI_State *ui, I32 viewport_index) {
   
   char buffer[512];
-  stbsp_snprintf(buffer, 512, "##viewport_%d", viewport_index);
+  stbsp_snprintf(buffer, 512,"##viewport_%d", viewport_index);
 
   UI_Parent_Scope(ui_container(str_from_cstr(buffer), UI_Container_Box, Axis2_Y, UI_Size_Fill, UI_Size_Fill)) {
     cfdr_ui_viewport_menu_bar(ui, viewport_index);
@@ -238,21 +270,9 @@ fn_internal void cfdr_ui_viewport(CFDR_UI_State *ui, I32 viewport_index) {
           ui_separator(str_lit("##break"));
         }
 
-
         ui_checkbox(str_lit("Orthographic View"), &CFDR_Draw_State.viewport_array[viewport_index].camera.orthographic);
         ui_checkbox(str_lit("Fullscreen"), &ui->fullscreen);
         ui_checkbox(str_lit("Show Grid"),  &CFDR_Draw_State.viewport_array[viewport_index].show_grid);
-
-        // ui_separator(str_lit("##break_2"));
-
-#if 0
-        if (ui_button_entry(str_lit("Single View")).press) {
-          ui->split_mode = CFDR_UI_Split_None;
-        }
-        if (ui_button_entry(str_lit("Dual View")).press) {
-          ui->split_mode = CFDR_UI_Split_Dual;
-        }
-#endif
       }
     }
 
@@ -290,7 +310,7 @@ fn_internal void cfdr_ui_overlay_panel(CFDR_UI_State *ui) {
       I32 overlay_at = 0;
       for (CFDR_Overlay_Node *it = ui->state->overlay.first; it; it = it->next, ++overlay_at) {
         char buffer[512] = { };
-        stbsp_snprintf(buffer, 512, "##overlay_%d", overlay_at);
+        stbsp_snprintf(buffer, 512,"##overlay_%d", overlay_at);
 
         UI_Parent_Scope(ui_container(str_from_cstr(buffer), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
           UI_Node *node = ui_container(str_from_cstr(buffer), UI_Container_Box, Axis2_X, UI_Size_Fill, UI_Size_Fit);
@@ -340,9 +360,11 @@ fn_internal void cfdr_ui_overlay_panel(CFDR_UI_State *ui) {
             eye->flags  |= UI_Flag_Draw_Label_Centered;
             eye->flags  |= UI_Flag_Draw_Rounded;
 
-            eye->palette.idle  = hsv_u32(235, 27, 25);
-            eye->palette.hover = hsv_u32(235, 24, 44);
-            eye->palette.down  = hsv_u32(235, 10, 15);
+            eye->palette = UI_Theme_Active.button;
+            
+            // eye->palette.idle  = hsv_u32(235, 27, 25);
+            // eye->palette.hover = hsv_u32(235, 24, 44);
+            // eye->palette.down  = hsv_u32(235, 10, 15);
 
             if (eye->response.press) {
               it->visible = !it->visible;
@@ -367,6 +389,10 @@ fn_internal void cfdr_ui_property_overlay(CFDR_UI_State *ui) {
 
       // CFDR_Layer *layer = &CFDR_Res_State.layer_array.dat[CFDR_Res_State.layer_active];
       CFDR_Overlay_Node *overlay = ui->state->overlay.active;
+
+      var_local_persist HSV my_value = { };
+      ui_color_hsv(str_lit("My Color Value"), &my_value);
+
 
       ui_color_hsv(str_lit("Color"),  &overlay->color.hsv);
       ui_f32_edit(str_lit("Opacity"), &overlay->color.a, 0.0f, 1.0f, 0.01f);
@@ -402,6 +428,25 @@ fn_internal void cfdr_ui_property_overlay(CFDR_UI_State *ui) {
           ui_f32_edit(str_lit("Offset"),  &overlay->shadow_offset, 0.0f, 100.0f, 0.1f);
         }
       }
+
+#if 0
+#define tweak_color(comp_) \
+      ui_color_hsv(str_lit(Macro_Stringize(comp_) "border"), &UI_Theme_Dark.comp_.border);  \
+      ui_color_hsv(str_lit(Macro_Stringize(comp_) "idle"), &UI_Theme_Dark.comp_.idle);  \
+      ui_color_hsv(str_lit(Macro_Stringize(comp_) "hover"), &UI_Theme_Dark.comp_.hover);  \
+      ui_color_hsv(str_lit(Macro_Stringize(comp_) "down"), &UI_Theme_Dark.comp_.down);  \
+      ui_color_hsv(str_lit(Macro_Stringize(comp_) "inner_fill"), &UI_Theme_Dark.comp_.inner_fill);
+
+      tweak_color(box);
+      tweak_color(separator);
+      tweak_color(button);
+      tweak_color(checkbox);
+      tweak_color(edit_value);
+      tweak_color(list);
+
+#undef tweak_color
+#endif
+
     }
   }
 }
@@ -452,7 +497,7 @@ fn_internal void cfdr_ui_property_panel(CFDR_UI_State *ui) {
         }
 
         char buffer[512];
-        // stbsp_snprintf(buffer, 512, "Properties: %.*s###Properties", str_expand(CFDR_Res_State.layer_array.dat[CFDR_Res_State.layer_active].label));
+        // stbsp_snprintf(buffer, 512,"Properties: %.*s###Properties", str_expand(CFDR_Res_State.layer_array.dat[CFDR_Res_State.layer_active].label));
         ui_label(str_lit("Properties"));
       }
 
@@ -541,7 +586,8 @@ fn_internal void cfdr_ui_workspace(CFDR_UI_State *ui) {
 }
 
 fn_internal void cfdr_ui(CFDR_UI_State *ui) {
-  cfdr_ui_sync_scale(ui);
+  cfdr_ui_update_fonts(ui);
+
   UI_Font_Scope(&ui->font_text) {
     if (pl_input()->keyboard.state[PL_KB_F].press) {
       ui->fullscreen = !ui->fullscreen;

@@ -2,7 +2,7 @@ typedef U32 CFDR_Overlay_Flag;
 enum {
   CFDR_Overlay_Flag_None        = 0,
   CFDR_Overlay_Flag_Background  = 1 << 0,
-  CFDR_Overlay_Flag_Shadow      = 1 << 0,
+  CFDR_Overlay_Flag_Shadow      = 1 << 1,
 };
 
 typedef struct CFDR_Overlay_Node {

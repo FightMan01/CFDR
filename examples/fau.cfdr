@@ -20,7 +20,7 @@
 #overlay {
   tag:              "Title",
   visible:          true,
-  content:          "Basic Example",
+  content:          "FAU - LBM simulation",
   scale:            100,
   color:            @hsv [235, 16, 72],
   shadow_color:     @hsv [252, 57, 45],
@@ -32,19 +32,41 @@
   shadow_offset:    1,
 }
 
-// NOTE(cmat): We can even create a watermark by tweaking the parameters
+// NOTE(cmat): We can even create a watermark user the text overlay
 #overlay {
   tag:              "Watermark",
   visible:          true,
-  content:          "Watermark Text",
-  scale:            200,
+  content:          "HidALGO 2",
+  scale:            75,
   color:            @hsv [200, 59, 68],
-  opacity:          10,
+  opacity:          15,
   shadow_color:     @hsv [100, 20, 0],
-  position_x:       @align "center",
+  position_x:       @align "right",
   position_y:       @align "bottom",
-  border:           [0, 5],
+  border:           [5, 0],
   background:       false,
-  shadow:           true,
+  shadow:           false,
   shadow_offset:    1,
+}
+
+// NOTE(cmat): Bounding box geometry.
+#scene {
+  tag:              "Bounding Box",
+  visible:          true,
+  content:          @surface "fau/frame.stl",
+  opacity:          100,
+  translate:        [0, 0, 0],
+  rotate:           [0, 0, 0],
+  scale:            [1, 1, 1]
+}
+
+// NOTE(cmat): Volumetric visualization
+#scene {
+  tag:              "Volume",
+  visible:          true,
+  content:          @volume "fau/velocity_1.vol32",
+  opacity:          100,
+  translate:        [0, 0, 0],
+  rotate:           [0, 0, 0],
+  scale:            [1, 1, 1]
 }

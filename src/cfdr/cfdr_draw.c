@@ -473,8 +473,6 @@ fn_internal void cfdr_draw_viewport(UI_Response *response, R2F draw_region, void
       vp->camera.look_at = v3f_add(vp->camera.look_at, v3f_mul(-scale * pl_input()->mouse.position_dt.x, x_axis));
       vp->camera.look_at = v3f_add(vp->camera.look_at, v3f_mul(-scale * pl_input()->mouse.position_dt.y, y_axis));
       camera_update(&vp->camera, draw_region);
-
-
     } else {
       vp->camera.theta_deg += 10.f * pl_display()->frame_delta * pl_input()->mouse.position_dt.x;
       vp->camera.phi_deg   += 10.f * pl_display()->frame_delta * pl_input()->mouse.position_dt.y;
