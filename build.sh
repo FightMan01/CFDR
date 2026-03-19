@@ -92,9 +92,11 @@ cp "${source_folder}/cfdr_sze_portal/auth_sze_portal.js"      "${build_folder}/"
 cp "${source_folder}/cfdr_sze_portal/silent-check-sso.html"   "${build_folder}/"
 cp "${source_folder}/cfdr_sze_portal/alice_canvas.js"         "${build_folder}/"
 else
-cp "${source_folder}/web/index.html"                      "${build_folder}/"
-cp "${source_folder}/web/alice_canvas.js"                 "${build_folder}/"
+cp "${source_folder}/web/index.html"                          "${build_folder}/"
+cp "${source_folder}/web/alice_canvas.js"                     "${build_folder}/"
 fi
+
+cp -r examples/ build/
 
 # NOTE(cmat): Compile with walloc.c
 # TODO(cmat): We want to remove this dependency as soon as possible.

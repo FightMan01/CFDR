@@ -102,6 +102,8 @@ fn_internal void ui_init(void) {
 
   UI_State.root->layout.size[Axis2_X] = UI_Size_Fixed(pl_display()->resolution.x);
   UI_State.root->layout.size[Axis2_Y] = UI_Size_Fixed(pl_display()->resolution.y);
+
+  UI_Theme_Active = UI_Theme_Dark;
 }
 
 fn_internal UI_Node *ui_cache(UI_ID id) {
@@ -850,14 +852,10 @@ fn_internal UI_Node *ui_container(Str label, UI_Container_Mode mode, Axis2 layou
   if (mode == UI_Container_Box) {
     node->layout.gap_border[Axis2_X] = ui_px(4);
     node->layout.gap_border[Axis2_Y] = ui_px(4);
-    node->layout.gap_child           = 0;
+    node->layout.gap_child           = 2;
   }
 
-  node->palette.idle    = hsv_u32(200, 10, 10 + 5);
-  node->palette.hover   = hsv_u32(210, 10, 12 + 5);
-  node->palette.down    = hsv_u32(220, 10, 12 + 5);
-  node->palette.border  = hsv_u32(200, 0,  40);
-
+  node->palette = UI_Theme_Active.box;
   return node;
 }
 
@@ -933,7 +931,7 @@ fn_internal UI_Response ui_separator(Str label) {
   node->layout.size[Axis2_X] = UI_Size_Fill;
   node->layout.size[Axis2_Y] = UI_Size_Fixed(ui_px(1));
 
-  node->palette.idle = hsv_u32(0, 0, 50);
+  node->palette = UI_Theme_Active.separator;
 
   return node->response;
 }
@@ -955,11 +953,7 @@ fn_internal UI_Response ui_button(Str label) {
   node->layout.gap_border[Axis2_X] = fo_em(&node->draw.font->font, .25f);
   node->layout.gap_border[Axis2_Y] = fo_em(&node->draw.font->font, .1f);
 
-  node->palette.idle    = hsv_u32(235, 27, 25);
-  node->palette.hover   = hsv_u32(235, 24, 44);
-  node->palette.down    = hsv_u32(235, 10, 15);
-  node->palette.border  = hsv_u32(200, 50,  40);
-
+  node->palette = UI_Theme_Active.button;
   return node->response;
 }
 
@@ -980,21 +974,14 @@ fn_internal UI_Response ui_button_flipped(Str label) {
   node->layout.gap_border[Axis2_X] = fo_em(&node->draw.font->font, .25f);
   node->layout.gap_border[Axis2_Y] = fo_em(&node->draw.font->font, .1f);
 
-  node->palette.idle  = hsv_u32(235, 27, 25);
-  node->palette.hover = hsv_u32(235, 24, 44);
-  node->palette.down  = hsv_u32(235, 10, 15);
-  node->palette.border  = hsv_u32(200, 50,  40);
-
+  node->palette         = UI_Theme_Active.button;
   node->draw.flip_label = 1;
-
   return node->response;
 }
 
 fn_internal UI_Response ui_button_entry(Str label) {
   UI_Node *container = ui_container(label, UI_Container_Box, Axis2_X, UI_Size_Fill, UI_Size_Fit);
-  container->palette.idle  = hsv_u32(235, 27, 25);
-  container->palette.hover = hsv_u32(235, 24, 44);
-  container->palette.down  = hsv_u32(235, 10, 15);
+  container->palette = UI_Theme_Active.button;
 
   UI_Parent_Scope(container) {
     UI_Flags flags = UI_Flag_Response_Hover   |
@@ -1045,11 +1032,7 @@ fn_internal UI_Response ui_checkbox_fixed(Str label, B32 *value) {
       node->layout.size[Axis2_X] = UI_Size_Fixed(checkbox_size);
       node->layout.size[Axis2_Y] = UI_Size_Fixed(checkbox_size);
 
-      node->palette.idle       = hsv_u32(235, 27, 25);
-      node->palette.hover      = hsv_u32(235, 24, 44);
-      node->palette.down       = hsv_u32(235, 10, 15);
-      node->palette.inner_fill = hsv_u32(100, 60, 80);
-      node->palette.border     = hsv_u32(200, 50,  40);
+      node->palette = UI_Theme_Active.checkbox;
 
       if (node->response.press) {
         *value = !(*value);
@@ -1111,11 +1094,7 @@ fn_internal UI_Response ui_checkbox(Str label, B32 *value) {
       node->layout.size[Axis2_X] = UI_Size_Fixed(checkbox_size);
       node->layout.size[Axis2_Y] = UI_Size_Fixed(checkbox_size);
 
-      node->palette.idle       = hsv_u32(235, 27, 25);
-      node->palette.hover      = hsv_u32(235, 24, 44);
-      node->palette.down       = hsv_u32(235, 10, 15);
-      node->palette.inner_fill = hsv_u32(100, 60, 80);
-      node->palette.border     = hsv_u32(200, 50,  40);
+      node->palette = UI_Theme_Active.checkbox;
 
       if (node->response.press) {
         *value = !(*value);
@@ -1180,10 +1159,7 @@ fn_internal void ui_f32_edit_static(Str label, F32 *value, F32 value_min, F32 va
     node->layout.gap_border[Axis2_X] = fo_em(&node->draw.font->font, .25f);
     node->layout.gap_border[Axis2_Y] = fo_em(&node->draw.font->font, .1f);
 
-    node->palette.idle  = hsv_u32(235, 27, 25);
-    node->palette.hover = hsv_u32(235, 24, 44);
-    node->palette.down  = hsv_u32(235, 10, 15);
-    node->palette.border  = hsv_u32(200, 50,  40);
+    node->palette = UI_Theme_Active.edit_value;
 
     if (node->response.drag) {
       *value = f32_clamp(*value + step * node->response.drag_change.x, value_min, value_max);
@@ -1224,11 +1200,7 @@ fn_internal void ui_f32_edit(Str label, F32 *value, F32 value_min, F32 value_max
     node->layout.size[Axis2_Y]       = UI_Size_Text;
     node->layout.gap_border[Axis2_X] = fo_em(&node->draw.font->font, .25f);
     node->layout.gap_border[Axis2_Y] = fo_em(&node->draw.font->font, .1f);
-
-    node->palette.idle  = hsv_u32(235, 27, 25);
-    node->palette.hover = hsv_u32(235, 24, 44);
-    node->palette.down  = hsv_u32(235, 10, 15);
-    node->palette.border  = hsv_u32(200, 50,  40);
+    node->palette = UI_Theme_Active.edit_value;
 
     if (node->response.drag) {
       *value = f32_clamp(*value + step * node->response.drag_change.x, value_min, value_max);
@@ -1252,9 +1224,7 @@ fn_internal void ui_list(Str label, I32 *entry_selection, I32 entry_count, Str *
     UI_Node *container = ui_container(label, UI_Container_Box, Axis2_X, UI_Size_Fit, UI_Size_Fit);
     container->flags  |= UI_Flag_Draw_Rounded;
 
-    container->palette.idle  = hsv_u32(249, 18, 33);
-    container->palette.hover = hsv_u32(249, 24, 55);
-    container->palette.down  = hsv_u32(249, 10, 15);
+    container->palette = UI_Theme_Active.list;
 
     container->layout.gap_border[Axis2_X] = 0;
     container->layout.gap_border[Axis2_Y] = 0;
@@ -1278,9 +1248,7 @@ fn_internal void ui_list(Str label, I32 *entry_selection, I32 entry_count, Str *
       For_U32(it, entry_count) {
         UI_Node *entry_container = ui_container(entry_list[it], UI_Container_Box_Choice, Axis2_X, UI_Size_Fill, UI_Size_Fit);
 
-        entry_container->palette.idle  = hsv_u32(249, 18, 33);
-        entry_container->palette.hover = hsv_u32(249, 24, 55);
-        entry_container->palette.down  = hsv_u32(249, 10, 15);
+        entry_container->palette = UI_Theme_Active.list;
 
         UI_Parent_Scope(entry_container) {
           ui_label(entry_list[it]);
@@ -1310,9 +1278,7 @@ fn_internal void ui_list_fixed(Str label, I32 *entry_selection, I32 entry_count,
     UI_Node *container = ui_container(label, UI_Container_Box, Axis2_X, UI_Size_Fit, UI_Size_Fit);
     container->flags  |= UI_Flag_Draw_Rounded;
 
-    container->palette.idle  = hsv_u32(249, 18, 33);
-    container->palette.hover = hsv_u32(249, 24, 55);
-    container->palette.down  = hsv_u32(249, 10, 15);
+    container->palette = UI_Theme_Active.list;
 
     container->layout.gap_border[Axis2_X] = 0;
     container->layout.gap_border[Axis2_Y] = 0;
@@ -1336,9 +1302,7 @@ fn_internal void ui_list_fixed(Str label, I32 *entry_selection, I32 entry_count,
       For_U32(it, entry_count) {
         UI_Node *entry_container = ui_container(entry_list[it], UI_Container_Box_Choice, Axis2_X, UI_Size_Fill, UI_Size_Fit);
 
-        entry_container->palette.idle  = hsv_u32(249, 18, 33);
-        entry_container->palette.hover = hsv_u32(249, 24, 55);
-        entry_container->palette.down  = hsv_u32(249, 10, 15);
+        entry_container->palette = UI_Theme_Active.list;
 
         UI_Parent_Scope(entry_container) {
           ui_label(entry_list[it]);
@@ -1364,11 +1328,8 @@ fn_internal void ui_dropdown(Str label, I32 *entry_selection, I32 entry_count, U
   *entry_selection = i32_clamp(*entry_selection, 0, entry_count - 1);
 
   UI_Node *container       = ui_container(label, UI_Container_Box, Axis2_X, UI_Size_Fit, UI_Size_Fit);
-
   container->flags        |= UI_Flag_Draw_Rounded;
-  container->palette.idle  = hsv_u32(249, 18, 33);
-  container->palette.hover = hsv_u32(249, 24, 55);
-  container->palette.down  = hsv_u32(249, 10, 15);
+  container->palette       = UI_Theme_Active.list;
 
   container->layout.gap_border[Axis2_X] = 0;
   container->layout.gap_border[Axis2_Y] = 0;
@@ -1395,10 +1356,7 @@ fn_internal void ui_dropdown(Str label, I32 *entry_selection, I32 entry_count, U
       UI_Dropdown_Entry *entry = entry_list + it;
 
       UI_Node *entry_container = ui_container(entry->text, UI_Container_Box_Choice, Axis2_X, UI_Size_Fill, UI_Size_Fit);
-
-      entry_container->palette.idle  = hsv_u32(249, 18, 33);
-      entry_container->palette.hover = hsv_u32(249, 24, 55);
-      entry_container->palette.down  = hsv_u32(249, 10, 15);
+      entry_container->palette = UI_Theme_Active.list;
 
       UI_Parent_Scope(entry_container) {
         UI_Font_Scope(entry->icon_font) { ui_label(entry->icon); };

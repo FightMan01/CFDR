@@ -260,6 +260,10 @@ function js_web_current_url(url_cap, url_ptr) {
   }
 }
 
+function js_web_device_pixel_ratio() {
+  return window.devicePixelRatio || 1;
+}
+
 // ------------------------------------------------------------
 // #-- NOTE(cmat): JS - WASM platform API.
 
@@ -876,9 +880,10 @@ function wasm_module_load(wasm_bytecode) {
 
       // NOTE(cmat): Web-specific API
       js_web_current_url:             js_web_current_url,
+      js_web_device_pixel_ratio:      js_web_device_pixel_ratio,
 
       // NOTE(cmat): Platform API.
-      js_pl_set_shared_memory:  js_pl_set_shared_memory,
+      js_pl_set_shared_memory:        js_pl_set_shared_memory,
 
       // NOTE(cmat): WebGPU API.
       js_webgpu_buffer_allocate:      js_webgpu_buffer_allocate,
