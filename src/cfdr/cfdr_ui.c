@@ -70,7 +70,6 @@ typedef struct CFDR_UI_State {
   G2_Font font_mono;
   G2_Font font_icon;
   F32     scale;
-  I32     font_size;
 
   CFDR_UI_Split_Mode split_mode;
   B32                fullscreen;
@@ -604,4 +603,3 @@ fn_internal void cfdr_ui(CFDR_UI_State *ui) {
     }
   }
 }
-

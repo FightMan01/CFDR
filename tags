@@ -96,7 +96,7 @@
 !_TAG_PARSER_VERSION!Sh	0.0	/current.age/
 !_TAG_PARSER_VERSION!Yaml	0.0	/current.age/
 !_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
-!_TAG_PROC_CWD	/Users/nemetharon/Desktop/Hidalgo2/new/CFDR/	//
+!_TAG_PROC_CWD	/Users/nemetharon/Desktop/Hidalgo2/new/cfdr_draft/CFDR/	//
 !_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
 !_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
 !_TAG_PROGRAM_URL	https://ctags.io/	/official site/
@@ -5709,7 +5709,7 @@ _pad_9	src/base/base.h	/^  struct { F64 _pad_8;  V2_F64 gb; F64 _pad_9; };$/;"	m
 _pad_9	src/base/base.h	/^  struct { I32 _pad_8;  V2_I32 gb; I32 _pad_9; };$/;"	m	struct:__anon3048dd97580a::__anon3048dd976208	typeref:typename:I32
 _pad_9	src/base/base.h	/^  struct { U16 _pad_8;  V2_U16 gb; U16 _pad_9; };$/;"	m	struct:__anon3048dd97670a::__anon3048dd977108	typeref:typename:U16
 _pad_9	src/base/base.h	/^  struct { U32 _pad_8;  V2_U32 gb; U32 _pad_9; };$/;"	m	struct:__anon3048dd97760a::__anon3048dd978008	typeref:typename:U32
-a	build/alice_canvas.js	/^      clearValue: { r:0, g:0, b:0, a:1 },$/;"	p	property:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881b05.clearValue
+a	build/alice_canvas.js	/^      clearValue: { r:0, g:0, b:0, a:1 },$/;"	p	property:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881905.clearValue
 a	src/base/base.h	/^  struct { F32 r, g, b, a; };$/;"	m	struct:__anon3048dd97850a::__anon3048dd978708	typeref:typename:F32
 a	src/base/base.h	/^  struct { F64 r, g, b, a; };$/;"	m	struct:__anon3048dd97940a::__anon3048dd979608	typeref:typename:F64
 a	src/base/base.h	/^  struct { I32 r, g, b, a; };$/;"	m	struct:__anon3048dd97580a::__anon3048dd975a08	typeref:typename:I32
@@ -5724,7 +5724,7 @@ active	src/cfdr/cfdr_scene.h	/^  CFDR_Object_Node  *active;$/;"	m	struct:CFDR_Sc
 active_clip_region	src/graphics/graphics.c	/^  R2I                 active_clip_region;$/;"	m	struct:__anona8a81ebe0208	typeref:typename:R2I	file:
 address_align	src/core/core.h	/^inline fn_internal U64 address_align(U64 address, U64 align) {$/;"	f	typeref:typename:fn_internal U64
 advance	src/thirdparty/stb_truetype.h	/^   int advance;$/;"	m	struct:stbtt_kerningentry	typeref:typename:int
-alice_canvas	build/index.html	/^    <canvas id="alice_canvas"> <\/canvas>$/;"	I
+alice_canvas	build/index.html	/^      <canvas id="alice_canvas"> <\/canvas>$/;"	I
 alice_canvas	src/cfdr_sze_portal/index.html	/^    <canvas id="alice_canvas"> <\/canvas>$/;"	I
 alice_canvas	src/web/index.html	/^      <canvas id="alice_canvas"> <\/canvas>$/;"	I
 align	src/base/base.h	/^  U32             align;$/;"	m	struct:__anon3048dd970208	typeref:typename:U32
@@ -5739,19 +5739,17 @@ allocate_large	src/thirdparty/walloc.c	/^allocate_large(size_t size) {$/;"	f	typ
 allocate_large_object	src/thirdparty/walloc.c	/^allocate_large_object(size_t size) {$/;"	f	typeref:struct:large_object *	file:
 allocate_pages	src/thirdparty/walloc.c	/^allocate_pages(size_t payload_size, size_t *n_allocated) {$/;"	f	typeref:struct:page *	file:
 allocate_small	src/thirdparty/walloc.c	/^allocate_small(enum chunk_kind kind) {$/;"	f	typeref:typename:void *	file:
-alpha	build/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.fragment.anonymousObject7fd8f7881805.blend
+alpha	build/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.fragment.anonymousObject7fd8f7881605.blend
 alpha	src/cfdr_sze_portal/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.fragment.anonymousObject908cf9501805.blend
 alpha	src/web/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405.fragment.anonymousObjectd474d1cd1605.blend
-alphaMode	build/alice_canvas.js	/^    alphaMode: 'premultiplied'$/;"	p	variable:anonymousObject7fd8f7880705
+alphaMode	build/alice_canvas.js	/^    alphaMode: 'premultiplied'$/;"	p	variable:anonymousObject7fd8f7880505
 alphaMode	src/cfdr_sze_portal/alice_canvas.js	/^    alphaMode: 'premultiplied'$/;"	p	variable:anonymousObject908cf9500705
 alphaMode	src/web/alice_canvas.js	/^    alphaMode: 'premultiplied'$/;"	p	variable:anonymousObjectd474d1cd0505
 animation	src/ui/ui.h	/^  UI_Animation      animation;$/;"	m	struct:UI_Node	typeref:typename:UI_Animation
-anonymousFunction7fd8f7880300	build/alice_canvas.js	/^      .catch(function(error) {$/;"	f
-anonymousFunction7fd8f7880400	build/alice_canvas.js	/^      .finally(function() {$/;"	f
 anonymousFunction908cf9500300	src/cfdr_sze_portal/alice_canvas.js	/^      .catch(function(error) {$/;"	f
 anonymousFunction908cf9500400	src/cfdr_sze_portal/alice_canvas.js	/^      .finally(function() {$/;"	f
 anonymousObject530e070b0105	src/cfdr_sze_portal/auth_sze_portal.js	/^const g_keycloak = new Keycloak({$/;"	v
-anonymousObject5437c4b20105	build/auth_portal.js	/^const g_keycloak = new Keycloak({$/;"	v
+anonymousObject530e070b0205	src/cfdr_sze_portal/auth_sze_portal.js	/^    const authenticated = await g_keycloak.init({$/;"	v	function:init_sze_portal_auth
 anonymousObject7fd8f7880305	build/alice_canvas.js	/^  wasm_context.webgpu.depth_texture = wasm_context.webgpu.device.createTexture({$/;"	v
 anonymousObject7fd8f7880405	build/alice_canvas.js	/^  wasm_context.webgpu.color_texture = wasm_context.webgpu.device.createTexture({$/;"	v
 anonymousObject7fd8f7880505	build/alice_canvas.js	/^  webgpu_context.configure({$/;"	v
@@ -5777,6 +5775,31 @@ anonymousObject7fd8f7881805	build/alice_canvas.js	/^  const bind_group = wasm_co
 anonymousObject7fd8f7881905	build/alice_canvas.js	/^    colorAttachments: [{$/;"	v	variable:canvas_next_frame.render_pass_descriptor
 anonymousObject7fd8f7881a05	build/alice_canvas.js	/^  const memory = new WebAssembly.Memory({$/;"	v	function:wasm_module_load
 anonymousObject7fd8f7881b05	build/alice_canvas.js	/^      }, { passive: false });$/;"	v
+anonymousObject908cf9500505	src/cfdr_sze_portal/alice_canvas.js	/^  wasm_context.webgpu.depth_texture = wasm_context.webgpu.device.createTexture({$/;"	v
+anonymousObject908cf9500605	src/cfdr_sze_portal/alice_canvas.js	/^  wasm_context.webgpu.color_texture = wasm_context.webgpu.device.createTexture({$/;"	v
+anonymousObject908cf9500705	src/cfdr_sze_portal/alice_canvas.js	/^  webgpu_context.configure({$/;"	v
+anonymousObject908cf9500805	src/cfdr_sze_portal/alice_canvas.js	/^  const buffer = wasm_context.webgpu.device.createBuffer({$/;"	v	function:js_webgpu_buffer_allocate
+anonymousObject908cf9500905	src/cfdr_sze_portal/alice_canvas.js	/^  const module = wasm_context.webgpu.device.createShaderModule({$/;"	v	function:js_webgpu_shader_create
+anonymousObject908cf9500a05	src/cfdr_sze_portal/alice_canvas.js	/^  const texture = wasm_context.webgpu.device.createTexture({$/;"	v	function:js_webgpu_texture_3D_allocate
+anonymousObject908cf9500b05	src/cfdr_sze_portal/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	v
+anonymousObject908cf9500c05	src/cfdr_sze_portal/alice_canvas.js	/^    { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },$/;"	v
+anonymousObject908cf9500d05	src/cfdr_sze_portal/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: region_depth, }$/;"	v
+anonymousObject908cf9500e05	src/cfdr_sze_portal/alice_canvas.js	/^  const texture = wasm_context.webgpu.device.createTexture({$/;"	v	function:js_webgpu_texture_2D_allocate
+anonymousObject908cf9500f05	src/cfdr_sze_portal/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	v
+anonymousObject908cf9501005	src/cfdr_sze_portal/alice_canvas.js	/^    { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },$/;"	v
+anonymousObject908cf9501105	src/cfdr_sze_portal/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: 1, }$/;"	v
+anonymousObject908cf9501205	src/cfdr_sze_portal/alice_canvas.js	/^  const sampler = wasm_context.webgpu.device.createSampler({$/;"	v	function:js_webgpu_sampler_create
+anonymousObject908cf9501305	src/cfdr_sze_portal/alice_canvas.js	/^  const webgpu_layout = wasm_context.webgpu.device.createPipelineLayout({$/;"	v	function:js_webgpu_pipeline_create
+anonymousObject908cf9501405	src/cfdr_sze_portal/alice_canvas.js	/^      wasm_context.webgpu.device.createBindGroupLayout({ entries: shader.binding_list })$/;"	v	variable:js_webgpu_pipeline_create.anonymousObject908cf9501305
+anonymousObject908cf9501505	src/cfdr_sze_portal/alice_canvas.js	/^    attribute_list.push({ shaderLocation: it, offset: attribute_format_offset, format: WebGPU_Ve/;"	v
+anonymousObject908cf9501605	src/cfdr_sze_portal/alice_canvas.js	/^  const render_pipeline = wasm_context.webgpu.device.createRenderPipeline({$/;"	v	function:js_webgpu_pipeline_create
+anonymousObject908cf9501705	src/cfdr_sze_portal/alice_canvas.js	/^        {$/;"	v	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.vertex
+anonymousObject908cf9501805	src/cfdr_sze_portal/alice_canvas.js	/^        {$/;"	v	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.fragment
+anonymousObject908cf9501905	src/cfdr_sze_portal/alice_canvas.js	/^  const bind_group_layout = wasm_context.webgpu.device.createBindGroupLayout({ entries: binding_/;"	v	function:js_webgpu_bind_group_create
+anonymousObject908cf9501a05	src/cfdr_sze_portal/alice_canvas.js	/^  const bind_group = wasm_context.webgpu.device.createBindGroup({$/;"	v	function:js_webgpu_bind_group_create
+anonymousObject908cf9501b05	src/cfdr_sze_portal/alice_canvas.js	/^    colorAttachments: [{$/;"	v	variable:canvas_next_frame.render_pass_descriptor
+anonymousObject908cf9501c05	src/cfdr_sze_portal/alice_canvas.js	/^  const memory = new WebAssembly.Memory({$/;"	v	function:wasm_module_load
+anonymousObject908cf9501d05	src/cfdr_sze_portal/alice_canvas.js	/^      }, { passive: false });$/;"	v
 anonymousObjectd474d1cd0305	src/web/alice_canvas.js	/^  wasm_context.webgpu.depth_texture = wasm_context.webgpu.device.createTexture({$/;"	v
 anonymousObjectd474d1cd0405	src/web/alice_canvas.js	/^  wasm_context.webgpu.color_texture = wasm_context.webgpu.device.createTexture({$/;"	v
 anonymousObjectd474d1cd0505	src/web/alice_canvas.js	/^  webgpu_context.configure({$/;"	v
@@ -5836,7 +5859,7 @@ arena_push_str	src/base/base.h	/^inline fn_internal Str arena_push_str(Arena *ar
 arena_push_type	src/base/base.h	/^#define arena_push_type(/;"	d
 arena_temp_end	src/base/base.c	/^fn_internal void arena_temp_end(Arena_Temp *temporary) {$/;"	f	typeref:typename:fn_internal void
 arena_temp_start	src/base/base.c	/^fn_internal Arena_Temp arena_temp_start(Arena *arena) {$/;"	f	typeref:typename:fn_internal Arena_Temp
-arrayStride	build/alice_canvas.js	/^          arrayStride: stride,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.vertex.anonymousObject7fd8f7881705
+arrayStride	build/alice_canvas.js	/^          arrayStride: stride,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.vertex.anonymousObject7fd8f7881505
 arrayStride	src/cfdr_sze_portal/alice_canvas.js	/^          arrayStride: stride,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject908cf9501605.vertex.anonymousObject908cf9501705
 arrayStride	src/web/alice_canvas.js	/^          arrayStride: stride,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405.vertex.anonymousObjectd474d1cd1505
 array_clear	src/base/base.h	/^#define array_clear(/;"	d
@@ -5873,13 +5896,11 @@ atomic_write_i32	src/core/core.h	/^force_inline fn_internal I32   atomic_write_i
 atomic_write_u32	src/core/core.h	/^force_inline fn_internal U32   atomic_write_u32      (volatile U32 *x, U32 value)  { Interlocked/;"	f	typeref:typename:force_inline fn_internal U32
 atomic_write_u32	src/core/core.h	/^force_inline fn_internal U32   atomic_write_u32      (volatile U32 *x, U32 value)  { return __at/;"	f	typeref:typename:force_inline fn_internal U32
 attribute_byte_count	src/mesh/mesh_stl.h	/^  U16 attribute_byte_count;$/;"	m	struct:STL_Binary_Triangle	typeref:typename:U16
-attributes	build/alice_canvas.js	/^          attributes: attribute_list,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.vertex.anonymousObject7fd8f7881705
+attributes	build/alice_canvas.js	/^          attributes: attribute_list,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.vertex.anonymousObject7fd8f7881505
 attributes	src/cfdr_sze_portal/alice_canvas.js	/^          attributes: attribute_list,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject908cf9501605.vertex.anonymousObject908cf9501705
 attributes	src/web/alice_canvas.js	/^          attributes: attribute_list,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405.vertex.anonymousObjectd474d1cd1505
-auth_set_xhr_header	build/auth_portal.js	/^function auth_set_xhr_header(xhr) {$/;"	f
-auth_set_xhr_header	src/cfdr_sze_portal/auth_sze_portal.js	/^function auth_set_xhr_header(xhr) {$/;"	f
-authenticated	build/auth_portal.js	/^    const authenticated = await g_keycloak.init($/;"	C
-authenticated	src/cfdr_sze_portal/auth_sze_portal.js	/^    const authenticated = await g_keycloak.init($/;"	C
+auth_resolve_request_url	src/cfdr_sze_portal/auth_sze_portal.js	/^function auth_resolve_request_url(url) {$/;"	f
+auth_set_xhr_header	src/cfdr_sze_portal/auth_sze_portal.js	/^async function auth_set_xhr_header(xhr, request_url) {$/;"	f
 b	build/alice_canvas.js	/^      clearValue: { r:0, g:0, b:0, a:1 },$/;"	p	property:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881905.clearValue
 b	src/base/base.h	/^  struct { F32 r, g, b, a; };$/;"	m	struct:__anon3048dd97850a::__anon3048dd978708	typeref:typename:F32
 b	src/base/base.h	/^  struct { F32 r, g, b; };$/;"	m	struct:__anon3048dd97420a::__anon3048dd974408	typeref:typename:F32
@@ -5914,7 +5935,7 @@ base_index	src/graphics/graphics.c	/^  U32              base_index;$/;"	m	struct
 base_lib	src/render/render_metal.m	/^  id<MTLLibrary> base_lib;$/;"	t
 base_memory	src/base/base.h	/^  U08                *base_memory;$/;"	m	struct:Arena_Chunk	typeref:typename:U08 *
 bgindex	src/thirdparty/stb_image.h	/^   int flags, bgindex, ratio, transparent, eflags;$/;"	m	struct:__anoncf96c9f71308	typeref:typename:int
-bindGroupLayouts	build/alice_canvas.js	/^    bindGroupLayouts: [$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881305
+bindGroupLayouts	build/alice_canvas.js	/^    bindGroupLayouts: [$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881105
 bindGroupLayouts	src/cfdr_sze_portal/alice_canvas.js	/^    bindGroupLayouts: [$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject908cf9501305
 bindGroupLayouts	src/web/alice_canvas.js	/^    bindGroupLayouts: [$/;"	p	variable:js_webgpu_pipeline_create.anonymousObjectd474d1cd1105
 bind_group	src/cfdr/cfdr_draw.c	/^  R_Bind_Group  bind_group;$/;"	m	struct:Draw_3D_Indicator	typeref:typename:R_Bind_Group	file:
@@ -5943,7 +5964,7 @@ binding_list_from_shader_layout	src/cfdr_sze_portal/alice_canvas.js	/^function b
 binding_list_from_shader_layout	src/web/alice_canvas.js	/^function binding_list_from_shader_layout(shader_layout) {$/;"	f
 bits_per_channel	src/thirdparty/stb_image.h	/^   int bits_per_channel;$/;"	m	struct:__anoncf96c9f70508	typeref:typename:int
 bits_per_pixel	src/image/image.c	/^  U16 bits_per_pixel;$/;"	m	struct:IM_TGA_Header	typeref:typename:U16	file:
-blend	build/alice_canvas.js	/^          blend: {$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.fragment.anonymousObject7fd8f7881805
+blend	build/alice_canvas.js	/^          blend: {$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.fragment.anonymousObject7fd8f7881605
 blend	src/cfdr_sze_portal/alice_canvas.js	/^          blend: {$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject908cf9501605.fragment.anonymousObject908cf9501805
 blend	src/web/alice_canvas.js	/^          blend: {$/;"	p	variable:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405.fragment.anonymousObjectd474d1cd1605
 border	src/cfdr/cfdr_overlay.h	/^  V2F                       border;$/;"	m	struct:CFDR_Overlay_Node	typeref:typename:V2F
@@ -5965,18 +5986,20 @@ buffer	src/web/alice_canvas.js	/^        entry.resource = { buffer: wasm_context
 buffer_last_id	src/render/render_metal.m	/^  U32 buffer_last_id;$/;"	E	struct:Metal_Pipeline
 buffer_last_id	src/render/render_opengl4.c	/^  U32 buffer_last_id;$/;"	m	struct:__anon254098b40108	typeref:typename:U32	file:
 buffer_start	src/thirdparty/stb_image.h	/^   stbi_uc buffer_start[128];$/;"	m	struct:__anoncf96c9f70308	typeref:typename:stbi_uc[128]
-buffers	build/alice_canvas.js	/^      buffers: [$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.vertex
+buffers	build/alice_canvas.js	/^      buffers: [$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.vertex
 buffers	src/cfdr_sze_portal/alice_canvas.js	/^      buffers: [$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.vertex
 buffers	src/render/render_metal.m	/^  Metal_Buffer   buffers   [Metal_Max_Buffers];$/;"	E	struct:Metal_Pipeline
 buffers	src/render/render_opengl4.c	/^  OGL4_Buffer   buffers   [OGL4_Max_Buffers];$/;"	m	struct:__anon254098b40108	typeref:typename:OGL4_Buffer[]	file:
 buffers	src/web/alice_canvas.js	/^      buffers: [$/;"	p	property:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405.vertex
 buflen	src/thirdparty/stb_image.h	/^   int buflen;$/;"	m	struct:__anoncf96c9f70308	typeref:typename:int
 button	build/alice_canvas.js	/^        button:     { left: 0, right: 0, middle: 0, },$/;"	p	property:wasm_context.frame_state.input.mouse
+button	src/cfdr_sze_portal/alice_canvas.js	/^        button:     { left: 0, right: 0, middle: 0, },$/;"	p	property:wasm_context.frame_state.input.mouse
+button	src/ui/ui_theme.h	/^  UI_Color_Palette button;$/;"	m	struct:UI_Theme	typeref:typename:UI_Color_Palette
 button	src/web/alice_canvas.js	/^        button:     { left: 0, right: 0, middle: 0, },$/;"	p	property:wasm_context.frame_state.input.mouse
 buttons	src/platform/platform.h	/^    PL_Button buttons[3];$/;"	m	union:PL_Mouse::__anonb39d276b070a	typeref:typename:PL_Button[3]
 bytes	src/render/render.h	/^  U64 bytes;$/;"	m	struct:R_Command_Header	typeref:typename:U64
-bytesPerRow	build/alice_canvas.js	/^    { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },$/;"	p	variable:anonymousObject7fd8f7880c05
-bytesPerRow	build/alice_canvas.js	/^    { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },$/;"	p	variable:anonymousObject7fd8f7881005
+bytesPerRow	build/alice_canvas.js	/^    { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },$/;"	p	variable:anonymousObject7fd8f7880a05
+bytesPerRow	build/alice_canvas.js	/^    { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },$/;"	p	variable:anonymousObject7fd8f7880e05
 bytesPerRow	src/cfdr_sze_portal/alice_canvas.js	/^    { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },$/;"	p	variable:anonymousObject908cf9500c05
 bytesPerRow	src/cfdr_sze_portal/alice_canvas.js	/^    { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },$/;"	p	variable:anonymousObject908cf9501005
 bytesPerRow	src/web/alice_canvas.js	/^    { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },$/;"	p	variable:anonymousObjectd474d1cd0a05
@@ -6068,11 +6091,10 @@ cfdr_ui_property_overlay	src/cfdr/cfdr_ui.c	/^fn_internal void cfdr_ui_property_
 cfdr_ui_property_panel	src/cfdr/cfdr_ui.c	/^fn_internal void cfdr_ui_property_panel(CFDR_UI_State *ui) {$/;"	f	typeref:typename:fn_internal void
 cfdr_ui_property_surface	src/cfdr/cfdr_ui.c	/^fn_internal void cfdr_ui_property_surface(CFDR_UI_State *ui) {$/;"	f	typeref:typename:fn_internal void
 cfdr_ui_property_volume	src/cfdr/cfdr_ui.c	/^fn_internal void cfdr_ui_property_volume(CFDR_UI_State *ui) {$/;"	f	typeref:typename:fn_internal void
-cfdr_ui_reload_fonts	src/cfdr/cfdr_ui.c	/^fn_internal void cfdr_ui_reload_fonts(CFDR_UI_State *ui, I32 font_size) {$/;"	f	typeref:typename:fn_internal void
 cfdr_ui_resource_panel	src/cfdr/cfdr_ui.c	/^fn_internal void cfdr_ui_resource_panel(CFDR_UI_State *ui) {$/;"	f	typeref:typename:fn_internal void
-cfdr_ui_scale_from_resolution	src/cfdr/cfdr_ui.c	/^fn_internal F32 cfdr_ui_scale_from_resolution(V2F resolution) {$/;"	f	typeref:typename:fn_internal F32
 cfdr_ui_side_panel	src/cfdr/cfdr_ui.c	/^fn_internal void cfdr_ui_side_panel(CFDR_UI_State *ui) {$/;"	f	typeref:typename:fn_internal void
 cfdr_ui_status_bar	src/cfdr/cfdr_ui.c	/^fn_internal void cfdr_ui_status_bar(CFDR_UI_State *ui) {$/;"	f	typeref:typename:fn_internal void
+cfdr_ui_update_fonts	src/cfdr/cfdr_ui.c	/^fn_internal void cfdr_ui_update_fonts(CFDR_UI_State *ui) {$/;"	f	typeref:typename:fn_internal void
 cfdr_ui_viewport	src/cfdr/cfdr_ui.c	/^fn_internal void cfdr_ui_viewport(CFDR_UI_State *ui, I32 viewport_index) {$/;"	f	typeref:typename:fn_internal void
 cfdr_ui_viewport_all	src/cfdr/cfdr_ui.c	/^fn_internal void cfdr_ui_viewport_all(CFDR_UI_State *ui) {$/;"	f	typeref:typename:fn_internal void
 cfdr_ui_viewport_draw_hook	src/cfdr/cfdr_ui.c	/^fn_internal void cfdr_ui_viewport_draw_hook(UI_Response *response, R2F draw_region, void *user_d/;"	f	typeref:typename:fn_internal void
@@ -6095,15 +6117,16 @@ char_to_lower	src/core/core.h	/^inline fn_internal I08 char_to_lower      (I08 c
 char_to_upper	src/core/core.h	/^inline fn_internal I08 char_to_upper      (I08 c) { return !char_is_alpha(c) ? c : (c >  'Z' ? c/;"	f	typeref:typename:fn_internal I08
 chardata_for_range	src/thirdparty/stb_truetype.h	/^   stbtt_packedchar *chardata_for_range; \/\/ output$/;"	m	struct:__anon94f8da560508	typeref:typename:stbtt_packedchar *
 charstrings	src/thirdparty/stb_truetype.h	/^   stbtt__buf charstrings;            \/\/ the charstring index$/;"	m	struct:stbtt_fontinfo	typeref:typename:stbtt__buf
+checkLoginIframe	src/cfdr_sze_portal/auth_sze_portal.js	/^        checkLoginIframe: false,$/;"	p	variable:init_sze_portal_auth.anonymousObject530e070b0205
+checkbox	src/ui/ui_theme.h	/^  UI_Color_Palette checkbox;$/;"	m	struct:UI_Theme	typeref:typename:UI_Color_Palette
 chunk	src/thirdparty/walloc.c	/^struct chunk {$/;"	s	file:
 chunk_kind	src/thirdparty/walloc.c	/^enum chunk_kind {$/;"	g	file:
 chunk_kind_to_granules	src/thirdparty/walloc.c	/^static unsigned chunk_kind_to_granules(enum chunk_kind kind) {$/;"	f	typeref:typename:unsigned	file:
 chunk_kinds	src/thirdparty/walloc.c	/^  uint8_t chunk_kinds[CHUNKS_PER_PAGE];$/;"	m	struct:page_header	typeref:typename:uint8_t[]	file:
 chunks	src/thirdparty/walloc.c	/^    struct chunk chunks[CHUNKS_PER_PAGE];$/;"	m	union:page::__anondac736a9010a	typeref:struct:chunk[]	file:
-clearValue	build/alice_canvas.js	/^      clearValue: { r:0, g:0, b:0, a:1 },$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881b05
+clearValue	build/alice_canvas.js	/^      clearValue: { r:0, g:0, b:0, a:1 },$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881905
 clearValue	src/cfdr_sze_portal/alice_canvas.js	/^      clearValue: { r:0, g:0, b:0, a:1 },$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObject908cf9501b05
 clearValue	src/web/alice_canvas.js	/^      clearValue: { r:0, g:0, b:0, a:1 },$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObjectd474d1cd1905
-clientId	build/auth_sze_portal.js	/^    clientId: "dashboard-ui"$/;"	p	variable:anonymousObject8ddffa430105
 clientId	src/cfdr_sze_portal/auth_sze_portal.js	/^    clientId: "dashboard-ui"$/;"	p	variable:anonymousObject530e070b0105
 clip_region	src/render/render.h	/^  R2I           clip_region;$/;"	m	struct:R_Command_Draw	typeref:typename:R2I
 clip_region	src/ui/ui.c	/^  R2I clip_region;$/;"	m	struct:UI_Draw_Context	typeref:typename:R2I	file:
@@ -6146,7 +6169,7 @@ co_panic	src/core/core_wasm.c	/^fn_internal void co_panic(Str reason) {$/;"	f	ty
 co_stream_write	src/core/core_linux.c	/^fn_internal void co_stream_write(Str buffer, CO_Stream stream) {$/;"	f	typeref:typename:fn_internal void
 co_stream_write	src/core/core_macos.m	/^fn_internal void co_stream_write(Str buffer, CO_Stream stream) {$/;"	f
 co_stream_write	src/core/core_wasm.c	/^fn_internal void co_stream_write(Str buffer, CO_Stream stream) {$/;"	f	typeref:typename:fn_internal void
-code	build/alice_canvas.js	/^    code: shader_code$/;"	p	variable:js_webgpu_shader_create.anonymousObject7fd8f7880905
+code	build/alice_canvas.js	/^    code: shader_code$/;"	p	variable:js_webgpu_shader_create.anonymousObject7fd8f7880705
 code	src/cfdr_sze_portal/alice_canvas.js	/^    code: shader_code$/;"	p	variable:js_webgpu_shader_create.anonymousObject908cf9500905
 code	src/thirdparty/stb_image.h	/^   stbi__uint16 code[256];$/;"	m	struct:__anoncf96c9f70708	typeref:typename:stbi__uint16[256]
 code	src/web/alice_canvas.js	/^    code: shader_code$/;"	p	variable:js_webgpu_shader_create.anonymousObjectd474d1cd0705
@@ -6159,11 +6182,13 @@ codes	src/thirdparty/stb_image.h	/^   stbi__gif_lzw codes[8192];$/;"	m	struct:__
 coeff	src/thirdparty/stb_image.h	/^      short   *coeff;   \/\/ progressive only$/;"	m	struct:__anoncf96c9f70808::__anoncf96c9f70908	typeref:typename:short *
 coeff_h	src/thirdparty/stb_image.h	/^      int      coeff_w, coeff_h; \/\/ number of 8x8 coefficient blocks$/;"	m	struct:__anoncf96c9f70808::__anoncf96c9f70908	typeref:typename:int
 coeff_w	src/thirdparty/stb_image.h	/^      int      coeff_w, coeff_h; \/\/ number of 8x8 coefficient blocks$/;"	m	struct:__anoncf96c9f70808::__anoncf96c9f70908	typeref:typename:int
-color	build/alice_canvas.js	/^            color: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.fragment.anonymousObject7fd8f7881805.blend
+color	build/alice_canvas.js	/^            color: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.fragment.anonymousObject7fd8f7881605.blend
 color	src/cfdr/cfdr_draw.c	/^  HSVA          color;$/;"	m	struct:Draw_Grid	typeref:typename:HSVA	file:
 color	src/cfdr/cfdr_eval.h	/^    V3F                color;$/;"	m	union:CFDR_Value::__anond0538a06020a	typeref:typename:V3F
 color	src/cfdr/cfdr_layer.h	/^  HSVA            color;$/;"	m	struct:CFDR_Layer	typeref:typename:HSVA
 color	src/cfdr/cfdr_overlay.h	/^  HSVA                      color;$/;"	m	struct:CFDR_Overlay_Node	typeref:typename:HSVA
+color	src/cfdr/cfdr_scene.h	/^  HSV                       color;$/;"	m	struct:CFDR_Object_Node	typeref:typename:HSV
+color	src/cfdr_sze_portal/alice_canvas.js	/^            color: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.fragment.anonymousObject908cf9501805.blend
 color	src/graphics/graphics.h	/^  RGBA         color;$/;"	m	struct:G2_Rect	typeref:typename:RGBA
 color	src/graphics/graphics.h	/^  RGBA         color;$/;"	m	struct:G2_Tri	typeref:typename:RGBA
 color	src/graphics/graphics.h	/^  RGBA      color;$/;"	m	struct:G2_Disk	typeref:typename:RGBA
@@ -6206,11 +6231,13 @@ context_position	src/ui/ui.c	/^  V2F              context_position;$/;"	m	struct
 context_spawned	src/ui/ui.c	/^  B32              context_spawned;$/;"	m	struct:__anon33d978b80108	typeref:typename:B32	file:
 control_indices	src/geometry/geometry.h	/^  Array_U32 control_indices;$/;"	m	struct:GEO3_Path	typeref:typename:Array_U32
 control_times	src/geometry/geometry.h	/^  Array_F32 control_times;$/;"	m	struct:GEO3_Path	typeref:typename:Array_F32
-count	build/alice_canvas.js	/^    multisample: { count: MSAA_Sample_Count, },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.multisample
+count	build/alice_canvas.js	/^    multisample: { count: MSAA_Sample_Count, },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.multisample
 count	src/cfdr/cfdr_error.c	/^  U32              count;$/;"	m	struct:CFDR_Error_List	typeref:typename:U32	file:
 count	src/cfdr/cfdr_eval.h	/^  U64             count;$/;"	m	struct:CFDR_List	typeref:typename:U64
 count	src/cfdr/cfdr_eval.h	/^  U64 count;$/;"	m	struct:CFDR_Table	typeref:typename:U64
 count	src/cfdr/cfdr_overlay.h	/^  U32                 count;$/;"	m	struct:CFDR_Overlay	typeref:typename:U32
+count	src/cfdr/cfdr_scene.h	/^  U32                count;$/;"	m	struct:CFDR_Scene	typeref:typename:U32
+count	src/cfdr_sze_portal/alice_canvas.js	/^    multisample: { count: MSAA_Sample_Count, },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.multisample
 count	src/pbd/pbd.h	/^  U32  count;$/;"	m	struct:PBD_Mass_Points	typeref:typename:U32
 count	src/pbd/pbd.h	/^  U32  count;$/;"	m	struct:PBD_Springs	typeref:typename:U32
 count	src/render/render.h	/^  U32                count;$/;"	m	struct:R_Bind_Group_Entry_List	typeref:typename:U32
@@ -6224,7 +6251,7 @@ cstring_len	src/core/core.c	/^fn_internal U64 cstring_len(char *cstring) {$/;"	f
 cube_index_buffer	src/cfdr/cfdr_draw.c	/^  R_Buffer cube_index_buffer;$/;"	m	struct:__anoncdb62e270108	typeref:typename:R_Buffer	file:
 cube_index_count	src/cfdr/cfdr_draw.c	/^  R_Buffer cube_index_count;$/;"	m	struct:__anoncdb62e270108	typeref:typename:R_Buffer	file:
 cube_vertex_buffer	src/cfdr/cfdr_draw.c	/^  R_Buffer cube_vertex_buffer;$/;"	m	struct:__anoncdb62e270108	typeref:typename:R_Buffer	file:
-cullMode	build/alice_canvas.js	/^      cullMode: 'back',$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.primitive
+cullMode	build/alice_canvas.js	/^      cullMode: 'back',$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.primitive
 cullMode	src/cfdr_sze_portal/alice_canvas.js	/^      cullMode: 'back',$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.primitive
 cullMode	src/web/alice_canvas.js	/^      cullMode: 'back',$/;"	p	property:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405.primitive
 cur_x	src/thirdparty/stb_image.h	/^   int cur_x, cur_y;$/;"	m	struct:__anoncf96c9f71308	typeref:typename:int
@@ -6318,16 +6345,16 @@ depthCompare	src/web/alice_canvas.js	/^    depthCompare:       depth_test == 1 ?
 depthLoadOp	build/alice_canvas.js	/^      depthLoadOp: 'clear',$/;"	p	property:canvas_next_frame.render_pass_descriptor.depthStencilAttachment
 depthLoadOp	src/cfdr_sze_portal/alice_canvas.js	/^      depthLoadOp: 'clear',$/;"	p	property:canvas_next_frame.render_pass_descriptor.depthStencilAttachment
 depthLoadOp	src/web/alice_canvas.js	/^      depthLoadOp: 'clear',$/;"	p	property:canvas_next_frame.render_pass_descriptor.depthStencilAttachment
-depthOrArrayLayers	build/alice_canvas.js	/^    size:     { width, height, depthOrArrayLayers: depth },$/;"	p	property:js_webgpu_texture_3D_allocate.anonymousObject7fd8f7880a05.size
-depthOrArrayLayers	build/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: 1, }$/;"	p	variable:anonymousObject7fd8f7881105
-depthOrArrayLayers	build/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: region_depth, }$/;"	p	variable:anonymousObject7fd8f7880d05
+depthOrArrayLayers	build/alice_canvas.js	/^    size:     { width, height, depthOrArrayLayers: depth },$/;"	p	property:js_webgpu_texture_3D_allocate.anonymousObject7fd8f7880805.size
+depthOrArrayLayers	build/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: 1, }$/;"	p	variable:anonymousObject7fd8f7880f05
+depthOrArrayLayers	build/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: region_depth, }$/;"	p	variable:anonymousObject7fd8f7880b05
 depthOrArrayLayers	src/cfdr_sze_portal/alice_canvas.js	/^    size:     { width, height, depthOrArrayLayers: depth },$/;"	p	property:js_webgpu_texture_3D_allocate.anonymousObject908cf9500a05.size
 depthOrArrayLayers	src/cfdr_sze_portal/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: 1, }$/;"	p	variable:anonymousObject908cf9501105
 depthOrArrayLayers	src/cfdr_sze_portal/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: region_depth, }$/;"	p	variable:anonymousObject908cf9500d05
 depthOrArrayLayers	src/web/alice_canvas.js	/^    size:     { width, height, depthOrArrayLayers: depth },$/;"	p	property:js_webgpu_texture_3D_allocate.anonymousObjectd474d1cd0805.size
 depthOrArrayLayers	src/web/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: 1, }$/;"	p	variable:anonymousObjectd474d1cd0f05
 depthOrArrayLayers	src/web/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: region_depth, }$/;"	p	variable:anonymousObjectd474d1cd0b05
-depthStencil	build/alice_canvas.js	/^    depthStencil: depth_stencil,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881605
+depthStencil	build/alice_canvas.js	/^    depthStencil: depth_stencil,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881405
 depthStencil	src/cfdr_sze_portal/alice_canvas.js	/^    depthStencil: depth_stencil,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject908cf9501605
 depthStencil	src/web/alice_canvas.js	/^    depthStencil: depth_stencil,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405
 depthStencilAttachment	build/alice_canvas.js	/^    depthStencilAttachment: {$/;"	p	variable:canvas_next_frame.render_pass_descriptor
@@ -6350,11 +6377,11 @@ depth_test	src/render/render.h	/^  B32           depth_test;$/;"	m	struct:R_Comm
 depth_texture	src/render/render_metal.m	/^  id<MTLTexture>           depth_texture;$/;"	E	struct:Metal_Pipeline
 depth_write	src/render/render.h	/^  B32              depth_write;$/;"	m	struct:R_Pipeline_Layout	typeref:typename:B32
 dequant	src/thirdparty/stb_image.h	/^   stbi__uint16 dequant[4][64];$/;"	m	struct:__anoncf96c9f70808	typeref:typename:stbi__uint16[4][64]
-device	build/alice_canvas.js	/^    device: webgpu_device,$/;"	p	variable:anonymousObject7fd8f7880705
+device	build/alice_canvas.js	/^    device: webgpu_device,$/;"	p	variable:anonymousObject7fd8f7880505
 device	src/cfdr_sze_portal/alice_canvas.js	/^    device: webgpu_device,$/;"	p	variable:anonymousObject908cf9500705
 device	src/render/render_metal.m	/^  id<MTLDevice> device;$/;"	E	struct:Metal_Pipeline
 device	src/web/alice_canvas.js	/^    device: webgpu_device,$/;"	p	variable:anonymousObjectd474d1cd0505
-dimension	build/alice_canvas.js	/^    dimension: "3d",$/;"	p	variable:js_webgpu_texture_3D_allocate.anonymousObject7fd8f7880a05
+dimension	build/alice_canvas.js	/^    dimension: "3d",$/;"	p	variable:js_webgpu_texture_3D_allocate.anonymousObject7fd8f7880805
 dimension	src/cfdr_sze_portal/alice_canvas.js	/^    dimension: "3d",$/;"	p	variable:js_webgpu_texture_3D_allocate.anonymousObject908cf9500a05
 dimension	src/web/alice_canvas.js	/^    dimension: "3d",$/;"	p	variable:js_webgpu_texture_3D_allocate.anonymousObjectd474d1cd0805
 direction	src/thirdparty/stb_truetype.h	/^   float direction;$/;"	m	struct:stbtt__active_edge	typeref:typename:float
@@ -6385,8 +6412,8 @@ draw_index_count	src/render/render.h	/^  U32           draw_index_count;$/;"	m	s
 draw_index_offset	src/render/render.h	/^  U32           draw_index_offset;$/;"	m	struct:R_Command_Draw	typeref:typename:U32
 draw_mode	src/graphics/graphics.c	/^  G2_Draw_Mode        draw_mode;$/;"	m	struct:__anona8a81ebe0208	typeref:typename:G2_Draw_Mode	file:
 draw_region	src/render/render.h	/^  R2I           draw_region;$/;"	m	struct:R_Command_Draw	typeref:typename:R2I
-dstFactor	build/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.fragment.anonymousObject7fd8f7881805.blend.alpha
-dstFactor	build/alice_canvas.js	/^            color: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.fragment.anonymousObject7fd8f7881805.blend.color
+dstFactor	build/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.fragment.anonymousObject7fd8f7881605.blend.alpha
+dstFactor	build/alice_canvas.js	/^            color: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.fragment.anonymousObject7fd8f7881605.blend.color
 dstFactor	src/cfdr_sze_portal/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.fragment.anonymousObject908cf9501805.blend.alpha
 dstFactor	src/cfdr_sze_portal/alice_canvas.js	/^            color: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.fragment.anonymousObject908cf9501805.blend.color
 dstFactor	src/web/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405.fragment.anonymousObjectd474d1cd1605.blend.alpha
@@ -6491,9 +6518,9 @@ ele	src/base/base.h	/^  I32 ele[2][2];$/;"	m	union:__anon3048dd97a30a	typeref:ty
 ele	src/base/base.h	/^  I32 ele[3][3];$/;"	m	union:__anon3048dd97ac0a	typeref:typename:I32[3][3]
 ele	src/base/base.h	/^  I32 ele[4][4];$/;"	m	union:__anon3048dd97b50a	typeref:typename:I32[4][4]
 end	src/graphics/graphics.h	/^  V2F       end;$/;"	m	struct:G2_Line	typeref:typename:V2F
-entries	build/alice_canvas.js	/^      wasm_context.webgpu.device.createBindGroupLayout({ entries: shader.binding_list })$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881305.anonymousObject7fd8f7881405
-entries	build/alice_canvas.js	/^    entries:  webgpu_entry_list$/;"	p	variable:js_webgpu_bind_group_create.anonymousObject7fd8f7881a05
-entries	build/alice_canvas.js	/^  const bind_group_layout = wasm_context.webgpu.device.createBindGroupLayout({ entries: binding_/;"	p	variable:js_webgpu_bind_group_create.anonymousObject7fd8f7881905
+entries	build/alice_canvas.js	/^      wasm_context.webgpu.device.createBindGroupLayout({ entries: shader.binding_list })$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881105.anonymousObject7fd8f7881205
+entries	build/alice_canvas.js	/^    entries:  webgpu_entry_list$/;"	p	variable:js_webgpu_bind_group_create.anonymousObject7fd8f7881805
+entries	build/alice_canvas.js	/^  const bind_group_layout = wasm_context.webgpu.device.createBindGroupLayout({ entries: binding_/;"	p	variable:js_webgpu_bind_group_create.anonymousObject7fd8f7881705
 entries	src/cfdr_sze_portal/alice_canvas.js	/^      wasm_context.webgpu.device.createBindGroupLayout({ entries: shader.binding_list })$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject908cf9501305.anonymousObject908cf9501405
 entries	src/cfdr_sze_portal/alice_canvas.js	/^    entries:  webgpu_entry_list$/;"	p	variable:js_webgpu_bind_group_create.anonymousObject908cf9501a05
 entries	src/cfdr_sze_portal/alice_canvas.js	/^  const bind_group_layout = wasm_context.webgpu.device.createBindGroupLayout({ entries: binding_/;"	p	variable:js_webgpu_bind_group_create.anonymousObject908cf9501905
@@ -6503,8 +6530,8 @@ entries	src/web/alice_canvas.js	/^  const bind_group_layout = wasm_context.webgp
 entry	build/alice_canvas.js	/^    let entry       = { binding: binding };$/;"	v	function:js_webgpu_bind_group_create
 entry	src/cfdr_sze_portal/alice_canvas.js	/^    let entry       = { binding: binding };$/;"	v	function:js_webgpu_bind_group_create
 entry	src/web/alice_canvas.js	/^    let entry       = { binding: binding };$/;"	v	function:js_webgpu_bind_group_create
-entryPoint	build/alice_canvas.js	/^      entryPoint: 'fs_main',$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.fragment
-entryPoint	build/alice_canvas.js	/^      entryPoint: 'vs_main',$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.vertex
+entryPoint	build/alice_canvas.js	/^      entryPoint: 'fs_main',$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.fragment
+entryPoint	build/alice_canvas.js	/^      entryPoint: 'vs_main',$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.vertex
 entryPoint	src/cfdr_sze_portal/alice_canvas.js	/^      entryPoint: 'fs_main',$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.fragment
 entryPoint	src/cfdr_sze_portal/alice_canvas.js	/^      entryPoint: 'vs_main',$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.vertex
 entryPoint	src/web/alice_canvas.js	/^      entryPoint: 'fs_main',$/;"	p	property:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405.fragment
@@ -6648,6 +6675,7 @@ font_icon	src/cfdr/cfdr_ui.c	/^  G2_Font font_icon;$/;"	m	struct:CFDR_UI_State	t
 font_init	src/cfdr/cfdr_ui.c	/^  B32     font_init;$/;"	m	struct:CFDR_UI_State	typeref:typename:B32	file:
 font_last_scale	src/cfdr/cfdr_overlay.h	/^  B32                       font_last_scale;$/;"	m	struct:CFDR_Overlay_Node	typeref:typename:B32
 font_mono	src/cfdr/cfdr_ui.c	/^  G2_Font font_mono;$/;"	m	struct:CFDR_UI_State	typeref:typename:G2_Font	file:
+font_size	src/cfdr/cfdr_ui.c	/^  F32     font_size;$/;"	m	struct:CFDR_UI_State	typeref:typename:F32	file:
 font_size	src/thirdparty/stb_truetype.h	/^   float font_size;$/;"	m	struct:__anon94f8da560508	typeref:typename:float
 font_stack	src/ui/ui.c	/^  G2_Font     **font_stack;$/;"	m	struct:__anon33d978b80108	typeref:typename:G2_Font **	file:
 font_stack_cap	src/ui/ui.c	/^  U32           font_stack_cap;$/;"	m	struct:__anon33d978b80108	typeref:typename:U32	file:
@@ -6656,14 +6684,14 @@ font_text	src/cfdr/cfdr_ui.c	/^  G2_Font font_text;$/;"	m	struct:CFDR_UI_State	t
 fontdicts	src/thirdparty/stb_truetype.h	/^   stbtt__buf fontdicts;              \/\/ array of font dicts$/;"	m	struct:stbtt_fontinfo	typeref:typename:stbtt__buf
 fontstart	src/thirdparty/stb_truetype.h	/^   int              fontstart;         \/\/ offset of start of font$/;"	m	struct:stbtt_fontinfo	typeref:typename:int
 force_inline	src/core/core.h	/^# define force_inline /;"	d
-format	build/alice_canvas.js	/^          format: wasm_context.webgpu.backbuffer_format,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.fragment.anonymousObject7fd8f7881805
-format	build/alice_canvas.js	/^    attribute_list.push({ shaderLocation: it, offset: attribute_format_offset, format: WebGPU_Ve/;"	p	variable:anonymousObject7fd8f7881505
+format	build/alice_canvas.js	/^          format: wasm_context.webgpu.backbuffer_format,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.fragment.anonymousObject7fd8f7881605
+format	build/alice_canvas.js	/^    attribute_list.push({ shaderLocation: it, offset: attribute_format_offset, format: WebGPU_Ve/;"	p	variable:anonymousObject7fd8f7881305
 format	build/alice_canvas.js	/^    format:             'depth24plus',$/;"	p	variable:js_webgpu_pipeline_create.depth_stencil
-format	build/alice_canvas.js	/^    format:   WebGPU_Texture_Format_Lookup_Name[format],$/;"	p	variable:js_webgpu_texture_2D_allocate.anonymousObject7fd8f7880e05
-format	build/alice_canvas.js	/^    format:   WebGPU_Texture_Format_Lookup_Name[format],$/;"	p	variable:js_webgpu_texture_3D_allocate.anonymousObject7fd8f7880a05
-format	build/alice_canvas.js	/^    format: 'depth24plus',$/;"	p	variable:anonymousObject7fd8f7880505
-format	build/alice_canvas.js	/^    format: wasm_context.webgpu.backbuffer_format,$/;"	p	variable:anonymousObject7fd8f7880605
-format	build/alice_canvas.js	/^    format: webgpu_format,$/;"	p	variable:anonymousObject7fd8f7880705
+format	build/alice_canvas.js	/^    format:   WebGPU_Texture_Format_Lookup_Name[format],$/;"	p	variable:js_webgpu_texture_2D_allocate.anonymousObject7fd8f7880c05
+format	build/alice_canvas.js	/^    format:   WebGPU_Texture_Format_Lookup_Name[format],$/;"	p	variable:js_webgpu_texture_3D_allocate.anonymousObject7fd8f7880805
+format	build/alice_canvas.js	/^    format: 'depth24plus',$/;"	p	variable:anonymousObject7fd8f7880305
+format	build/alice_canvas.js	/^    format: wasm_context.webgpu.backbuffer_format,$/;"	p	variable:anonymousObject7fd8f7880405
+format	build/alice_canvas.js	/^    format: webgpu_format,$/;"	p	variable:anonymousObject7fd8f7880505
 format	src/cfdr_sze_portal/alice_canvas.js	/^          format: wasm_context.webgpu.backbuffer_format,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject908cf9501605.fragment.anonymousObject908cf9501805
 format	src/cfdr_sze_portal/alice_canvas.js	/^    attribute_list.push({ shaderLocation: it, offset: attribute_format_offset, format: WebGPU_Ve/;"	p	variable:anonymousObject908cf9501505
 format	src/cfdr_sze_portal/alice_canvas.js	/^    format:             'depth24plus',$/;"	p	variable:js_webgpu_pipeline_create.depth_stencil
@@ -6685,7 +6713,7 @@ format	src/web/alice_canvas.js	/^    format: wasm_context.webgpu.backbuffer_form
 format	src/web/alice_canvas.js	/^    format: webgpu_format,$/;"	p	variable:anonymousObjectd474d1cd0505
 format_hooks	src/base/base.h	/^  Logger_Format_Entry_Hook   *format_hooks[Logger_Max_Hooks];$/;"	m	struct:Logger_State	typeref:typename:Logger_Format_Entry_Hook * []
 fov_deg	src/cfdr/cfdr_draw.c	/^  F32 fov_deg;$/;"	m	struct:Camera	typeref:typename:F32	file:
-fragment	build/alice_canvas.js	/^    fragment: {$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881605
+fragment	build/alice_canvas.js	/^    fragment: {$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881405
 fragment	src/cfdr_sze_portal/alice_canvas.js	/^    fragment: {$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject908cf9501605
 fragment	src/web/alice_canvas.js	/^    fragment: {$/;"	p	variable:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405
 frame_delta	build/alice_canvas.js	/^      frame_delta: 0,$/;"	p	property:wasm_context.frame_state.display
@@ -6709,7 +6737,7 @@ freelist	src/thirdparty/walloc.c	/^struct freelist {$/;"	s	file:
 fullscreen	src/cfdr/cfdr_ui.c	/^  B32                fullscreen;$/;"	m	struct:CFDR_UI_State	typeref:typename:B32	file:
 function	src/core/core.h	/^  Str function;$/;"	m	struct:__anon7d0f04f30108	typeref:typename:Str
 fx	src/thirdparty/stb_truetype.h	/^   float fx,fdx,fdy;$/;"	m	struct:stbtt__active_edge	typeref:typename:float
-g	build/alice_canvas.js	/^      clearValue: { r:0, g:0, b:0, a:1 },$/;"	p	property:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881b05.clearValue
+g	build/alice_canvas.js	/^      clearValue: { r:0, g:0, b:0, a:1 },$/;"	p	property:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881905.clearValue
 g	src/base/base.h	/^  struct { F32 r, g, b, a; };$/;"	m	struct:__anon3048dd97850a::__anon3048dd978708	typeref:typename:F32
 g	src/base/base.h	/^  struct { F32 r, g, b; };$/;"	m	struct:__anon3048dd97420a::__anon3048dd974408	typeref:typename:F32
 g	src/base/base.h	/^  struct { F32 r, g; };$/;"	m	struct:__anon3048dd97170a::__anon3048dd971908	typeref:typename:F32
@@ -6750,8 +6778,8 @@ g2_material_create	src/graphics/graphics.c	/^fn_internal G2_Material g2_material
 g2_material_delete	src/graphics/graphics.c	/^fn_internal void g2_material_delete(G2_Material *material) {$/;"	f	typeref:typename:fn_internal void
 g2_push_draw	src/graphics/graphics.c	/^fn_internal G2_Draw_Entry g2_push_draw(U32 vertex_count, U32 index_count, G2_Material material, /;"	f	typeref:typename:fn_internal G2_Draw_Entry
 g2_submit_draw	src/graphics/graphics.c	/^fn_internal void g2_submit_draw(void) {$/;"	f	typeref:typename:fn_internal void
-g_keycloak	build/auth_sze_portal.js	/^const g_keycloak = new Keycloak({$/;"	C
 g_keycloak	src/cfdr_sze_portal/auth_sze_portal.js	/^const g_keycloak = new Keycloak({$/;"	C
+g_keycloak_ready	src/cfdr_sze_portal/auth_sze_portal.js	/^const g_keycloak_ready = init_sze_portal_auth();$/;"	C
 gap_border	src/ui/ui.h	/^  F32     gap_border  [Axis2_Count];$/;"	m	struct:UI_Layout	typeref:typename:F32[]
 gap_child	src/ui/ui.h	/^  F32     gap_child;$/;"	m	struct:UI_Layout	typeref:typename:F32
 gb	src/base/base.h	/^  struct { F32 _pad_3; V2_F32 gb; };$/;"	m	struct:__anon3048dd97420a::__anon3048dd974908	typeref:typename:V2_F32
@@ -6832,9 +6860,9 @@ header	src/base/base.h	/^  Arena_Chunk_Header  header;$/;"	m	struct:Arena_Chunk	
 header	src/mesh/mesh_stl.h	/^  U08 header[80];$/;"	m	struct:STL_Binary_Header	typeref:typename:U08[80]
 header	src/thirdparty/walloc.c	/^    struct page_header header;$/;"	m	union:page::__anondac736a9010a	typeref:struct:page_header	file:
 height	build/alice_canvas.js	/^      resolution: { width: 0, height: 0 },$/;"	p	property:wasm_context.frame_state.display.resolution
-height	build/alice_canvas.js	/^    size:     { width, height, depthOrArrayLayers: depth },$/;"	p	property:js_webgpu_texture_3D_allocate.anonymousObject7fd8f7880a05.size
-height	build/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: 1, }$/;"	p	variable:anonymousObject7fd8f7881105
-height	build/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: region_depth, }$/;"	p	variable:anonymousObject7fd8f7880d05
+height	build/alice_canvas.js	/^    size:     { width, height, depthOrArrayLayers: depth },$/;"	p	property:js_webgpu_texture_3D_allocate.anonymousObject7fd8f7880805.size
+height	build/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: 1, }$/;"	p	variable:anonymousObject7fd8f7880f05
+height	build/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: region_depth, }$/;"	p	variable:anonymousObject7fd8f7880b05
 height	src/base/base.h	/^  struct { F32 width, height, depth; };$/;"	m	struct:__anon3048dd97420a::__anon3048dd974c08	typeref:typename:F32
 height	src/base/base.h	/^  struct { F32 width, height; };  $/;"	m	struct:__anon3048dd97170a::__anon3048dd971b08	typeref:typename:F32
 height	src/base/base.h	/^  struct { F64 width, height, depth; };$/;"	m	struct:__anon3048dd974d0a::__anon3048dd975708	typeref:typename:F64
@@ -6974,7 +7002,9 @@ indices	src/geometry/geometry.h	/^  Array_U32 indices;$/;"	m	struct:GEO3_Surface
 indices	src/graphics/graphics.c	/^  U32             *indices;$/;"	m	struct:__anona8a81ebe0308	typeref:typename:U32 *	file:
 init	src/graphics/graphics.h	/^  B32         init;$/;"	m	struct:G2_Font	typeref:typename:B32
 init_frame	src/cfdr_client/cfdr_entry.c	/^fn_internal void init_frame(PL_Render_Context *render_context) {$/;"	f	typeref:typename:fn_internal void
+init_sze_portal_auth	src/cfdr_sze_portal/auth_sze_portal.js	/^async function init_sze_portal_auth() {$/;"	f
 initial	build/alice_canvas.js	/^    initial: 256,   \/\/ NOTE(cmat): 16 Megabytes$/;"	p	variable:wasm_module_load.anonymousObject7fd8f7881a05
+initial	src/cfdr_sze_portal/alice_canvas.js	/^    initial: 256,   \/\/ NOTE(cmat): 16 Megabytes$/;"	p	variable:wasm_module_load.anonymousObject908cf9501c05
 initial	src/web/alice_canvas.js	/^    initial: 256,   \/\/ NOTE(cmat): 16 Megabytes$/;"	p	variable:wasm_module_load.anonymousObjectd474d1cd1a05
 initialized	src/render/render_metal.m	/^  B32 initialized;$/;"	E	struct:Metal_Pipeline
 initialized	src/render/render_opengl4.c	/^  B32 initialized;$/;"	m	struct:__anon254098b40108	typeref:typename:B32	file:
@@ -7016,7 +7046,9 @@ js_http_request_send	src/web/alice_canvas.js	/^      js_http_request_send:      
 js_http_request_send	src/web/alice_canvas.js	/^function js_http_request_send(request_ptr, arena_ptr, url_len, url_txt) {$/;"	f
 js_pl_set_shared_memory	build/alice_canvas.js	/^      js_pl_set_shared_memory:        js_pl_set_shared_memory,$/;"	p	property:wasm_module_load.import_table.env
 js_pl_set_shared_memory	build/alice_canvas.js	/^function js_pl_set_shared_memory(frame_state_address) {$/;"	f
-js_pl_set_shared_memory	src/web/alice_canvas.js	/^      js_pl_set_shared_memory:  js_pl_set_shared_memory,$/;"	p	property:wasm_module_load.import_table.env
+js_pl_set_shared_memory	src/cfdr_sze_portal/alice_canvas.js	/^      js_pl_set_shared_memory:  js_pl_set_shared_memory,$/;"	p	property:wasm_module_load.import_table.env
+js_pl_set_shared_memory	src/cfdr_sze_portal/alice_canvas.js	/^function js_pl_set_shared_memory(frame_state_address) {$/;"	f
+js_pl_set_shared_memory	src/web/alice_canvas.js	/^      js_pl_set_shared_memory:        js_pl_set_shared_memory,$/;"	p	property:wasm_module_load.import_table.env
 js_pl_set_shared_memory	src/web/alice_canvas.js	/^function js_pl_set_shared_memory(frame_state_address) {$/;"	f
 js_string_from_c_string	build/alice_canvas.js	/^function js_string_from_c_string(string_len, string_txt) {$/;"	f
 js_string_from_c_string	src/cfdr_sze_portal/alice_canvas.js	/^function js_string_from_c_string(string_len, string_txt) {$/;"	f
@@ -7029,6 +7061,8 @@ js_web_current_url	src/web/alice_canvas.js	/^      js_web_current_url:          
 js_web_current_url	src/web/alice_canvas.js	/^function js_web_current_url(url_cap, url_ptr) {$/;"	f
 js_web_device_pixel_ratio	build/alice_canvas.js	/^      js_web_device_pixel_ratio:      js_web_device_pixel_ratio,$/;"	p	property:wasm_module_load.import_table.env
 js_web_device_pixel_ratio	build/alice_canvas.js	/^function js_web_device_pixel_ratio() {$/;"	f
+js_web_device_pixel_ratio	src/cfdr_sze_portal/alice_canvas.js	/^      js_web_device_pixel_ratio:      js_web_device_pixel_ratio,$/;"	p	property:wasm_module_load.import_table.env
+js_web_device_pixel_ratio	src/cfdr_sze_portal/alice_canvas.js	/^function js_web_device_pixel_ratio() {$/;"	f
 js_web_device_pixel_ratio	src/web/alice_canvas.js	/^      js_web_device_pixel_ratio:      js_web_device_pixel_ratio,$/;"	p	property:wasm_module_load.import_table.env
 js_web_device_pixel_ratio	src/web/alice_canvas.js	/^function js_web_device_pixel_ratio() {$/;"	f
 js_webgpu_bind_group_create	build/alice_canvas.js	/^      js_webgpu_bind_group_create:    js_webgpu_bind_group_create,$/;"	p	property:wasm_module_load.import_table.env
@@ -7167,8 +7201,8 @@ last_error	src/tokenizer/tokenizer.h	/^  TK_Error *last_error;$/;"	m	struct:TK_T
 layer	src/render/render_metal.m	/^  CAMetalLayer *layer;$/;"	E	struct:Metal_Pipeline
 layer_active	src/cfdr/cfdr_layer.h	/^  U32               layer_active;$/;"	m	struct:__anonc64fae7b0308	typeref:typename:U32
 layer_array	src/cfdr/cfdr_layer.h	/^  CFDR_Array_Layer  layer_array;$/;"	m	struct:__anonc64fae7b0308	typeref:typename:CFDR_Array_Layer
-layout	build/alice_canvas.js	/^    layout:   bind_group_layout,$/;"	p	variable:js_webgpu_bind_group_create.anonymousObject7fd8f7881a05
-layout	build/alice_canvas.js	/^    layout: webgpu_layout,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881605
+layout	build/alice_canvas.js	/^    layout:   bind_group_layout,$/;"	p	variable:js_webgpu_bind_group_create.anonymousObject7fd8f7881805
+layout	build/alice_canvas.js	/^    layout: webgpu_layout,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881405
 layout	src/cfdr_sze_portal/alice_canvas.js	/^    layout:   bind_group_layout,$/;"	p	variable:js_webgpu_bind_group_create.anonymousObject908cf9501a05
 layout	src/cfdr_sze_portal/alice_canvas.js	/^    layout: webgpu_layout,$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject908cf9501605
 layout	src/ui/ui.h	/^  UI_Layout         layout;$/;"	m	struct:UI_Node	typeref:typename:UI_Layout
@@ -7198,7 +7232,9 @@ linux_default_bootstrap	src/platform/platform_linux.c	/^fn_internal PL_Bootstrap
 linux_frame_state	src/platform/platform_linux.c	/^var_global PL_Frame_State linux_frame_state;$/;"	v	typeref:typename:var_global PL_Frame_State
 list	src/cfdr/cfdr_eval.h	/^    struct CFDR_List  *list;$/;"	m	union:CFDR_Value::__anond0538a06020a	typeref:struct:CFDR_List *
 list	src/tokenizer/tokenizer.h	/^  TK_Token_List  list;$/;"	m	struct:TK_Scan	typeref:typename:TK_Token_List
+list	src/ui/ui_theme.h	/^  UI_Color_Palette list;$/;"	m	struct:UI_Theme	typeref:typename:UI_Color_Palette
 loadOp	build/alice_canvas.js	/^      loadOp: 'clear',$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881905
+loadOp	src/cfdr_sze_portal/alice_canvas.js	/^      loadOp: 'clear',$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObject908cf9501b05
 loadOp	src/web/alice_canvas.js	/^      loadOp: 'clear',$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObjectd474d1cd1905
 load_jpeg_image	src/thirdparty/stb_image.h	/^static stbi_uc *load_jpeg_image(stbi__jpeg *z, int *out_x, int *out_y, int *comp, int req_comp)$/;"	f	typeref:typename:stbi_uc *
 loca	src/thirdparty/stb_truetype.h	/^   int loca,head,glyf,hhea,hmtx,kern,gpos,svg; \/\/ table locations as offset from start of .ttf$/;"	m	struct:stbtt_fontinfo	typeref:typename:int
@@ -7264,7 +7300,7 @@ macos_default_bootstrap	src/platform/platform_macos.m	/^fn_internal PL_Bootstrap
 macos_display_link_hook	src/platform/platform_macos.m	/^fn_internal CVReturn macos_display_link_hook( CVDisplayLinkRef    display_link,$/;"	f
 macos_update_frame_state	src/platform/platform_macos.m	/^fn_internal void macos_update_frame_state(PL_Frame_State *state, MacOS_Render_Thread_Data *macos/;"	f
 macos_update_input	src/platform/platform_macos.m	/^fn_internal void macos_update_input(PL_Input *input) {$/;"	f
-magFilter	build/alice_canvas.js	/^    magFilter: WebGPU_Sampler_Filter_Lookup_Mode[mag_filter_mode],$/;"	p	variable:js_webgpu_sampler_create.anonymousObject7fd8f7881205
+magFilter	build/alice_canvas.js	/^    magFilter: WebGPU_Sampler_Filter_Lookup_Mode[mag_filter_mode],$/;"	p	variable:js_webgpu_sampler_create.anonymousObject7fd8f7881005
 magFilter	src/cfdr_sze_portal/alice_canvas.js	/^    magFilter: WebGPU_Sampler_Filter_Lookup_Mode[mag_filter_mode],$/;"	p	variable:js_webgpu_sampler_create.anonymousObject908cf9501205
 magFilter	src/web/alice_canvas.js	/^    magFilter: WebGPU_Sampler_Filter_Lookup_Mode[mag_filter_mode],$/;"	p	variable:js_webgpu_sampler_create.anonymousObjectd474d1cd1005
 magic	src/base/base.h	/^typedef struct Arena_Chunk_Header { U64 magic; } Arena_Chunk_Header;$/;"	m	struct:Arena_Chunk_Header	typeref:typename:U64
@@ -7296,7 +7332,7 @@ max_y	src/thirdparty/stb_image.h	/^   int max_x, max_y;$/;"	m	struct:__anoncf96c
 max_y	src/thirdparty/stb_truetype.h	/^   stbtt_int32 min_x, max_x, min_y, max_y;$/;"	m	struct:__anon94f8da560f08	typeref:typename:stbtt_int32
 maxcode	src/thirdparty/stb_image.h	/^   int maxcode[17];$/;"	m	struct:__anoncf96c9f70b08	typeref:typename:int[17]
 maxcode	src/thirdparty/stb_image.h	/^   unsigned int maxcode[18];$/;"	m	struct:__anoncf96c9f70708	typeref:typename:unsigned int[18]
-maximum	build/alice_canvas.js	/^    maximum: 65536, \/\/ NOTE(cmat): 4 Gigabytes.$/;"	p	variable:wasm_module_load.anonymousObject7fd8f7881c05
+maximum	build/alice_canvas.js	/^    maximum: 65536, \/\/ NOTE(cmat): 4 Gigabytes.$/;"	p	variable:wasm_module_load.anonymousObject7fd8f7881a05
 maximum	src/cfdr_sze_portal/alice_canvas.js	/^    maximum: 65536, \/\/ NOTE(cmat): 4 Gigabytes.$/;"	p	variable:wasm_module_load.anonymousObject908cf9501c05
 maximum	src/web/alice_canvas.js	/^    maximum: 65536, \/\/ NOTE(cmat): 4 Gigabytes.$/;"	p	variable:wasm_module_load.anonymousObjectd474d1cd1a05
 maybe_compact_free_large_objects	src/thirdparty/walloc.c	/^maybe_compact_free_large_objects(void) {$/;"	f	typeref:typename:void	file:
@@ -7341,22 +7377,22 @@ min	src/base/base.h	/^  struct { V2I min, max;       };$/;"	m	struct:Region2_I32
 min	src/base/base.h	/^  struct { V3F min, max;                };$/;"	m	struct:Region3_F32::__anon3048dd97c908	typeref:typename:V3F
 min	src/base/base.h	/^  struct { V3F min, max;                };$/;"	m	struct:Region3_F64::__anon3048dd97cb08	typeref:typename:V3F
 min	src/base/base.h	/^  struct { V3I min, max;                };$/;"	m	struct:Region3_I32::__anon3048dd97c708	typeref:typename:V3I
-minFilter	build/alice_canvas.js	/^    minFilter: WebGPU_Sampler_Filter_Lookup_Mode[min_filter_mode]$/;"	p	variable:js_webgpu_sampler_create.anonymousObject7fd8f7881205
+minFilter	build/alice_canvas.js	/^    minFilter: WebGPU_Sampler_Filter_Lookup_Mode[min_filter_mode]$/;"	p	variable:js_webgpu_sampler_create.anonymousObject7fd8f7881005
 minFilter	src/cfdr_sze_portal/alice_canvas.js	/^    minFilter: WebGPU_Sampler_Filter_Lookup_Mode[min_filter_mode]$/;"	p	variable:js_webgpu_sampler_create.anonymousObject908cf9501205
 minFilter	src/web/alice_canvas.js	/^    minFilter: WebGPU_Sampler_Filter_Lookup_Mode[min_filter_mode]$/;"	p	variable:js_webgpu_sampler_create.anonymousObjectd474d1cd1005
 min_x	src/thirdparty/stb_truetype.h	/^   stbtt_int32 min_x, max_x, min_y, max_y;$/;"	m	struct:__anon94f8da560f08	typeref:typename:stbtt_int32
 min_y	src/thirdparty/stb_truetype.h	/^   stbtt_int32 min_x, max_x, min_y, max_y;$/;"	m	struct:__anon94f8da560f08	typeref:typename:stbtt_int32
 minutes	src/core/core.h	/^  U08 minutes;$/;"	m	struct:__anon7d0f04f30208	typeref:typename:U08
-mipLevel	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	variable:anonymousObject7fd8f7880f05
-mipLevel	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	p	variable:anonymousObject7fd8f7880b05
+mipLevel	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	variable:anonymousObject7fd8f7880d05
+mipLevel	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	p	variable:anonymousObject7fd8f7880905
 mipLevel	src/cfdr_sze_portal/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	variable:anonymousObject908cf9500f05
 mipLevel	src/cfdr_sze_portal/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	p	variable:anonymousObject908cf9500b05
 mipLevel	src/web/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	variable:anonymousObjectd474d1cd0d05
 mipLevel	src/web/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	p	variable:anonymousObjectd474d1cd0905
 mmu_page_bytes	src/core/core.h	/^  U64 mmu_page_bytes;$/;"	m	struct:CO_Context	typeref:typename:U64
 mode	src/render/render.h	/^  R_Buffer_Mode  mode;$/;"	m	struct:R_Buffer_Info	typeref:typename:R_Buffer_Mode
-module	build/alice_canvas.js	/^      module: shader.module,$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.fragment
-module	build/alice_canvas.js	/^      module: shader.module,$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.vertex
+module	build/alice_canvas.js	/^      module: shader.module,$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.fragment
+module	build/alice_canvas.js	/^      module: shader.module,$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.vertex
 module	build/alice_canvas.js	/^  const shader = { module: module,  binding_list: binding_list };$/;"	p	variable:js_webgpu_shader_create.shader
 module	src/cfdr_sze_portal/alice_canvas.js	/^      module: shader.module,$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.fragment
 module	src/cfdr_sze_portal/alice_canvas.js	/^      module: shader.module,$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.vertex
@@ -7377,7 +7413,7 @@ mouse_position_y	src/platform/platform_wasm.c	/^  U32 mouse_position_y;$/;"	m	st
 mouse_scroll_dt_x	src/platform/platform_wasm.c	/^  F32 mouse_scroll_dt_x;$/;"	m	struct:__anon5684b31d0108	typeref:typename:F32	file:
 mouse_scroll_dt_y	src/platform/platform_wasm.c	/^  F32 mouse_scroll_dt_y;$/;"	m	struct:__anon5684b31d0108	typeref:typename:F32	file:
 mr	src/thirdparty/stb_image.h	/^   unsigned int mr,mg,mb,ma, all_a;$/;"	m	struct:__anoncf96c9f71008	typeref:typename:unsigned int
-multisample	build/alice_canvas.js	/^    multisample: { count: MSAA_Sample_Count, },$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881605
+multisample	build/alice_canvas.js	/^    multisample: { count: MSAA_Sample_Count, },$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881405
 multisample	src/cfdr_sze_portal/alice_canvas.js	/^    multisample: { count: MSAA_Sample_Count, },$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject908cf9501605
 multisample	src/web/alice_canvas.js	/^    multisample: { count: MSAA_Sample_Count, },$/;"	p	variable:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405
 mutex	src/base/base.h	/^  Mutex                       mutex;$/;"	m	struct:Logger_State	typeref:typename:Mutex
@@ -7421,7 +7457,7 @@ num_chars	src/thirdparty/stb_truetype.h	/^   int num_chars;$/;"	m	struct:__anon9
 num_remaining_in_head_chunk	src/thirdparty/stb_truetype.h	/^   int    num_remaining_in_head_chunk;$/;"	m	struct:stbtt__hheap	typeref:typename:int
 num_vertices	src/thirdparty/stb_truetype.h	/^   int num_vertices;$/;"	m	struct:__anon94f8da560f08	typeref:typename:int
 obtain_small_objects	src/thirdparty/walloc.c	/^obtain_small_objects(enum chunk_kind kind) {$/;"	f	typeref:struct:freelist *	file:
-offset	build/alice_canvas.js	/^    attribute_list.push({ shaderLocation: it, offset: attribute_format_offset, format: WebGPU_Ve/;"	p	variable:anonymousObject7fd8f7881505
+offset	build/alice_canvas.js	/^    attribute_list.push({ shaderLocation: it, offset: attribute_format_offset, format: WebGPU_Ve/;"	p	variable:anonymousObject7fd8f7881305
 offset	src/cfdr_sze_portal/alice_canvas.js	/^    attribute_list.push({ shaderLocation: it, offset: attribute_format_offset, format: WebGPU_Ve/;"	p	variable:anonymousObject908cf9501505
 offset	src/render/render.h	/^  U16                       offset;$/;"	m	struct:__anon6ca781410a08	typeref:typename:U16
 offset	src/thirdparty/stb_image.h	/^   int bpp, offset, hsz;$/;"	m	struct:__anoncf96c9f71008	typeref:typename:int
@@ -7439,6 +7475,7 @@ ogl4_shader_pixel_mtsdf_2D	src/render/render_shader/render_shader_webgpu.gen.c	/
 ogl4_shader_vertex_flat_2D	src/render/render_shader/render_shader_webgpu.gen.c	/^var_global char * ogl4_shader_vertex_flat_2D = $/;"	v	typeref:typename:var_global char *
 ogl4_shader_vertex_flat_3D	src/render/render_shader/render_shader_webgpu.gen.c	/^var_global char * ogl4_shader_vertex_flat_3D = $/;"	v	typeref:typename:var_global char *
 ogl4_shader_vertex_mtsdf_2D	src/render/render_shader/render_shader_webgpu.gen.c	/^var_global char * ogl4_shader_vertex_mtsdf_2D = $/;"	v	typeref:typename:var_global char *
+onLoad	src/cfdr_sze_portal/auth_sze_portal.js	/^        onLoad:           'login-required',$/;"	p	variable:init_sze_portal_auth.anonymousObject530e070b0205
 onload	build/alice_canvas.js	/^  xhr.onload = function() {$/;"	f	variable:xhr
 onload	src/cfdr_sze_portal/alice_canvas.js	/^  xhr.onload = function() {$/;"	f	variable:xhr
 onload	src/web/alice_canvas.js	/^  xhr.onload = function() {$/;"	f	variable:xhr
@@ -7446,15 +7483,15 @@ onprogress	build/alice_canvas.js	/^  xhr.onprogress = function(event) {$/;"	f	va
 onprogress	src/cfdr_sze_portal/alice_canvas.js	/^  xhr.onprogress = function(event) {$/;"	f	variable:xhr
 onprogress	src/web/alice_canvas.js	/^  xhr.onprogress = function(event) {$/;"	f	variable:xhr
 opacity	src/ui/ui.c	/^  F32 opacity;$/;"	m	struct:UI_Draw_Context	typeref:typename:F32	file:
-operation	build/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.fragment.anonymousObject7fd8f7881805.blend.alpha
-operation	build/alice_canvas.js	/^            color: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.fragment.anonymousObject7fd8f7881805.blend.color
+operation	build/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.fragment.anonymousObject7fd8f7881605.blend.alpha
+operation	build/alice_canvas.js	/^            color: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.fragment.anonymousObject7fd8f7881605.blend.color
 operation	src/cfdr_sze_portal/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.fragment.anonymousObject908cf9501805.blend.alpha
 operation	src/cfdr_sze_portal/alice_canvas.js	/^            color: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.fragment.anonymousObject908cf9501805.blend.color
 operation	src/web/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405.fragment.anonymousObjectd474d1cd1605.blend.alpha
 operation	src/web/alice_canvas.js	/^            color: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405.fragment.anonymousObjectd474d1cd1605.blend.color
 order	src/thirdparty/stb_image.h	/^   int scan_n, order[4];$/;"	m	struct:__anoncf96c9f70808	typeref:typename:int[4]
-origin	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	variable:anonymousObject7fd8f7880f05
-origin	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	p	variable:anonymousObject7fd8f7880b05
+origin	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	variable:anonymousObject7fd8f7880d05
+origin	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	p	variable:anonymousObject7fd8f7880905
 origin	src/cfdr_sze_portal/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	variable:anonymousObject908cf9500f05
 origin	src/cfdr_sze_portal/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	p	variable:anonymousObject908cf9500b05
 origin	src/web/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	variable:anonymousObjectd474d1cd0d05
@@ -7486,7 +7523,7 @@ parent_stack	src/ui/ui.c	/^  UI_Node      **parent_stack;$/;"	m	struct:__anon33d
 parent_stack_cap	src/ui/ui.c	/^  U32            parent_stack_cap;$/;"	m	struct:__anon33d978b80108	typeref:typename:U32	file:
 parent_stack_len	src/ui/ui.c	/^  U32            parent_stack_len;$/;"	m	struct:__anon33d978b80108	typeref:typename:U32	file:
 parse	src/thirdparty/stb_image.h	/^   int parse, step;$/;"	m	struct:__anoncf96c9f71308	typeref:typename:int
-passive	build/alice_canvas.js	/^      }, { passive: false });$/;"	p	variable:anonymousObject7fd8f7881d05
+passive	build/alice_canvas.js	/^      }, { passive: false });$/;"	p	variable:anonymousObject7fd8f7881b05
 passive	src/cfdr_sze_portal/alice_canvas.js	/^      }, { passive: false });$/;"	p	variable:anonymousObject908cf9501d05
 passive	src/web/alice_canvas.js	/^      }, { passive: false });$/;"	p	variable:anonymousObjectd474d1cd1b05
 path	src/cfdr/cfdr_resource.h	/^  Str          path;$/;"	m	struct:CFDR_Resource	typeref:typename:Str
@@ -7509,6 +7546,7 @@ pipelines	src/graphics/graphics.c	/^  R_Pipeline          pipelines[G2_Draw_Mode
 pipelines	src/render/render_metal.m	/^  Metal_Pipeline pipelines [Metal_Max_Pipelines];$/;"	E	struct:Metal_Pipeline
 pixels	src/thirdparty/stb_truetype.h	/^   unsigned char *pixels;$/;"	m	struct:__anon94f8da560808	typeref:typename:unsigned char *
 pixels	src/thirdparty/stb_truetype.h	/^   unsigned char *pixels;$/;"	m	struct:stbtt_pack_context	typeref:typename:unsigned char *
+pkceMethod	src/cfdr_sze_portal/auth_sze_portal.js	/^        pkceMethod:       'S256',$/;"	p	variable:init_sze_portal_auth.anonymousObject530e070b0205
 pl_display	src/platform/platform.h	/^force_inline fn_internal PL_Display *pl_display         (void)  { return &pl_frame_state()->disp/;"	f	typeref:typename:force_inline fn_internal PL_Display *
 pl_display_region	src/platform/platform.h	/^force_inline fn_internal R2I        pl_display_region  (void)  { return r2i_v(v2i(0, 0), v2i((I3/;"	f	typeref:typename:force_inline fn_internal R2I
 pl_entry_point	src/cfdr_client/cfdr_entry.c	/^fn_internal void pl_entry_point(Array_Str command_line, PL_Bootstrap *boot) {$/;"	f	typeref:typename:fn_internal void
@@ -7541,7 +7579,7 @@ press	src/platform/platform.h	/^  B32 press;$/;"	m	struct:PL_Button	typeref:type
 press	src/ui/ui.h	/^  B32 press;$/;"	m	struct:UI_Response	typeref:typename:B32
 press_secondary	src/ui/ui.h	/^  B32 press_secondary;$/;"	m	struct:UI_Response	typeref:typename:B32
 prev	src/base/base.h	/^  struct Arena_Chunk *prev;$/;"	m	struct:Arena_Chunk	typeref:struct:Arena_Chunk *
-primitive	build/alice_canvas.js	/^    primitive: { $/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881605
+primitive	build/alice_canvas.js	/^    primitive: { $/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881405
 primitive	src/cfdr_sze_portal/alice_canvas.js	/^    primitive: { $/;"	p	variable:js_webgpu_pipeline_create.anonymousObject908cf9501605
 primitive	src/web/alice_canvas.js	/^    primitive: { $/;"	p	variable:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405
 program	src/render/render_opengl4.c	/^  GLuint program;$/;"	m	struct:OGL4_Shader	typeref:typename:GLuint	file:
@@ -7554,7 +7592,7 @@ queue_pop	src/base/base.h	/^#define queue_pop(first_, last_) queue_pop_/;"	d
 queue_pop_ext	src/base/base.h	/^#define queue_pop_ext(/;"	d
 queue_push	src/base/base.h	/^#define queue_push(first_, last_, node_) queue_push_/;"	d
 queue_push_ext	src/base/base.h	/^#define queue_push_ext(/;"	d
-r	build/alice_canvas.js	/^      clearValue: { r:0, g:0, b:0, a:1 },$/;"	p	property:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881b05.clearValue
+r	build/alice_canvas.js	/^      clearValue: { r:0, g:0, b:0, a:1 },$/;"	p	property:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881905.clearValue
 r	src/base/base.h	/^  struct { F32 r, g, b, a; };$/;"	m	struct:__anon3048dd97850a::__anon3048dd978708	typeref:typename:F32
 r	src/base/base.h	/^  struct { F32 r, g, b; };$/;"	m	struct:__anon3048dd97420a::__anon3048dd974408	typeref:typename:F32
 r	src/base/base.h	/^  struct { F32 r, g; };$/;"	m	struct:__anon3048dd97170a::__anon3048dd971908	typeref:typename:F32
@@ -7636,7 +7674,6 @@ raw_data	src/thirdparty/stb_image.h	/^      void *raw_data, *raw_coeff;$/;"	m	st
 rbga_u32	src/base/base.h	/^#define rbga_u32(/;"	d
 read	src/thirdparty/stb_image.h	/^   int      (*read)  (void *user,char *data,int size);   \/\/ fill 'data' with 'size' bytes.  re/;"	m	struct:__anoncf96c9f70208	typeref:typename:int (*)(void * user,char * data,int size)
 read_from_callbacks	src/thirdparty/stb_image.h	/^   int read_from_callbacks;$/;"	m	struct:__anoncf96c9f70308	typeref:typename:int
-realm	build/auth_sze_portal.js	/^    realm:    "hidalgo",$/;"	p	variable:anonymousObject8ddffa430105
 realm	src/cfdr_sze_portal/auth_sze_portal.js	/^    realm:    "hidalgo",$/;"	p	variable:anonymousObject530e070b0105
 region_absolute	src/ui/ui.h	/^  R2F region_absolute;$/;"	m	struct:UI_Solved	typeref:typename:R2F
 release	src/ui/ui.h	/^  B32 release;$/;"	m	struct:UI_Response	typeref:typename:B32
@@ -7661,7 +7698,7 @@ resolution	src/graphics/graphics.h	/^  F32       resolution;$/;"	m	struct:G2_Dis
 resolution	src/platform/platform.h	/^  V2F resolution;$/;"	m	struct:PL_Display	typeref:typename:V2F
 resolution	src/platform/platform.h	/^  V2I                     resolution;$/;"	m	struct:PL_Render_Setup	typeref:typename:V2I
 resolution	src/web/alice_canvas.js	/^      resolution: { width: 0, height: 0 },$/;"	p	property:wasm_context.frame_state.display
-resolveTarget	build/alice_canvas.js	/^      resolveTarget: backbuffer_texture_view,$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881b05
+resolveTarget	build/alice_canvas.js	/^      resolveTarget: backbuffer_texture_view,$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881905
 resolveTarget	src/cfdr_sze_portal/alice_canvas.js	/^      resolveTarget: backbuffer_texture_view,$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObject908cf9501b05
 resolveTarget	src/web/alice_canvas.js	/^      resolveTarget: backbuffer_texture_view,$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObjectd474d1cd1905
 resource	src/cfdr/cfdr_resource.h	/^  CFDR_Resource resource;$/;"	m	struct:CFDR_Surface	typeref:typename:CFDR_Resource
@@ -7729,8 +7766,8 @@ row_3	src/base/base.h	/^  struct { V4_I32 row_1, row_2, row_3, row_4; };$/;"	m	s
 row_4	src/base/base.h	/^  struct { V4_F32 row_1, row_2, row_3, row_4; };$/;"	m	struct:__anon3048dd97b80a::__anon3048dd97b908	typeref:typename:V4_F32
 row_4	src/base/base.h	/^  struct { V4_F64 row_1, row_2, row_3, row_4; };$/;"	m	struct:__anon3048dd97bb0a::__anon3048dd97bc08	typeref:typename:V4_F64
 row_4	src/base/base.h	/^  struct { V4_I32 row_1, row_2, row_3, row_4; };$/;"	m	struct:__anon3048dd97b50a::__anon3048dd97b608	typeref:typename:V4_I32
-rowsPerImage	build/alice_canvas.js	/^    { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },$/;"	p	variable:anonymousObject7fd8f7880c05
-rowsPerImage	build/alice_canvas.js	/^    { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },$/;"	p	variable:anonymousObject7fd8f7881005
+rowsPerImage	build/alice_canvas.js	/^    { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },$/;"	p	variable:anonymousObject7fd8f7880a05
+rowsPerImage	build/alice_canvas.js	/^    { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },$/;"	p	variable:anonymousObject7fd8f7880e05
 rowsPerImage	src/cfdr_sze_portal/alice_canvas.js	/^    { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },$/;"	p	variable:anonymousObject908cf9500c05
 rowsPerImage	src/cfdr_sze_portal/alice_canvas.js	/^    { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },$/;"	p	variable:anonymousObject908cf9501005
 rowsPerImage	src/web/alice_canvas.js	/^    { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },$/;"	p	variable:anonymousObjectd474d1cd0a05
@@ -7744,8 +7781,8 @@ s	src/thirdparty/stb_image.h	/^   stbi__context *s;$/;"	m	struct:__anoncf96c9f70
 s	src/thirdparty/stb_image.h	/^   stbi__context *s;$/;"	m	struct:__anoncf96c9f70e08	typeref:typename:stbi__context *
 s0	src/thirdparty/stb_truetype.h	/^   float x0,y0,s0,t0; \/\/ top-left$/;"	m	struct:__anon94f8da560308	typeref:typename:float
 s1	src/thirdparty/stb_truetype.h	/^   float x1,y1,s1,t1; \/\/ bottom-right$/;"	m	struct:__anon94f8da560308	typeref:typename:float
-sampleCount	build/alice_canvas.js	/^    sampleCount: MSAA_Sample_Count,$/;"	p	variable:anonymousObject7fd8f7880505
-sampleCount	build/alice_canvas.js	/^    sampleCount: MSAA_Sample_Count,$/;"	p	variable:anonymousObject7fd8f7880605
+sampleCount	build/alice_canvas.js	/^    sampleCount: MSAA_Sample_Count,$/;"	p	variable:anonymousObject7fd8f7880305
+sampleCount	build/alice_canvas.js	/^    sampleCount: MSAA_Sample_Count,$/;"	p	variable:anonymousObject7fd8f7880405
 sampleCount	src/cfdr_sze_portal/alice_canvas.js	/^    sampleCount: MSAA_Sample_Count,$/;"	p	variable:anonymousObject908cf9500505
 sampleCount	src/cfdr_sze_portal/alice_canvas.js	/^    sampleCount: MSAA_Sample_Count,$/;"	p	variable:anonymousObject908cf9500605
 sampleCount	src/web/alice_canvas.js	/^    sampleCount: MSAA_Sample_Count,$/;"	p	variable:anonymousObjectd474d1cd0305
@@ -7769,6 +7806,7 @@ scale	src/cfdr/cfdr_overlay.h	/^  F32                       scale;$/;"	m	struct:
 scale	src/cfdr/cfdr_ui.c	/^  F32     scale;$/;"	m	struct:CFDR_UI_State	typeref:typename:F32	file:
 scale	src/ui/ui.c	/^  F32           scale;$/;"	m	struct:__anon33d978b80108	typeref:typename:F32	file:
 scan_n	src/thirdparty/stb_image.h	/^   int scan_n, order[4];$/;"	m	struct:__anoncf96c9f70808	typeref:typename:int
+scope	src/cfdr_sze_portal/auth_sze_portal.js	/^        scope:            'openid',$/;"	p	variable:init_sze_portal_auth.anonymousObject530e070b0205
 scratch_1	src/base/base.c	/^  Arena scratch_1;$/;"	m	struct:__anon3048dd920108	typeref:typename:Arena	file:
 scratch_2	src/base/base.c	/^  Arena scratch_2;$/;"	m	struct:__anon3048dd920108	typeref:typename:Arena	file:
 scratch_end	src/base/base.h	/^force_inline fn_internal void     scratch_end   (Scratch *scratch)    { arena_temp_end(scratch);/;"	f	typeref:typename:force_inline fn_internal void
@@ -7787,7 +7825,7 @@ shader	build/alice_canvas.js	/^  const shader = { module: module,  binding_list:
 shader	src/cfdr_sze_portal/alice_canvas.js	/^  const shader = { module: module,  binding_list: binding_list };$/;"	v	function:js_webgpu_shader_create
 shader	src/render/render.h	/^  R_Shader         shader;$/;"	m	struct:R_Pipeline_Layout	typeref:typename:R_Shader
 shader	src/web/alice_canvas.js	/^  const shader = { module: module,  binding_list: binding_list };$/;"	v	function:js_webgpu_shader_create
-shaderLocation	build/alice_canvas.js	/^    attribute_list.push({ shaderLocation: it, offset: attribute_format_offset, format: WebGPU_Ve/;"	p	variable:anonymousObject7fd8f7881505
+shaderLocation	build/alice_canvas.js	/^    attribute_list.push({ shaderLocation: it, offset: attribute_format_offset, format: WebGPU_Ve/;"	p	variable:anonymousObject7fd8f7881305
 shaderLocation	src/cfdr_sze_portal/alice_canvas.js	/^    attribute_list.push({ shaderLocation: it, offset: attribute_format_offset, format: WebGPU_Ve/;"	p	variable:anonymousObject908cf9501505
 shaderLocation	src/web/alice_canvas.js	/^    attribute_list.push({ shaderLocation: it, offset: attribute_format_offset, format: WebGPU_Ve/;"	p	variable:anonymousObjectd474d1cd1305
 shader_last_id	src/render/render_metal.m	/^  U32 shader_last_id;$/;"	E	struct:Metal_Pipeline
@@ -7798,7 +7836,7 @@ shadow_offset	src/cfdr/cfdr_overlay.h	/^  F32                       shadow_offse
 shadow_overlay	src/cfdr/cfdr_layer.h	/^  B32             shadow_overlay;$/;"	m	struct:CFDR_Layer	typeref:typename:B32
 shadow_overlay_offset	src/cfdr/cfdr_layer.h	/^  F32             shadow_overlay_offset;$/;"	m	struct:CFDR_Layer	typeref:typename:F32
 shadow_overlay_opacity	src/cfdr/cfdr_layer.h	/^  F32             shadow_overlay_opacity;$/;"	m	struct:CFDR_Layer	typeref:typename:F32
-shared	build/alice_canvas.js	/^    shared:  false,$/;"	p	variable:wasm_module_load.anonymousObject7fd8f7881c05
+shared	build/alice_canvas.js	/^    shared:  false,$/;"	p	variable:wasm_module_load.anonymousObject7fd8f7881a05
 shared	src/cfdr_sze_portal/alice_canvas.js	/^    shared:  false,$/;"	p	variable:wasm_module_load.anonymousObject908cf9501c05
 shared	src/web/alice_canvas.js	/^    shared:  false,$/;"	p	variable:wasm_module_load.anonymousObjectd474d1cd1a05
 shared_memory	build/alice_canvas.js	/^  shared_memory: {$/;"	p	variable:wasm_context
@@ -7811,11 +7849,11 @@ simd	src/base/base.h	/^  __m128 simd;$/;"	m	union:__anon3048dd97ce0a	typeref:typ
 simd	src/base/base.h	/^  __mmask8 simd;$/;"	m	struct:__anon3048dd97cf08	typeref:typename:__mmask8
 simd	src/base/base.h	/^  float32x4_t simd;$/;"	m	union:__anon3048dd97cc0a	typeref:typename:float32x4_t
 simd	src/base/base.h	/^  uint32x4_t simd;$/;"	m	struct:__anon3048dd97cd08	typeref:typename:uint32x4_t
-size	build/alice_canvas.js	/^    size:     [ width, height ],$/;"	p	variable:js_webgpu_texture_2D_allocate.anonymousObject7fd8f7880e05
-size	build/alice_canvas.js	/^    size:     { width, height, depthOrArrayLayers: depth },$/;"	p	variable:js_webgpu_texture_3D_allocate.anonymousObject7fd8f7880a05
-size	build/alice_canvas.js	/^    size:   bytes,$/;"	p	variable:js_webgpu_buffer_allocate.anonymousObject7fd8f7880805
-size	build/alice_canvas.js	/^    size: [ width, height, 1 ],$/;"	p	variable:anonymousObject7fd8f7880505
-size	build/alice_canvas.js	/^    size: [ width, height, 1 ],$/;"	p	variable:anonymousObject7fd8f7880605
+size	build/alice_canvas.js	/^    size:     [ width, height ],$/;"	p	variable:js_webgpu_texture_2D_allocate.anonymousObject7fd8f7880c05
+size	build/alice_canvas.js	/^    size:     { width, height, depthOrArrayLayers: depth },$/;"	p	variable:js_webgpu_texture_3D_allocate.anonymousObject7fd8f7880805
+size	build/alice_canvas.js	/^    size:   bytes,$/;"	p	variable:js_webgpu_buffer_allocate.anonymousObject7fd8f7880605
+size	build/alice_canvas.js	/^    size: [ width, height, 1 ],$/;"	p	variable:anonymousObject7fd8f7880305
+size	build/alice_canvas.js	/^    size: [ width, height, 1 ],$/;"	p	variable:anonymousObject7fd8f7880405
 size	src/cfdr_sze_portal/alice_canvas.js	/^    size:     [ width, height ],$/;"	p	variable:js_webgpu_texture_2D_allocate.anonymousObject908cf9500e05
 size	src/cfdr_sze_portal/alice_canvas.js	/^    size:     { width, height, depthOrArrayLayers: depth },$/;"	p	variable:js_webgpu_texture_3D_allocate.anonymousObject908cf9500a05
 size	src/cfdr_sze_portal/alice_canvas.js	/^    size:   bytes,$/;"	p	variable:js_webgpu_buffer_allocate.anonymousObject908cf9500805
@@ -7849,8 +7887,8 @@ spec_end	src/thirdparty/stb_image.h	/^   int            spec_end;$/;"	m	struct:_
 spec_start	src/thirdparty/stb_image.h	/^   int            spec_start;$/;"	m	struct:__anoncf96c9f70808	typeref:typename:int
 spinlock_pause	src/core/core.h	/^#define spinlock_pause /;"	d
 split_mode	src/cfdr/cfdr_ui.c	/^  CFDR_UI_Split_Mode split_mode;$/;"	m	struct:CFDR_UI_State	typeref:typename:CFDR_UI_Split_Mode	file:
-srcFactor	build/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.fragment.anonymousObject7fd8f7881805.blend.alpha
-srcFactor	build/alice_canvas.js	/^            color: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.fragment.anonymousObject7fd8f7881805.blend.color
+srcFactor	build/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.fragment.anonymousObject7fd8f7881605.blend.alpha
+srcFactor	build/alice_canvas.js	/^            color: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.fragment.anonymousObject7fd8f7881605.blend.color
 srcFactor	src/cfdr_sze_portal/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.fragment.anonymousObject908cf9501805.blend.alpha
 srcFactor	src/cfdr_sze_portal/alice_canvas.js	/^            color: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.fragment.anonymousObject908cf9501805.blend.color
 srcFactor	src/web/alice_canvas.js	/^            alpha: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405.fragment.anonymousObjectd474d1cd1605.blend.alpha
@@ -8383,7 +8421,7 @@ stl_parse_binary	src/mesh/mesh_stl.h	/^fn_internal R_Vertex_XNUC_3D *stl_parse_b
 store	build/alice_canvas.js	/^    store(webgpu_handle) {$/;"	m	variable:webgpu_init.webgpu_handle_map
 store	src/cfdr_sze_portal/alice_canvas.js	/^    store(webgpu_handle) {$/;"	m	variable:webgpu_init.webgpu_handle_map
 store	src/web/alice_canvas.js	/^    store(webgpu_handle) {$/;"	m	variable:webgpu_init.webgpu_handle_map
-storeOp	build/alice_canvas.js	/^      storeOp: 'store',$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881b05
+storeOp	build/alice_canvas.js	/^      storeOp: 'store',$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881905
 storeOp	src/cfdr_sze_portal/alice_canvas.js	/^      storeOp: 'store',$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObject908cf9501b05
 storeOp	src/web/alice_canvas.js	/^      storeOp: 'store',$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObjectd474d1cd1905
 str	src/cfdr/cfdr_eval.h	/^    Str                str;$/;"	m	union:CFDR_Value::__anond0538a06020a	typeref:typename:Str
@@ -8430,7 +8468,9 @@ t0	src/thirdparty/stb_truetype.h	/^   float x0,y0,s0,t0; \/\/ top-left$/;"	m	str
 t1	src/thirdparty/stb_truetype.h	/^   float x1,y1,s1,t1; \/\/ bottom-right$/;"	m	struct:__anon94f8da560308	typeref:typename:float
 table	src/cfdr/cfdr_eval.h	/^    struct CFDR_Table *table;$/;"	m	union:CFDR_Value::__anond0538a06020a	typeref:struct:CFDR_Table *
 tag	src/cfdr/cfdr_overlay.h	/^  Str                       tag;$/;"	m	struct:CFDR_Overlay_Node	typeref:typename:Str
+tag	src/cfdr/cfdr_scene.h	/^  Str                       tag;$/;"	m	struct:CFDR_Object_Node	typeref:typename:Str
 targets	build/alice_canvas.js	/^      targets: [$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.fragment
+targets	src/cfdr_sze_portal/alice_canvas.js	/^      targets: [$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.fragment
 targets	src/web/alice_canvas.js	/^      targets: [$/;"	p	property:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405.fragment
 tc_packer_init	src/texture_cache/texture_cache.c	/^fn_internal void tc_packer_init(TC_Packer *sk, Arena *arena, V2_U16 atlas_size) {$/;"	f	typeref:typename:fn_internal void
 tc_packer_push	src/texture_cache/texture_cache.c	/^fn_internal B32 tc_packer_push(TC_Packer *sk, V2_U16 rect, U16 border, V2_U16 *packed_position) /;"	f	typeref:typename:fn_internal B32
@@ -8444,8 +8484,8 @@ text	src/tokenizer/tokenizer.h	/^  Str       text;$/;"	m	struct:TK_Tokenizer	typ
 text	src/tokenizer/tokenizer.h	/^  Str      text;$/;"	m	struct:TK_Token	typeref:typename:Str
 text	src/ui/ui.c	/^  Str       text;$/;"	m	struct:UI_Dropdown_Entry	typeref:typename:Str	file:
 text	src/ui/ui.h	/^  Str text;$/;"	m	struct:UI_Solved	typeref:typename:Str
-texture	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	variable:anonymousObject7fd8f7880f05
-texture	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	p	variable:anonymousObject7fd8f7880b05
+texture	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	variable:anonymousObject7fd8f7880d05
+texture	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	p	variable:anonymousObject7fd8f7880905
 texture	src/cfdr_sze_portal/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	variable:anonymousObject908cf9500f05
 texture	src/cfdr_sze_portal/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	p	variable:anonymousObject908cf9500b05
 texture	src/render/render_metal.m	/^  id<MTLTexture> texture;$/;"	t
@@ -8484,7 +8524,7 @@ tmp	src/thirdparty/stb_sprintf.h	/^   char tmp[STB_SPRINTF_MIN];$/;"	m	struct:st
 todo	src/thirdparty/stb_image.h	/^   int restart_interval, todo;$/;"	m	struct:__anoncf96c9f70808	typeref:typename:int
 token	src/tokenizer/tokenizer.h	/^  TK_Token token;$/;"	m	struct:TK_Token_Node	typeref:typename:TK_Token
 token_at	src/tokenizer/tokenizer.h	/^  TK_Token_Node *token_at;$/;"	m	struct:TK_Scan	typeref:typename:TK_Token_Node *
-topology	build/alice_canvas.js	/^      topology: 'triangle-list',$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881605.primitive
+topology	build/alice_canvas.js	/^      topology: 'triangle-list',$/;"	p	property:js_webgpu_pipeline_create.anonymousObject7fd8f7881405.primitive
 topology	src/cfdr_sze_portal/alice_canvas.js	/^      topology: 'triangle-list',$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.primitive
 topology	src/web/alice_canvas.js	/^      topology: 'triangle-list',$/;"	p	property:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405.primitive
 tq	src/thirdparty/stb_image.h	/^      int tq;$/;"	m	struct:__anoncf96c9f70808::__anoncf96c9f70908	typeref:typename:int
@@ -8615,13 +8655,17 @@ ui_solve_position_relative_for_axis	src/ui/ui.c	/^fn_internal F32 ui_solve_posit
 ui_solve_region	src/ui/ui.c	/^fn_internal void ui_solve_region(UI_Node *node, V2F position_at) {$/;"	f	typeref:typename:fn_internal void
 uint8_t	src/thirdparty/walloc.c	/^typedef __UINT8_TYPE__ uint8_t;$/;"	t	typeref:typename:__UINT8_TYPE__	file:
 uintptr_t	src/thirdparty/walloc.c	/^typedef __UINTPTR_TYPE__ uintptr_t;$/;"	t	typeref:typename:__UINTPTR_TYPE__	file:
-url	build/auth_portal.js	/^    url:      "idm.testportal.mathso.sze.hu",$/;"	p	variable:anonymousObject5437c4b20105
-url	src/cfdr_sze_portal/auth_sze_portal.js	/^    url:      "idm.testportal.mathso.sze.hu",$/;"	p	variable:anonymousObject530e070b0105
+url	src/cfdr_sze_portal/auth_sze_portal.js	/^    url:      "https:\/\/idm.testportal.mathso.sze.hu",$/;"	p	variable:anonymousObject530e070b0105
 usage	build/alice_canvas.js	/^    usage:    GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,$/;"	p	variable:js_webgpu_texture_2D_allocate.anonymousObject7fd8f7880c05
 usage	build/alice_canvas.js	/^    usage:    GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,$/;"	p	variable:js_webgpu_texture_3D_allocate.anonymousObject7fd8f7880805
 usage	build/alice_canvas.js	/^    usage:  GPUBufferUsage.VERTEX   |$/;"	p	variable:js_webgpu_buffer_allocate.anonymousObject7fd8f7880605
 usage	build/alice_canvas.js	/^    usage: GPUTextureUsage.RENDER_ATTACHMENT,$/;"	p	variable:anonymousObject7fd8f7880305
 usage	build/alice_canvas.js	/^    usage: GPUTextureUsage.RENDER_ATTACHMENT,$/;"	p	variable:anonymousObject7fd8f7880405
+usage	src/cfdr_sze_portal/alice_canvas.js	/^    usage:    GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,$/;"	p	variable:js_webgpu_texture_2D_allocate.anonymousObject908cf9500e05
+usage	src/cfdr_sze_portal/alice_canvas.js	/^    usage:    GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,$/;"	p	variable:js_webgpu_texture_3D_allocate.anonymousObject908cf9500a05
+usage	src/cfdr_sze_portal/alice_canvas.js	/^    usage:  GPUBufferUsage.VERTEX   |$/;"	p	variable:js_webgpu_buffer_allocate.anonymousObject908cf9500805
+usage	src/cfdr_sze_portal/alice_canvas.js	/^    usage: GPUTextureUsage.RENDER_ATTACHMENT,$/;"	p	variable:anonymousObject908cf9500505
+usage	src/cfdr_sze_portal/alice_canvas.js	/^    usage: GPUTextureUsage.RENDER_ATTACHMENT,$/;"	p	variable:anonymousObject908cf9500605
 usage	src/web/alice_canvas.js	/^    usage:    GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,$/;"	p	variable:js_webgpu_texture_2D_allocate.anonymousObjectd474d1cd0c05
 usage	src/web/alice_canvas.js	/^    usage:    GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,$/;"	p	variable:js_webgpu_texture_3D_allocate.anonymousObjectd474d1cd0805
 usage	src/web/alice_canvas.js	/^    usage:  GPUBufferUsage.VERTEX   |$/;"	p	variable:js_webgpu_buffer_allocate.anonymousObjectd474d1cd0605
@@ -8835,7 +8879,7 @@ var_global	src/core/core.h	/^#define var_global /;"	d
 var_local_persist	src/core/core.h	/^#define var_local_persist /;"	d
 velocities	src/pbd/pbd.h	/^  V3F *velocities;$/;"	m	struct:PBD_Mass_Points	typeref:typename:V3F *
 version	src/cfdr/cfdr_state.h	/^  U32               version;$/;"	m	struct:CFDR_State	typeref:typename:U32
-vertex	build/alice_canvas.js	/^    vertex: {$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881605
+vertex	build/alice_canvas.js	/^    vertex: {$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject7fd8f7881405
 vertex	src/cfdr_sze_portal/alice_canvas.js	/^    vertex: {$/;"	p	variable:js_webgpu_pipeline_create.anonymousObject908cf9501605
 vertex	src/web/alice_canvas.js	/^    vertex: {$/;"	p	variable:js_webgpu_pipeline_create.anonymousObjectd474d1cd1405
 vertex_array	src/graphics/graphics.c	/^  R_Vertex_XUC_2D  *vertex_array;$/;"	m	struct:G2_Buffer	typeref:typename:R_Vertex_XUC_2D *	file:
@@ -8847,7 +8891,7 @@ vertex_capacity	src/graphics/graphics.c	/^  U64               vertex_capacity;$/
 vertices	src/geometry/geometry.h	/^  Array_V3F vertices;$/;"	m	struct:GEO3_Path	typeref:typename:Array_V3F
 vertices	src/geometry/geometry.h	/^  Array_V3F vertices;$/;"	m	struct:GEO3_Surface	typeref:typename:Array_V3F
 vertices	src/graphics/graphics.c	/^  R_Vertex_XUC_2D *vertices;$/;"	m	struct:__anona8a81ebe0308	typeref:typename:R_Vertex_XUC_2D *	file:
-view	build/alice_canvas.js	/^      view: wasm_context.webgpu.color_texture_view,$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881b05
+view	build/alice_canvas.js	/^      view: wasm_context.webgpu.color_texture_view,$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObject7fd8f7881905
 view	build/alice_canvas.js	/^      view: wasm_context.webgpu.depth_texture_view,$/;"	p	property:canvas_next_frame.render_pass_descriptor.depthStencilAttachment
 view	src/cfdr_sze_portal/alice_canvas.js	/^      view: wasm_context.webgpu.color_texture_view,$/;"	p	variable:canvas_next_frame.render_pass_descriptor.anonymousObject908cf9501b05
 view	src/cfdr_sze_portal/alice_canvas.js	/^      view: wasm_context.webgpu.depth_texture_view,$/;"	p	property:canvas_next_frame.render_pass_descriptor.depthStencilAttachment
@@ -8937,9 +8981,9 @@ webgpu_update_buffers	src/cfdr_sze_portal/alice_canvas.js	/^function webgpu_upda
 webgpu_update_buffers	src/web/alice_canvas.js	/^function webgpu_update_buffers(width, height) {$/;"	f
 wgsl	src/render/render.h	/^  union { Str wgsl; };$/;"	m	union:R_Shader_Source::__anon6ca78141080a	typeref:typename:Str
 width	build/alice_canvas.js	/^      resolution: { width: 0, height: 0 },$/;"	p	property:wasm_context.frame_state.display.resolution
-width	build/alice_canvas.js	/^    size:     { width, height, depthOrArrayLayers: depth },$/;"	p	property:js_webgpu_texture_3D_allocate.anonymousObject7fd8f7880a05.size
-width	build/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: 1, }$/;"	p	variable:anonymousObject7fd8f7881105
-width	build/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: region_depth, }$/;"	p	variable:anonymousObject7fd8f7880d05
+width	build/alice_canvas.js	/^    size:     { width, height, depthOrArrayLayers: depth },$/;"	p	property:js_webgpu_texture_3D_allocate.anonymousObject7fd8f7880805.size
+width	build/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: 1, }$/;"	p	variable:anonymousObject7fd8f7880f05
+width	build/alice_canvas.js	/^    { width: region_width, height: region_height, depthOrArrayLayers: region_depth, }$/;"	p	variable:anonymousObject7fd8f7880b05
 width	src/base/base.h	/^  struct { F32 width, height, depth; };$/;"	m	struct:__anon3048dd97420a::__anon3048dd974c08	typeref:typename:F32
 width	src/base/base.h	/^  struct { F32 width, height; };  $/;"	m	struct:__anon3048dd97170a::__anon3048dd971b08	typeref:typename:F32
 width	src/base/base.h	/^  struct { F64 width, height, depth; };$/;"	m	struct:__anon3048dd974d0a::__anon3048dd975708	typeref:typename:F64
@@ -8972,8 +9016,8 @@ workspace	src/cfdr/cfdr_state.h	/^  CFDR_Workspace    workspace;$/;"	m	struct:CF
 write_hooks	src/base/base.h	/^  Logger_Write_Entry_Hook    *write_hooks [Logger_Max_Hooks];$/;"	m	struct:Logger_State	typeref:typename:Logger_Write_Entry_Hook * []
 x	build/alice_canvas.js	/^        position:   { x: 0, y: 0, },$/;"	p	property:wasm_context.frame_state.input.mouse.position
 x	build/alice_canvas.js	/^        scroll_dt:  { x: 0, y: 0, },$/;"	p	property:wasm_context.frame_state.input.mouse.scroll_dt
-x	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	property:anonymousObject7fd8f7880f05.origin
-x	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	p	property:anonymousObject7fd8f7880b05.origin
+x	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	property:anonymousObject7fd8f7880d05.origin
+x	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	p	property:anonymousObject7fd8f7880905.origin
 x	src/base/base.h	/^  struct { F32 x, y, z, w; };$/;"	m	struct:__anon3048dd97850a::__anon3048dd978608	typeref:typename:F32
 x	src/base/base.h	/^  struct { F32 x, y, z; };$/;"	m	struct:__anon3048dd97420a::__anon3048dd974308	typeref:typename:F32
 x	src/base/base.h	/^  struct { F32 x, y; };$/;"	m	struct:__anon3048dd97170a::__anon3048dd971808	typeref:typename:F32
@@ -9051,8 +9095,8 @@ xyz	src/base/base.h	/^  struct { V3_U16 xyz; U16 _pad_12; };$/;"	m	struct:__anon
 xyz	src/base/base.h	/^  struct { V3_U32 xyz; U32 _pad_12; };$/;"	m	struct:__anon3048dd97760a::__anon3048dd978208	typeref:typename:V3_U32
 y	build/alice_canvas.js	/^        position:   { x: 0, y: 0, },$/;"	p	property:wasm_context.frame_state.input.mouse.position
 y	build/alice_canvas.js	/^        scroll_dt:  { x: 0, y: 0, },$/;"	p	property:wasm_context.frame_state.input.mouse.scroll_dt
-y	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	property:anonymousObject7fd8f7880f05.origin
-y	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	p	property:anonymousObject7fd8f7880b05.origin
+y	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	property:anonymousObject7fd8f7880d05.origin
+y	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	p	property:anonymousObject7fd8f7880905.origin
 y	src/base/base.h	/^  struct { F32 x, y, z, w; };$/;"	m	struct:__anon3048dd97850a::__anon3048dd978608	typeref:typename:F32
 y	src/base/base.h	/^  struct { F32 x, y, z; };$/;"	m	struct:__anon3048dd97420a::__anon3048dd974308	typeref:typename:F32
 y	src/base/base.h	/^  struct { F32 x, y; };$/;"	m	struct:__anon3048dd97170a::__anon3048dd971808	typeref:typename:F32
@@ -9119,8 +9163,8 @@ yz	src/base/base.h	/^  struct { U16 _pad_1; V2_U16 yz; };$/;"	m	struct:__anon304
 yz	src/base/base.h	/^  struct { U16 _pad_6;  V2_U16 yz; U16 _pad_7; };$/;"	m	struct:__anon3048dd97670a::__anon3048dd977008	typeref:typename:V2_U16
 yz	src/base/base.h	/^  struct { U32 _pad_1; V2_U32 yz; };$/;"	m	struct:__anon3048dd97370a::__anon3048dd973c08	typeref:typename:V2_U32
 yz	src/base/base.h	/^  struct { U32 _pad_6;  V2_U32 yz; U32 _pad_7; };$/;"	m	struct:__anon3048dd97760a::__anon3048dd977f08	typeref:typename:V2_U32
-z	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	property:anonymousObject7fd8f7880f05.origin
-z	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	p	property:anonymousObject7fd8f7880b05.origin
+z	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: 0, }, },$/;"	p	property:anonymousObject7fd8f7880d05.origin
+z	build/alice_canvas.js	/^    { texture: texture, mipLevel: 0, origin: { x: region_x0, y: region_y0, z: region_z0, }, },$/;"	p	property:anonymousObject7fd8f7880905.origin
 z	src/base/base.h	/^  struct { F32 x, y, z, w; };$/;"	m	struct:__anon3048dd97850a::__anon3048dd978608	typeref:typename:F32
 z	src/base/base.h	/^  struct { F32 x, y, z; };$/;"	m	struct:__anon3048dd97420a::__anon3048dd974308	typeref:typename:F32
 z	src/base/base.h	/^  struct { F64 x, y, z, w; };$/;"	m	struct:__anon3048dd97940a::__anon3048dd979508	typeref:typename:F64
