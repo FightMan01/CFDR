@@ -21,6 +21,7 @@ typedef struct CFDR_State {
   CFDR_Workspace    workspace;
   CFDR_Viewport     viewport;
   CFDR_Overlay      overlay;
+  CFDR_Scene        scene;
 
 } CFDR_State;
 

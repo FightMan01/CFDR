@@ -271,7 +271,6 @@ CFDR_List_Node	src/cfdr/cfdr_eval.h	/^} CFDR_List_Node;$/;"	t	typeref:struct:CFD
 CFDR_Material_Flat	src/cfdr/cfdr_layer.h	/^  CFDR_Material_Flat,$/;"	e	enum:__anonc64fae7b0203
 CFDR_Material_Position	src/cfdr/cfdr_layer.h	/^  CFDR_Material_Position,$/;"	e	enum:__anonc64fae7b0203
 CFDR_Material_Type	src/cfdr/cfdr_layer.h	/^typedef I32 CFDR_Material_Type;$/;"	t	typeref:typename:I32
-CFDR_Object	src/cfdr/cfdr_scene.h	/^} CFDR_Object;$/;"	t	typeref:struct:CFDR_Scene
 CFDR_Object_Flag	src/cfdr/cfdr_scene.h	/^typedef U32 CFDR_Object_Flag;$/;"	t	typeref:typename:U32
 CFDR_Object_Flag_Draw_Surface	src/cfdr/cfdr_scene.h	/^  CFDR_Object_Flag_Draw_Surface = 0,$/;"	e	enum:__anone46c770c0103
 CFDR_Object_Flag_None	src/cfdr/cfdr_scene.h	/^  CFDR_Object_Flag_None         = 0,$/;"	e	enum:__anone46c770c0103
@@ -293,6 +292,7 @@ CFDR_Resource	src/cfdr/cfdr_resource.h	/^} CFDR_Resource;$/;"	t	typeref:struct:C
 CFDR_Resource_Data	src/cfdr/cfdr_resource.h	/^typedef struct CFDR_Resource_Data {$/;"	s
 CFDR_Resource_Data	src/cfdr/cfdr_resource.h	/^} CFDR_Resource_Data;$/;"	t	typeref:struct:CFDR_Resource_Data
 CFDR_Scene	src/cfdr/cfdr_scene.h	/^typedef struct CFDR_Scene {$/;"	s
+CFDR_Scene	src/cfdr/cfdr_scene.h	/^} CFDR_Scene;$/;"	t	typeref:struct:CFDR_Scene
 CFDR_State	src/cfdr/cfdr_state.h	/^typedef struct CFDR_State {$/;"	s
 CFDR_State	src/cfdr/cfdr_state.h	/^} CFDR_State;$/;"	t	typeref:struct:CFDR_State
 CFDR_Surface	src/cfdr/cfdr_resource.h	/^typedef struct CFDR_Surface {$/;"	s
@@ -5134,6 +5134,7 @@ Str_List	src/core/core.h	/^typedef struct Str_List {$/;"	s
 Str_List	src/core/core.h	/^} Str_List;$/;"	t	typeref:struct:Str_List
 Str_Node	src/core/core.h	/^typedef struct Str_Node {$/;"	s
 Str_Node	src/core/core.h	/^} Str_Node;$/;"	t	typeref:struct:Str_Node
+Str_Scan	src/cfdr_format/cfdr_format_vtk.h	/^} Str_Scan;$/;"	t	typeref:struct:VTI_Scan
 Swap	src/core/core.h	/^#define Swap(/;"	d
 TC_Packer	src/texture_cache/texture_cache.h	/^typedef struct TC_Packer {$/;"	s
 TC_Packer	src/texture_cache/texture_cache.h	/^} TC_Packer;$/;"	t	typeref:struct:TC_Packer
@@ -5283,6 +5284,9 @@ V4_F64	src/base/base.h	/^} V4_F64;$/;"	t	typeref:union:__anon3048dd97940a
 V4_I32	src/base/base.h	/^} V4_I32;$/;"	t	typeref:union:__anon3048dd97580a
 V4_U16	src/base/base.h	/^} V4_U16;$/;"	t	typeref:union:__anon3048dd97670a
 V4_U32	src/base/base.h	/^} V4_U32;$/;"	t	typeref:union:__anon3048dd97760a
+VTI_Error_Node	src/cfdr_format/cfdr_format_vtk.h	/^tpyedef struct VTI_Error_Node {$/;"	s
+VTI_Error_Node	src/cfdr_format/cfdr_format_vtk.h	/^} VTI_Error_Node;$/;"	v	typeref:struct:VTI_Error_Node
+VTI_Scan	src/cfdr_format/cfdr_format_vtk.h	/^typedef struct VTI_Scan {$/;"	s
 Viewport	src/cfdr/cfdr_draw.c	/^typedef struct Viewport {$/;"	s	file:
 Viewport	src/cfdr/cfdr_draw.c	/^} Viewport;$/;"	t	typeref:struct:Viewport	file:
 Volume_Density	src/render/render.h	/^  alignas(16) F32 Volume_Density;$/;"	m	struct:__anon6ca781411108	typeref:typename:F32
@@ -5876,6 +5880,7 @@ asan_poison_region	src/core/core.h	/^#define asan_poison_region(/;"	d
 asan_unpoison_region	src/core/core.h	/^#   define asan_unpoison_region(/;"	d
 asan_unpoison_region	src/core/core.h	/^#define asan_unpoison_region(/;"	d
 aspect_ratio	src/platform/platform.h	/^  F32 aspect_ratio;$/;"	m	struct:PL_Display	typeref:typename:F32
+at	src/cfdr_format/cfdr_format_vtk.h	/^  U64 at;$/;"	m	struct:VTI_Scan	typeref:typename:U64
 at	src/tokenizer/tokenizer.h	/^  U64       at;$/;"	m	struct:TK_Tokenizer	typeref:typename:U64
 atlas_size	src/texture_cache/texture_cache.h	/^  V2_U16       atlas_size;$/;"	m	struct:TC_Packer	typeref:typename:V2_U16
 atlas_uv	src/font/font.h	/^  R2F       atlas_uv;$/;"	m	struct:FO_Glyph	typeref:typename:R2F
@@ -6058,6 +6063,7 @@ cfdr_draw_viewport	src/cfdr/cfdr_draw.c	/^fn_internal void cfdr_draw_viewport(UI
 cfdr_draw_viewport_init	src/cfdr/cfdr_draw.c	/^fn_internal void cfdr_draw_viewport_init(Viewport *viewport) {$/;"	f	typeref:typename:fn_internal void
 cfdr_eval	src/cfdr/cfdr_eval.c	/^fn_internal void cfdr_eval(CFDR_State *state, Str expr) {$/;"	f	typeref:typename:fn_internal void
 cfdr_eval_directive	src/cfdr/cfdr_eval.c	/^fn_internal void cfdr_eval_directive(CFDR_State *state, Arena *arena, TK_Scan *scan) {$/;"	f	typeref:typename:fn_internal void
+cfdr_eval_directive_object	src/cfdr/cfdr_eval.c	/^fn_internal void cfdr_eval_directive_object(CFDR_State *state, Arena *arena, TK_Scan *scan) {$/;"	f	typeref:typename:fn_internal void
 cfdr_eval_directive_overlay	src/cfdr/cfdr_eval.c	/^fn_internal void cfdr_eval_directive_overlay(CFDR_State *state, Arena *arena, TK_Scan *scan) {$/;"	f	typeref:typename:fn_internal void
 cfdr_eval_directive_viewport	src/cfdr/cfdr_eval.c	/^fn_internal void cfdr_eval_directive_viewport(CFDR_State *state, Arena *arena, TK_Scan *scan) {$/;"	f	typeref:typename:fn_internal void
 cfdr_eval_expr	src/cfdr/cfdr_eval.c	/^fn_internal CFDR_Value cfdr_eval_expr(Arena *arena, TK_Scan *scan) {$/;"	f	typeref:typename:fn_internal CFDR_Value
@@ -6071,6 +6077,8 @@ cfdr_eval_get_v2i	src/cfdr/cfdr_eval.c	/^fn_internal V2I cfdr_eval_get_v2i(CFDR_
 cfdr_eval_list	src/cfdr/cfdr_eval.c	/^fn_internal CFDR_Value cfdr_eval_list(Arena *arena, TK_Scan *scan) {$/;"	f	typeref:typename:fn_internal CFDR_Value
 cfdr_eval_literal_def	src/cfdr/cfdr_eval.c	/^fn_internal CFDR_Value cfdr_eval_literal_def(Arena *arena, TK_Scan *scan) {$/;"	f	typeref:typename:fn_internal CFDR_Value
 cfdr_eval_table	src/cfdr/cfdr_eval.c	/^fn_internal CFDR_Value cfdr_eval_table(Arena *arena, TK_Scan *scan) {$/;"	f	typeref:typename:fn_internal CFDR_Value
+cfdr_format_vti_load	src/cfdr_format/cfdr_format_vtk.h	/^fn_internal void cfdr_format_vti_load(Str name, Str content, Arena *arena) {$/;"	f	typeref:typename:fn_internal void
+cfdr_format_vti_load_sub	src/cfdr_format/cfdr_format_vtk.h	/^fn_internal void cfdr_format_vti_load_sub(Str content, Arena *arena) {$/;"	f	typeref:typename:fn_internal void
 cfdr_list_extract_i64	src/cfdr/cfdr_eval.c	/^fn_internal void cfdr_list_extract_i64(CFDR_List *list, I64 count, I64 *values) {$/;"	f	typeref:typename:fn_internal void
 cfdr_overlay_draw	src/cfdr/cfdr_overlay.c	/^fn_internal void cfdr_overlay_draw(CFDR_Overlay *overlay, R2F draw_region) {$/;"	f	typeref:typename:fn_internal void
 cfdr_overlay_draw_text	src/cfdr/cfdr_overlay.c	/^fn_internal void cfdr_overlay_draw_text(CFDR_Overlay *overlay, CFDR_Overlay_Node *node, R2F draw/;"	f	typeref:typename:fn_internal void
@@ -6078,6 +6086,9 @@ cfdr_overlay_init	src/cfdr/cfdr_overlay.c	/^fn_internal void cfdr_overlay_init(C
 cfdr_overlay_push	src/cfdr/cfdr_overlay.c	/^fn_internal CFDR_Overlay_Node *cfdr_overlay_push(CFDR_Overlay *overlay) {$/;"	f	typeref:typename:fn_internal CFDR_Overlay_Node *
 cfdr_resource_get	src/cfdr/cfdr_resource.h	/^fn_internal B32 cfdr_resource_get(CFDR_Resource *resource, CFDR_Resource_Data *data) {$/;"	f	typeref:typename:fn_internal B32
 cfdr_resource_init	src/cfdr/cfdr_resource.h	/^fn_internal void cfdr_resource_init(CFDR_Resource *resource, Str path) {$/;"	f	typeref:typename:fn_internal void
+cfdr_scene_draw	src/cfdr/cfdr_scene.c	/^fn_internal void cfdr_scene_draw(CFDR_Scene *object, R2F draw_region) {$/;"	f	typeref:typename:fn_internal void
+cfdr_scene_init	src/cfdr/cfdr_scene.c	/^fn_internal void cfdr_scene_init(CFDR_Scene *object) {$/;"	f	typeref:typename:fn_internal void
+cfdr_scene_push	src/cfdr/cfdr_scene.c	/^fn_internal CFDR_Object_Node *cfdr_scene_push(CFDR_Scene *object) {$/;"	f	typeref:typename:fn_internal CFDR_Object_Node *
 cfdr_state_default	src/cfdr/cfdr_state.c	/^fn_internal void cfdr_state_default(CFDR_State *state) {$/;"	f	typeref:typename:fn_internal void
 cfdr_state_init	src/cfdr/cfdr_layer.h	/^fn_internal void cfdr_state_init() {$/;"	f	typeref:typename:fn_internal void
 cfdr_surface_init	src/cfdr/cfdr_resource.h	/^fn_internal void cfdr_surface_init(CFDR_Surface *surface, Str path) {$/;"	f	typeref:typename:fn_internal void
@@ -6106,6 +6117,7 @@ cff	src/thirdparty/stb_truetype.h	/^   stbtt__buf cff;                    \/\/ c
 channel	src/thirdparty/stb_image.h	/^   stbi_uc size,type,channel;$/;"	m	struct:__anoncf96c9f71108	typeref:typename:stbi_uc
 channel_order	src/thirdparty/stb_image.h	/^   int channel_order;$/;"	m	struct:__anoncf96c9f70508	typeref:typename:int
 channels	src/image/image.h	/^  U32  channels;$/;"	m	struct:IM_Bitmap	typeref:typename:U32
+char_at	src/cfdr_format/cfdr_format_vtk.h	/^  I32 char_at;$/;"	m	struct:VTI_Error_Node	typeref:typename:I32
 char_is_alpha	src/core/core.h	/^inline fn_internal B32 char_is_alpha      (I08 c) { return (c >= 'A' && c <= 'Z') || (c >= 'a' &/;"	f	typeref:typename:fn_internal B32
 char_is_digit	src/core/core.h	/^inline fn_internal B32 char_is_digit      (I08 c) { return c >= '0' && c <= '9'; }$/;"	f	typeref:typename:fn_internal B32
 char_is_linefeed	src/core/core.h	/^inline fn_internal B32 char_is_linefeed   (I08 c) { return c == '\\r' || c == '\\n'; }$/;"	f	typeref:typename:fn_internal B32
@@ -6187,8 +6199,7 @@ color	src/cfdr/cfdr_draw.c	/^  HSVA          color;$/;"	m	struct:Draw_Grid	typer
 color	src/cfdr/cfdr_eval.h	/^    V3F                color;$/;"	m	union:CFDR_Value::__anond0538a06020a	typeref:typename:V3F
 color	src/cfdr/cfdr_layer.h	/^  HSVA            color;$/;"	m	struct:CFDR_Layer	typeref:typename:HSVA
 color	src/cfdr/cfdr_overlay.h	/^  HSVA                      color;$/;"	m	struct:CFDR_Overlay_Node	typeref:typename:HSVA
-color	src/cfdr/cfdr_scene.h	/^  HSV                       color;$/;"	m	struct:CFDR_Object_Node	typeref:typename:HSV
-color	src/cfdr_sze_portal/alice_canvas.js	/^            color: { srcFactor: 'one', dstFactor: 'one-minus-src-alpha', operation: 'add' },$/;"	p	property:js_webgpu_pipeline_create.anonymousObject908cf9501605.fragment.anonymousObject908cf9501805.blend
+color	src/cfdr/cfdr_scene.h	/^  HSVA                      color;$/;"	m	struct:CFDR_Object_Node	typeref:typename:HSVA
 color	src/graphics/graphics.h	/^  RGBA         color;$/;"	m	struct:G2_Rect	typeref:typename:RGBA
 color	src/graphics/graphics.h	/^  RGBA         color;$/;"	m	struct:G2_Tri	typeref:typename:RGBA
 color	src/graphics/graphics.h	/^  RGBA      color;$/;"	m	struct:G2_Disk	typeref:typename:RGBA
@@ -6629,6 +6640,7 @@ first	src/cfdr/cfdr_eval.h	/^  CFDR_List_Node *first;$/;"	m	struct:CFDR_List	typ
 first	src/cfdr/cfdr_eval.h	/^  CFDR_Table_Node *first;$/;"	m	struct:CFDR_Table	typeref:typename:CFDR_Table_Node *
 first	src/cfdr/cfdr_overlay.h	/^  CFDR_Overlay_Node  *first;$/;"	m	struct:CFDR_Overlay	typeref:typename:CFDR_Overlay_Node *
 first	src/cfdr/cfdr_scene.h	/^  CFDR_Object_Node  *first;$/;"	m	struct:CFDR_Scene	typeref:typename:CFDR_Object_Node *
+first	src/cfdr_format/cfdr_format_vtk.h	/^  VIT_Error_Node *first;$/;"	m	struct:VTI_Scan	typeref:typename:VIT_Error_Node *
 first	src/core/core.h	/^  Str_Node *first;$/;"	m	struct:Str_List	typeref:typename:Str_Node *
 first	src/font/font.h	/^  FO_Glyph *first;$/;"	m	struct:FO_Glyph_List	typeref:typename:FO_Glyph *
 first	src/render/render.h	/^  R_Command_Header *first;$/;"	m	struct:__anon6ca781410f08	typeref:typename:R_Command_Header *
@@ -7190,6 +7202,7 @@ last	src/cfdr/cfdr_eval.h	/^  CFDR_List_Node *last;$/;"	m	struct:CFDR_List	typer
 last	src/cfdr/cfdr_eval.h	/^  CFDR_Table_Node *last;$/;"	m	struct:CFDR_Table	typeref:typename:CFDR_Table_Node *
 last	src/cfdr/cfdr_overlay.h	/^  CFDR_Overlay_Node  *last;$/;"	m	struct:CFDR_Overlay	typeref:typename:CFDR_Overlay_Node *
 last	src/cfdr/cfdr_scene.h	/^  CFDR_Object_Node  *last;$/;"	m	struct:CFDR_Scene	typeref:typename:CFDR_Object_Node *
+last	src/cfdr_format/cfdr_format_vtk.h	/^  VIT_Error_Node *last;$/;"	m	struct:VTI_Scan	typeref:typename:VIT_Error_Node *
 last	src/font/font.h	/^  FO_Glyph *last;$/;"	m	struct:FO_Glyph_List	typeref:typename:FO_Glyph *
 last	src/render/render.h	/^  R_Command_Header *last;$/;"	m	struct:__anon6ca781410f08	typeref:typename:R_Command_Header *
 last	src/tokenizer/tokenizer.h	/^  struct TK_Token_Node  *last;$/;"	m	struct:TK_Token_List	typeref:struct:TK_Token_Node *
@@ -7224,6 +7237,7 @@ line	src/tokenizer/tokenizer.h	/^  U32               line;$/;"	m	struct:TK_Error
 line	src/tokenizer/tokenizer.h	/^  U32      line;$/;"	m	struct:TK_Token	typeref:typename:U32
 line0	src/thirdparty/stb_image.h	/^   stbi_uc *line0,*line1;$/;"	m	struct:__anoncf96c9f70a08	typeref:typename:stbi_uc *
 line1	src/thirdparty/stb_image.h	/^   stbi_uc *line0,*line1;$/;"	m	struct:__anoncf96c9f70a08	typeref:typename:stbi_uc *
+line_at	src/cfdr_format/cfdr_format_vtk.h	/^  I32 line_at;$/;"	m	struct:VTI_Error_Node	typeref:typename:I32
 line_at	src/tokenizer/tokenizer.h	/^  U32       line_at;$/;"	m	struct:TK_Tokenizer	typeref:typename:U32
 line_size	src/thirdparty/stb_image.h	/^   int line_size;$/;"	m	struct:__anoncf96c9f71308	typeref:typename:int
 linebuf	src/thirdparty/stb_image.h	/^      stbi_uc *linebuf;$/;"	m	struct:__anoncf96c9f70808::__anoncf96c9f70908	typeref:typename:stbi_uc *
@@ -7351,6 +7365,7 @@ memory_copy	src/core/core.h	/^force_inline fn_internal void memory_copy    (void
 memory_fill	src/core/core.h	/^force_inline fn_internal void memory_fill    (void *dst, U08 fill, U64 bytes)  { __builtin_memse/;"	f	typeref:typename:force_inline fn_internal void
 memory_fill	src/core/core.h	/^force_inline fn_internal void memory_fill    (void *dst, U08 fill, U64 bytes)  { __stosb(dst, fi/;"	f	typeref:typename:force_inline fn_internal void
 message	src/base/base.h	/^  U08               message[Logger_Max_Entry_Length];$/;"	m	struct:Logger_Entry	typeref:typename:U08[]
+message	src/cfdr_format/cfdr_format_vtk.h	/^  Str message;$/;"	m	struct:VTI_Error_Node	typeref:typename:Str
 message	src/tokenizer/tokenizer.h	/^  Str               message;$/;"	m	struct:TK_Error	typeref:typename:Str
 meta	src/base/base.h	/^  Function_Metadata meta;$/;"	m	struct:Logger_Entry	typeref:typename:Function_Metadata
 metal_create_default_samplers	src/render/render_metal.m	/^fn_internal void metal_create_default_samplers(void) {$/;"	f	struct:Metal_Pipeline
@@ -7426,6 +7441,7 @@ next	src/cfdr/cfdr_eval.h	/^  struct CFDR_List_Node *next;$/;"	m	struct:CFDR_Lis
 next	src/cfdr/cfdr_eval.h	/^  struct CFDR_Table_Node *next;$/;"	m	struct:CFDR_Table_Node	typeref:struct:CFDR_Table_Node *
 next	src/cfdr/cfdr_overlay.h	/^  struct CFDR_Overlay_Node *next;$/;"	m	struct:CFDR_Overlay_Node	typeref:struct:CFDR_Overlay_Node *
 next	src/cfdr/cfdr_scene.h	/^  struct CFDR_Object_Node  *next;$/;"	m	struct:CFDR_Object_Node	typeref:struct:CFDR_Object_Node *
+next	src/cfdr_format/cfdr_format_vtk.h	/^  struct VTI_Error_Node *next;$/;"	m	struct:VTI_Error_Node	typeref:struct:VTI_Error_Node *
 next	src/core/core.h	/^  struct Str_Node *next;$/;"	m	struct:Str_Node	typeref:struct:Str_Node *
 next	src/core/core.h	/^  volatile U32 next;$/;"	m	struct:Mutex	typeref:typename:volatile U32
 next	src/render/render.h	/^  struct R_Command_Header *next;$/;"	m	struct:R_Command_Header	typeref:struct:R_Command_Header *
@@ -7806,6 +7822,7 @@ scale	src/cfdr/cfdr_overlay.h	/^  F32                       scale;$/;"	m	struct:
 scale	src/cfdr/cfdr_ui.c	/^  F32     scale;$/;"	m	struct:CFDR_UI_State	typeref:typename:F32	file:
 scale	src/ui/ui.c	/^  F32           scale;$/;"	m	struct:__anon33d978b80108	typeref:typename:F32	file:
 scan_n	src/thirdparty/stb_image.h	/^   int scan_n, order[4];$/;"	m	struct:__anoncf96c9f70808	typeref:typename:int
+scene	src/cfdr/cfdr_state.h	/^  CFDR_Scene        scene;$/;"	m	struct:CFDR_State	typeref:typename:CFDR_Scene
 scope	src/cfdr_sze_portal/auth_sze_portal.js	/^        scope:            'openid',$/;"	p	variable:init_sze_portal_auth.anonymousObject530e070b0205
 scratch_1	src/base/base.c	/^  Arena scratch_1;$/;"	m	struct:__anon3048dd920108	typeref:typename:Arena	file:
 scratch_2	src/base/base.c	/^  Arena scratch_2;$/;"	m	struct:__anon3048dd920108	typeref:typename:Arena	file:
@@ -8442,6 +8459,7 @@ str_slice	src/core/core.c	/^fn_internal Str str_slice(Str base, U64 start, U64 l
 str_starts_with	src/core/core.c	/^fn_internal B32 str_starts_with(Str base, Str start) {$/;"	f	typeref:typename:fn_internal B32
 str_starts_with_any_case	src/core/core.c	/^fn_internal B32 str_starts_with_any_case(Str base, Str start) {$/;"	f	typeref:typename:fn_internal B32
 str_trim	src/core/core.c	/^fn_internal Str str_trim(Str string) {$/;"	f	typeref:typename:fn_internal Str
+stream	src/cfdr_format/cfdr_format_vtk.h	/^  Str stream;$/;"	m	struct:VTI_Scan	typeref:typename:Str
 stride	src/render/render.h	/^  U16                 stride;$/;"	m	struct:__anon6ca781410b08	typeref:typename:U16
 stride	src/thirdparty/stb_truetype.h	/^   int w,h,stride;$/;"	m	struct:__anon94f8da560808	typeref:typename:int
 stride_in_bytes	src/thirdparty/stb_truetype.h	/^   int   stride_in_bytes;$/;"	m	struct:stbtt_pack_context	typeref:typename:int
@@ -8917,6 +8935,7 @@ volume	src/cfdr/cfdr_layer.h	/^  CFDR_Volume     volume;$/;"	m	struct:CFDR_Layer
 volume	src/cfdr/cfdr_resource.h	/^  R_Texture_3D  volume;$/;"	m	struct:CFDR_Volume	typeref:typename:R_Texture_3D
 volume_density	src/cfdr/cfdr_layer.h	/^  F32             volume_density;$/;"	m	struct:CFDR_Layer	typeref:typename:F32
 vs	src/thirdparty/stb_image.h	/^   int hs,vs;   \/\/ expansion factor in each axis$/;"	m	struct:__anoncf96c9f70a08	typeref:typename:int
+vti_scan_require	src/cfdr_format/cfdr_format_vtk.h	/^fn_internal void vti_scan_require(VTI_Scan *scan, Arena *arena, Str match) {$/;"	f	typeref:typename:fn_internal void
 w	src/base/base.h	/^  struct { F32 x, y, z, w; };$/;"	m	struct:__anon3048dd97850a::__anon3048dd978608	typeref:typename:F32
 w	src/base/base.h	/^  struct { F64 x, y, z, w; };$/;"	m	struct:__anon3048dd97940a::__anon3048dd979508	typeref:typename:F64
 w	src/base/base.h	/^  struct { I32 x, y, z, w; };$/;"	m	struct:__anon3048dd97580a::__anon3048dd975908	typeref:typename:I32

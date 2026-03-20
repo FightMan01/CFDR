@@ -118,7 +118,7 @@ fn_internal UI_Node *ui_cache(UI_ID id) {
     result      = list->last;
     result->id = id;
 
-    log_debug("Created UI element with id # %u", result->id);
+    // log_debug("Created UI element with id # %u", result->id);
 
   } else {
     UI_Node *entry = list->first;
@@ -134,7 +134,7 @@ fn_internal UI_Node *ui_cache(UI_ID id) {
         result                 = list->last;
         result->id             = id;
 
-        log_debug("(Hash-Collision) Created UI element with id # %u", result->id);
+        // log_debug("(Hash-Collision) Created UI element with id # %u", result->id);
       }
 
       entry = entry->hash_next;
