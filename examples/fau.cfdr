@@ -50,7 +50,7 @@
 }
 
 // NOTE(cmat): Bounding box geometry.
-#scene {
+#object {
   tag:              "Bounding Box",
   visible:          true,
   content:          @surface "fau/frame.stl",
@@ -61,12 +61,12 @@
 }
 
 // NOTE(cmat): Volumetric visualization
-#scene {
+#object {
   tag:              "Volume",
   visible:          true,
   content:          @volume "fau/velocity_1.vol32",
   opacity:          100,
   translate:        [0, 0, 0],
   rotate:           [0, 0, 0],
-  scale:            [1, 1, 1]
+  scale:            [1, 1, 1],
 }

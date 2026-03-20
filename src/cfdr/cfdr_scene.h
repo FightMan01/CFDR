@@ -10,7 +10,7 @@ typedef struct CFDR_Object_Node {
   B32                       visible;
   Str                       tag;
   
-  HSV                       color;
+  HSVA                      color;
   CFDR_Surface              surface;
 } CFDR_Object_Node;
 
@@ -20,8 +20,9 @@ typedef struct CFDR_Scene {
   CFDR_Object_Node  *active;
   CFDR_Object_Node  *first;
   CFDR_Object_Node  *last;
-} CFDR_Object;
+} CFDR_Scene;
 
-fn_internal void              cfdr_scene_init(CFDR_Object *object);
-fn_internal CFDR_Object_Node *cfdr_scene_push(CFDR_Object *object);
-fn_internal void              cfdr_scene_draw(CFDR_Object *object, R2F draw_region);
+fn_internal void              cfdr_scene_init(CFDR_Scene *object);
+fn_internal CFDR_Object_Node *cfdr_scene_push(CFDR_Scene *object);
+fn_internal void              cfdr_scene_draw(CFDR_Scene *object, R2F draw_region);
+
