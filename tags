@@ -260,7 +260,6 @@ CFDR_List_Node	src/cfdr/cfdr_eval.h	/^} CFDR_List_Node;$/;"	t	typeref:struct:CFD
 CFDR_Material_Flat	src/cfdr/cfdr_layer.h	/^  CFDR_Material_Flat,$/;"	e	enum:__anonc64fae7b0203
 CFDR_Material_Position	src/cfdr/cfdr_layer.h	/^  CFDR_Material_Position,$/;"	e	enum:__anonc64fae7b0203
 CFDR_Material_Type	src/cfdr/cfdr_layer.h	/^typedef I32 CFDR_Material_Type;$/;"	t	typeref:typename:I32
-CFDR_Object	src/cfdr/cfdr_scene.h	/^} CFDR_Object;$/;"	t	typeref:struct:CFDR_Scene
 CFDR_Object_Flag	src/cfdr/cfdr_scene.h	/^typedef U32 CFDR_Object_Flag;$/;"	t	typeref:typename:U32
 CFDR_Object_Flag_Draw_Surface	src/cfdr/cfdr_scene.h	/^  CFDR_Object_Flag_Draw_Surface = 0,$/;"	e	enum:__anone46c770c0103
 CFDR_Object_Flag_None	src/cfdr/cfdr_scene.h	/^  CFDR_Object_Flag_None         = 0,$/;"	e	enum:__anone46c770c0103
@@ -282,6 +281,7 @@ CFDR_Resource	src/cfdr/cfdr_resource.h	/^} CFDR_Resource;$/;"	t	typeref:struct:C
 CFDR_Resource_Data	src/cfdr/cfdr_resource.h	/^typedef struct CFDR_Resource_Data {$/;"	s
 CFDR_Resource_Data	src/cfdr/cfdr_resource.h	/^} CFDR_Resource_Data;$/;"	t	typeref:struct:CFDR_Resource_Data
 CFDR_Scene	src/cfdr/cfdr_scene.h	/^typedef struct CFDR_Scene {$/;"	s
+CFDR_Scene	src/cfdr/cfdr_scene.h	/^} CFDR_Scene;$/;"	t	typeref:struct:CFDR_Scene
 CFDR_State	src/cfdr/cfdr_state.h	/^typedef struct CFDR_State {$/;"	s
 CFDR_State	src/cfdr/cfdr_state.h	/^} CFDR_State;$/;"	t	typeref:struct:CFDR_State
 CFDR_Surface	src/cfdr/cfdr_resource.h	/^typedef struct CFDR_Surface {$/;"	s
@@ -5909,6 +5909,7 @@ cfdr_draw_viewport	src/cfdr/cfdr_draw.c	/^fn_internal void cfdr_draw_viewport(UI
 cfdr_draw_viewport_init	src/cfdr/cfdr_draw.c	/^fn_internal void cfdr_draw_viewport_init(Viewport *viewport) {$/;"	f	typeref:typename:fn_internal void
 cfdr_eval	src/cfdr/cfdr_eval.c	/^fn_internal void cfdr_eval(CFDR_State *state, Str expr) {$/;"	f	typeref:typename:fn_internal void
 cfdr_eval_directive	src/cfdr/cfdr_eval.c	/^fn_internal void cfdr_eval_directive(CFDR_State *state, Arena *arena, TK_Scan *scan) {$/;"	f	typeref:typename:fn_internal void
+cfdr_eval_directive_object	src/cfdr/cfdr_eval.c	/^fn_internal void cfdr_eval_directive_object(CFDR_State *state, Arena *arena, TK_Scan *scan) {$/;"	f	typeref:typename:fn_internal void
 cfdr_eval_directive_overlay	src/cfdr/cfdr_eval.c	/^fn_internal void cfdr_eval_directive_overlay(CFDR_State *state, Arena *arena, TK_Scan *scan) {$/;"	f	typeref:typename:fn_internal void
 cfdr_eval_directive_viewport	src/cfdr/cfdr_eval.c	/^fn_internal void cfdr_eval_directive_viewport(CFDR_State *state, Arena *arena, TK_Scan *scan) {$/;"	f	typeref:typename:fn_internal void
 cfdr_eval_expr	src/cfdr/cfdr_eval.c	/^fn_internal CFDR_Value cfdr_eval_expr(Arena *arena, TK_Scan *scan) {$/;"	f	typeref:typename:fn_internal CFDR_Value
@@ -6037,7 +6038,7 @@ color	src/cfdr/cfdr_draw.c	/^  HSVA          color;$/;"	m	struct:Draw_Grid	typer
 color	src/cfdr/cfdr_eval.h	/^    V3F                color;$/;"	m	union:CFDR_Value::__anond0538a06020a	typeref:typename:V3F
 color	src/cfdr/cfdr_layer.h	/^  HSVA            color;$/;"	m	struct:CFDR_Layer	typeref:typename:HSVA
 color	src/cfdr/cfdr_overlay.h	/^  HSVA                      color;$/;"	m	struct:CFDR_Overlay_Node	typeref:typename:HSVA
-color	src/cfdr/cfdr_scene.h	/^  HSV                       color;$/;"	m	struct:CFDR_Object_Node	typeref:typename:HSV
+color	src/cfdr/cfdr_scene.h	/^  HSVA                      color;$/;"	m	struct:CFDR_Object_Node	typeref:typename:HSVA
 color	src/graphics/graphics.h	/^  RGBA         color;$/;"	m	struct:G2_Rect	typeref:typename:RGBA
 color	src/graphics/graphics.h	/^  RGBA         color;$/;"	m	struct:G2_Tri	typeref:typename:RGBA
 color	src/graphics/graphics.h	/^  RGBA      color;$/;"	m	struct:G2_Disk	typeref:typename:RGBA
@@ -7510,6 +7511,7 @@ scale	src/cfdr/cfdr_draw.c	/^  F32           scale;$/;"	m	struct:Draw_Grid	typer
 scale	src/cfdr/cfdr_layer.h	/^  V3F             scale;$/;"	m	struct:CFDR_Layer	typeref:typename:V3F
 scale	src/cfdr/cfdr_overlay.h	/^  F32                       scale;$/;"	m	struct:CFDR_Overlay_Node	typeref:typename:F32
 scan_n	src/thirdparty/stb_image.h	/^   int scan_n, order[4];$/;"	m	struct:__anoncf96c9f70808	typeref:typename:int
+scene	src/cfdr/cfdr_state.h	/^  CFDR_Scene        scene;$/;"	m	struct:CFDR_State	typeref:typename:CFDR_Scene
 scope	src/cfdr_sze_portal/auth_sze_portal.js	/^        scope:            'openid',$/;"	p	variable:init_sze_portal_auth.anonymousObject530e070b0205
 scratch_1	src/base/base.c	/^  Arena scratch_1;$/;"	m	struct:__anon3048dd920108	typeref:typename:Arena	file:
 scratch_2	src/base/base.c	/^  Arena scratch_2;$/;"	m	struct:__anon3048dd920108	typeref:typename:Arena	file:

@@ -286,6 +286,22 @@ fn_internal void cfdr_eval_directive_overlay(CFDR_State *state, Arena *arena, TK
   }
 }
 
+fn_internal void cfdr_eval_directive_object(CFDR_State *state, Arena *arena, TK_Scan *scan) {
+  CFDR_Value table = cfdr_eval_expr(arena, scan);
+  if (table.type == CFDR_Value_Type_Table) {
+    CFDR_Object_Node *obj = cfdr_scene_push(&state->scene);
+    for (CFDR_Table_Node *it = table.table->first; it; it = it->next) {
+      if      (str_equals(it->label, str_lit("tag")))           { obj->tag               = cfdr_eval_get_str     (it->value);                       }
+      else if (str_equals(it->label, str_lit("visible")))       { obj->visible           = cfdr_eval_get_bool    (it->value);                       }
+      else if (str_equals(it->label, str_lit("color")))         { obj->color.hsv         = cfdr_eval_get_color   (it->value);                       }
+      else if (str_equals(it->label, str_lit("opacity")))       { obj->color.a           = cfdr_eval_get_i32     (it->value) / 100.f;               }
+    }
+
+  } else {
+    log_fatal("expected table after #overlay directive");
+  }
+}
+
 fn_internal void cfdr_eval_directive(CFDR_State *state, Arena *arena, TK_Scan *scan) {
   TK_Token token = { };
   if (tk_scan_require(scan, TK_Type_Identifier, &token)) {
@@ -316,6 +332,8 @@ fn_internal void cfdr_eval_directive(CFDR_State *state, Arena *arena, TK_Scan *s
       cfdr_eval_directive_viewport(state, arena, scan);
     } else if (str_equals(token.text, str_lit("overlay"))) {
       cfdr_eval_directive_overlay(state, arena, scan);
+    } else if (str_equals(token.text, str_lit("object"))) {
+      cfdr_eval_directive_object(state, arena, scan);
     } else {
       log_fatal("invalid directive: %.*s", str_expand(token.text));
     }
