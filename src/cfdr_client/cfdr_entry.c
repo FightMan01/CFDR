@@ -31,6 +31,7 @@
 
 #include "http/http_wasm.c"
 #include "mesh/mesh_stl.h"
+#include "su2.c"
 
 var_global Str Project_Path = { };
 var_global B32 Project_Loaded = { };
@@ -41,10 +42,11 @@ var_global B32 Project_Loaded = { };
 var_global Arena          Permanent_Storage   = { };
 var_global G2_Font        UI_Font_Text        = { };
 var_global CFDR_UI_State  CFDR_UI             = { };
-
 var_global CFDR_Resource  Project_File        = { };
-
 var_global CFDR_State     State               = { };
+
+var_global CFDR_Resource  SU2_File            = { };
+var_global B32            SU2_Loaded          = { };
 
 fn_internal void init_frame(PL_Render_Context *render_context) {
   arena_init(&Permanent_Storage);
@@ -78,12 +80,18 @@ fn_internal void next_frame(B32 first_frame, PL_Render_Context *render_context) 
     Project_Path = arena_push_str(&Permanent_Storage, project_file);
 
     cfdr_resource_init(&Project_File, Project_Path);
+    cfdr_resource_init(&SU2_File,     str_lit("karman.su2"));
   }
 
   CFDR_Resource_Data data = { };
   if (!Project_Loaded && cfdr_resource_get(&Project_File, &data)) {
     Project_Loaded = 1;
     cfdr_eval(&State, str(data.bytes_total, data.bytes_data));
+  }
+
+  if (!SU2_Loaded && cfdr_resource_get(&SU2_File, &data)) {
+    SU2_Loaded = 1;
+    su2_parse(str(data.bytes_total, data.bytes_data), &Permanent_Storage);
   }
 
   cfdr_ui(&CFDR_UI);

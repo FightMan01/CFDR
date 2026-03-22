@@ -397,7 +397,7 @@ fn_internal TK_Token tk_next(TK_Tokenizer *tk) {
   // NOTE(cmat): Compute token value.
   switch (token.type) {
     case TK_Type_Literal_Integer: {
-      token.value.i64 = i64_from_str(token.text);
+      token.value.i64 = (I64)u64_from_str(token.text);
     } break;
     case TK_Type_Literal_String: {
       token.value.str = str_slice(token.text, 1, token.text.len - 2);

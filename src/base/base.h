@@ -269,15 +269,15 @@ typedef Array_Type(Str)       Array_Str;
 // #-- Hash Table
 #if 0
 
-typedef struct Bucket_Head {
-  struct Bucket_Head *next;
+typedef struct Bucket_Node {
+  struct Bucket_Node *next;
   union {
     void *key_ptr;
     Str   key_str;
     U64   key_u64;
     I64   key_s64;
   }
-} Bucket_Head;
+} Bucket_Node;
 
 typedef struct Bucket_List {
   Bucket_Node *first;
