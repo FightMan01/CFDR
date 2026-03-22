@@ -185,7 +185,7 @@ fn_internal PL_Frame_State *pl_frame_state(void);
 
 force_inline fn_internal PL_Input   *pl_input           (void)  { return &pl_frame_state()->input;            }
 force_inline fn_internal PL_Display *pl_display         (void)  { return &pl_frame_state()->display;          }
-force_inline fn_internal R2I        pl_display_region  (void)  { return r2i_v(v2i(0, 0), v2i((I32)pl_display()->resolution.x, (I32)pl_display()->resolution.y)); }
+force_inline fn_internal R2I         pl_display_region  (void)  { return r2i_v(v2i(0, 0), v2i((I32)pl_display()->resolution.x, (I32)pl_display()->resolution.y)); }
 
 
 // ------------------------------------------------------------

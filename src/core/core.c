@@ -13,8 +13,14 @@ fn_internal U64 cstring_len(char *cstring) {
 }
 
 fn_internal Str str_slice(Str base, U64 start, U64 len) {
-  Assert(base.len >= start + len, "invalid string slice");
-  return (Str) { .len = len, .txt = base.txt + start };
+  // Assert(base.len >= start + len, "invalid string slice");
+  
+  U64 clamped = 0;
+  if (start < base.len) {
+      clamped = u64_min(len, base.len - start);
+  }
+
+  return (Str) { .len = clamped, .txt = base.txt + start };
 }
 
 fn_internal Str str_from_cstr(char *cstring) {
@@ -144,8 +150,9 @@ fn_internal U64 str_hash(Str string) {
 
 
 // TODO(cmat): Revise these implementations.
-fn_internal I64 i64_from_str(Str value) {
-  I64 result = 0;
+
+fn_internal U64 u64_from_str(Str value) {
+  U64 result = 0;
   For_U64(it, value.len) {
     result = 10 * result + (value.txt[it] - '0');
   }
