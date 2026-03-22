@@ -280,7 +280,7 @@ fn_internal B32 str_starts_with_any_case  (Str base, Str start);
 fn_internal B32 str_contains_any_case     (Str base, Str sub);
 fn_internal U64 str_hash                  (Str string);
 
-fn_internal I64 i64_from_str              (Str string);
+fn_internal U64 u64_from_str              (Str string);
 fn_internal F64 f64_from_str              (Str string);
 fn_internal B32 b32_from_str              (Str string);
 
