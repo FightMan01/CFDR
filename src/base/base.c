@@ -809,7 +809,7 @@ fn_internal B32 m4f_inv(M4F x, M4F *solved) {
                 x.dat[8] * x.dat[2] * x.dat[5];
 
   F32 det = x.dat[0] * inverse.dat[0] + x.dat[1] * inverse.dat[4] + x.dat[2] * inverse.dat[8] + x.dat[3] * inverse.dat[12];
-  B32 result = (det == 0);
+  B32 result = (det != 0);
   
   if (result) {
     det = 1.0 / det;

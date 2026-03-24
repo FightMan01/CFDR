@@ -849,6 +849,10 @@ inline fn_internal V4_U16 v4_u16_add_u32     (V4_U16 lhs, U16 rhs)      { return
 inline fn_internal V4_U16 v4_u16_sub_u32     (V4_U16 lhs, U16 rhs)      { return (V4_U16) { lhs.x - rhs, lhs.y - rhs, lhs.z - rhs, lhs.w - rhs };         }
 inline fn_internal V4_U16 v4_u16_mul_u32     (V4_U16 lhs, U16 rhs)      { return (V4_U16) { lhs.x * rhs, lhs.y * rhs, lhs.z * rhs, lhs.w * rhs };         }
 
+
+#define v3f_expand(v_) (v_).x, (v_).y, (v_).z
+
+
 // NOTE(cmat): Floating Point Specific.
 
 #define NOZ_Epsilon 1.0e-6f
@@ -884,6 +888,10 @@ inline fn_internal V4F v4f_abs          (V4F x)                { return v4f(f32_
 inline fn_internal V2F v2f_saturate     (V2F x)                { return v2f(f32_clamp(x.x, 0.f, 1.f), f32_clamp(x.y, 0.f, 1.f));                                                     }
 inline fn_internal V3F v3f_saturate     (V3F x)                { return v3f(f32_clamp(x.x, 0.f, 1.f), f32_clamp(x.y, 0.f, 1.f), f32_clamp(x.z, 0.f, 1.f));                           }
 inline fn_internal V4F v4f_saturate     (V4F x)                { return v4f(f32_clamp(x.x, 0.f, 1.f), f32_clamp(x.y, 0.f, 1.f), f32_clamp(x.z, 0.f, 1.f), f32_clamp(x.w, 0.f, 1.f)); }
+
+inline fn_internal F32 v2f_largest      (V2F x)                { return f32_max(x.x, x.y);                              }
+inline fn_internal F32 v3f_largest      (V3F x)                { return f32_max(x.x, f32_max(x.y, x.z));                }
+inline fn_internal F32 v4f_largest      (V4F x)                { return f32_max(x.x, f32_max(x.y, f32_max(x.z, x.w)));  }
 
 inline fn_internal V2F v2f_frac         (V2F x)                { return v2f(f32_fract(x.x), f32_fract(x.y));                                 }
 inline fn_internal V3F v3f_frac         (V3F x)                { return v3f(f32_fract(x.x), f32_fract(x.y), f32_fract(x.z));                 }
@@ -1149,6 +1157,11 @@ inline fn_internal B32 r2f_contains_v2f(R2F region, V2F point) {
 
 inline fn_internal V2F r2f_size(R2F region) {
   V2F result = v2f(region.x1 - region.x0, region.y1 - region.y0);
+  return result;
+}
+
+inline fn_internal V3F r3f_size(R3F region) {
+  V3F result = v3f(region.x1 - region.x0, region.y1 - region.y0, region.z1 - region.z0);
   return result;
 }
 
@@ -1442,6 +1455,32 @@ fn_internal B32 m4f_inv(M4F x, M4F *solved);
 
 // ------------------------------------------------------------
 // #-- Homogeneous matrix ops
+
+fn_internal M4F m4f_hom_scale(V3F scale) {
+  M4F result = {
+    .e11 = scale.x,
+    .e22 = scale.y,
+    .e33 = scale.z,
+    .e44 = 1,
+  };
+
+  return result;
+}
+
+fn_internal M4F m4f_hom_translate(V3F translate) {
+  M4F result = {
+    .e11 = 1,
+    .e22 = 1,
+    .e33 = 1,
+    .e44 = 1,
+
+    .e14 = translate.x,
+    .e24 = translate.y,
+    .e34 = translate.z,
+  };
+
+  return result;
+}
 
 fn_internal M4F m4f_hom_look_at(V3F up, V3F eye, V3F look_at) {
   V3F z_axis = v3f_noz(v3f_sub(eye, look_at));

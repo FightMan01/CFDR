@@ -648,7 +648,7 @@ function js_webgpu_pipeline_create(pipeline_layout) {
     
 
     depthStencil: depth_stencil,
-    multisample: { count: MSAA_Sample_Count, },
+    multisample: { count: MSAA_Sample_Count, /* alphaToCoverageEnabled: true, */ },
   });
 
   return wasm_context.webgpu.handle_map.store(render_pipeline);

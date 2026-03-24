@@ -224,6 +224,23 @@ fn_internal V2F cfdr_eval_get_v2f(CFDR_Value value) {
   return result;
 }
 
+fn_internal V3F cfdr_eval_get_v3f(CFDR_Value value) {
+  V3F result = { };
+  if (value.type == CFDR_Value_Type_List) {
+    if (value.list->count == 3) {
+      I64 list_value[3] = { };
+      cfdr_list_extract_i64(value.list, 3, list_value);
+      result = v3f((F32)list_value[0], (F32)list_value[1], (F32)list_value[2]);
+    } else {
+      log_fatal("expected a list of 3 integers");
+    }
+  } else {
+    log_fatal("type mismatch, expected a list value");
+  }
+
+  return result;
+}
+
 fn_internal CFDR_Value cfdr_eval_expr(Arena *arena, TK_Scan *scan) {
   CFDR_Value value = { };
 
@@ -244,15 +261,14 @@ fn_internal CFDR_Value cfdr_eval_expr(Arena *arena, TK_Scan *scan) {
 fn_internal void cfdr_eval_directive_viewport(CFDR_State *state, Arena *arena, TK_Scan *scan) {
   CFDR_Value table = cfdr_eval_expr(arena, scan);
   if (table.type == CFDR_Value_Type_Table) {
-    CFDR_Viewport *vp = &state->viewport;
+    CFDR_Scene_View *vp = &state->scene.view;
 
     for (CFDR_Table_Node *it = table.table->first; it; it = it->next) {
-      if      (str_equals(it->label, str_lit("background")))   { vp->background.hsv = cfdr_eval_get_color  (it->value); }
-      else if (str_equals(it->label, str_lit("orthographic"))) { vp->orthographic   = cfdr_eval_get_bool   (it->value); }
-      else if (str_equals(it->label, str_lit("grid_enabled"))) { vp->grid_enabled   = cfdr_eval_get_bool   (it->value); }
-      else if (str_equals(it->label, str_lit("grid_color")))   { vp->grid_color.hsv = cfdr_eval_get_color  (it->value); }
-      else if (str_equals(it->label, str_lit("grid_level")))   { vp->grid_level     = cfdr_eval_get_i32    (it->value); }
-      else if (str_equals(it->label, str_lit("view_2D")))      { vp->view_2D        = cfdr_eval_get_bool   (it->value); }
+      if      (str_equals(it->label, str_lit("background")))   { vp->background.hsv         = cfdr_eval_get_color  (it->value); }
+      else if (str_equals(it->label, str_lit("orthographic"))) { vp->camera.orthographic    = cfdr_eval_get_bool   (it->value); }
+      else if (str_equals(it->label, str_lit("grid_enabled"))) { vp->grid.visible           = cfdr_eval_get_bool   (it->value); }
+      else if (str_equals(it->label, str_lit("grid_color")))   { vp->grid.color.hsv         = cfdr_eval_get_color  (it->value); }
+      else if (str_equals(it->label, str_lit("grid_level")))   { vp->grid.subdiv            = cfdr_eval_get_i32    (it->value); }
     }
 
   } else {
@@ -295,8 +311,20 @@ fn_internal void cfdr_eval_directive_object(CFDR_State *state, Arena *arena, TK_
       else if (str_equals(it->label, str_lit("visible")))       { obj->visible           = cfdr_eval_get_bool    (it->value);                       }
       else if (str_equals(it->label, str_lit("color")))         { obj->color.hsv         = cfdr_eval_get_color   (it->value);                       }
       else if (str_equals(it->label, str_lit("opacity")))       { obj->color.a           = cfdr_eval_get_i32     (it->value) / 100.f;               }
-    }
+      else if (str_equals(it->label, str_lit("scale")))         { obj->scale             = cfdr_eval_get_v3f     (it->value);                       }
+      else if (str_equals(it->label, str_lit("translate")))     { obj->translate         = cfdr_eval_get_v3f     (it->value);                       }
+      else if (str_equals(it->label, str_lit("surface")))       {
+        obj->flags |= CFDR_Object_Flag_Draw_Surface;
+        Str surface_path = cfdr_eval_get_str(it->value);
+        cfdr_resource_surface_init(&obj->surface, surface_path);
+      }
+      else if (str_equals(it->label, str_lit("volume")))        {
+        obj->flags |= CFDR_Object_Flag_Draw_Volume;
+        Str volume_path = cfdr_eval_get_str(it->value);
+        cfdr_resource_volume_init(&obj->volume, volume_path);
+      }
 
+    }
   } else {
     log_fatal("expected table after #overlay directive");
   }
@@ -341,7 +369,7 @@ fn_internal void cfdr_eval_directive(CFDR_State *state, Arena *arena, TK_Scan *s
 }
 
 fn_internal void cfdr_eval(CFDR_State *state, Str expr) {
-  Log_Zone_Scope("parsing project") {
+  Log_Zone_Scope("parsing project file") {
     Scratch scratch = { };
     Scratch_Scope(&scratch, 0) {
       TK_Tokenizer tk = { };
