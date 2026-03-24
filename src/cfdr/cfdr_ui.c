@@ -413,26 +413,30 @@ fn_internal void cfdr_ui_property_object(CFDR_UI_State *ui) {
       ui_color_hsv  (str_lit("Color"),    &object->color.hsv);
       ui_f32_edit   (str_lit("Opacity"),  &object->color.a, 0.0f, 1.0f, 0.01f);
 
+
+      var_local_persist Str material_list[] = { str_lit("Flat"), str_lit("Matcap"), str_lit("Sample"), };
+      ui_list(str_lit("Material"), &object->material, sarray_len(CFDR_Material_String_List), CFDR_Material_String_List); 
+
       UI_Parent_Scope(ui_container(str_lit("##scale"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
         ui_label(str_lit("Scale"));
         ui_container(str_lit("##padding"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit);
-        ui_f32_edit_static(str_lit("##x"), &object->scale.x, -5000.0f, 5000.0f, 0.01f);
-        ui_f32_edit_static(str_lit("##y"), &object->scale.y, -5000.0f, 5000.0f, 0.01f);
-        ui_f32_edit_static(str_lit("##z"), &object->scale.z, -5000.0f, 5000.0f, 0.01f);
+        ui_f32_edit_static(str_lit("##x"), &object->scale.x, -5000.0f, 5000.0f, 0.05f);
+        ui_f32_edit_static(str_lit("##y"), &object->scale.y, -5000.0f, 5000.0f, 0.05f);
+        ui_f32_edit_static(str_lit("##z"), &object->scale.z, -5000.0f, 5000.0f, 0.05f);
       }
 
       UI_Parent_Scope(ui_container(str_lit("##translate"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
         ui_label(str_lit("Translate"));
         ui_container(str_lit("##padding"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit);
-        ui_f32_edit_static(str_lit("##x"), &object->translate.x, -5000.0f, 5000.0f, 0.01f);
-        ui_f32_edit_static(str_lit("##y"), &object->translate.y, -5000.0f, 5000.0f, 0.01f);
-        ui_f32_edit_static(str_lit("##z"), &object->translate.z, -5000.0f, 5000.0f, 0.01f);
+        ui_f32_edit_static(str_lit("##x"), &object->translate.x, -5000.0f, 5000.0f, 0.05f);
+        ui_f32_edit_static(str_lit("##y"), &object->translate.y, -5000.0f, 5000.0f, 0.05f);
+        ui_f32_edit_static(str_lit("##z"), &object->translate.z, -5000.0f, 5000.0f, 0.05f);
       }
 
-      ui_separator(str_lit("##separator_2"));
-      ui_label(str_lit("Volume"));
-      ui_separator(str_lit("##separator_3"));
       if (object->flags & CFDR_Object_Flag_Draw_Volume) {
+        ui_separator(str_lit("##separator_2"));
+        ui_label(str_lit("Volume"));
+        ui_separator(str_lit("##separator_3"));
         ui_f32_edit(str_lit("Volume Density"), &object->volume_density, 0.f, 10.f, 0.005f);
       }
     }

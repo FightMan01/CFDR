@@ -1,10 +1,27 @@
 typedef U32 CFDR_Render_Pipeline;
 enum {
   CFDR_Render_Pipeline_Grid,
-  CFDR_Render_Pipeline_Surface,
+  CFDR_Render_Pipeline_Flat,
+  CFDR_Render_Pipeline_Matcap,
   CFDR_Render_Pipeline_Volume,
+  CFDR_Render_Pipeline_Sample,
 
   CFDR_Render_Pipeline_Count
+};
+
+
+// TODO(cmat): Proper materials. We want to store bindgroups here essentially.
+typedef I32 CFDR_Material;
+enum {
+  CFDR_Material_Flat,
+  CFDR_Material_Matcap,
+  CFDR_Material_Sample,
+};
+
+var_global Str CFDR_Material_String_List[] = {
+  str_lit("Flat"),
+  str_lit("Matcap"),
+  str_lit("Sample"),
 };
 
 typedef struct CFDR_Render {
@@ -27,7 +44,15 @@ fn_internal void cfdr_render_init(CFDR_Render *render) {
     .depth_bias  = 1,
   });
 
-  render->pipelines[CFDR_Render_Pipeline_Surface] = r_pipeline_create(&(R_Pipeline_Layout) {
+  render->pipelines[CFDR_Render_Pipeline_Flat] = r_pipeline_create(&(R_Pipeline_Layout) {
+    .shader      = R_Shader_Flat_3D,
+    .format      = &R_Vertex_Format_XNUC_3D,
+    .depth_test  = 1,
+    .depth_write = 1,
+    .depth_bias  = 0,
+  });
+
+  render->pipelines[CFDR_Render_Pipeline_Matcap] = r_pipeline_create(&(R_Pipeline_Layout) {
     .shader      = R_Shader_Edit_3D,
     .format      = &R_Vertex_Format_XNUC_3D,
     .depth_test  = 1,
@@ -35,8 +60,17 @@ fn_internal void cfdr_render_init(CFDR_Render *render) {
     .depth_bias  = 0,
   });
  
+ 
   render->pipelines[CFDR_Render_Pipeline_Volume] = r_pipeline_create(&(R_Pipeline_Layout) {
     .shader      = R_Shader_DVR_3D,
+    .format      = &R_Vertex_Format_XNUC_3D,
+    .depth_test  = 1,
+    .depth_write = 1,
+    .depth_bias  = 1,
+  });
+
+  render->pipelines[CFDR_Render_Pipeline_Sample] = r_pipeline_create(&(R_Pipeline_Layout) {
+    .shader      = R_Shader_SLI_3D,
     .format      = &R_Vertex_Format_XNUC_3D,
     .depth_test  = 1,
     .depth_write = 1,
@@ -94,14 +128,21 @@ fn_internal void cfdr_render_init(CFDR_Render *render) {
     { .X = v3f(+1, +1, +1), .N = v3f(0, 0, +1), .U = v2f(1, 1), .C = abgr_u32_from_rgba_premul(v4f(1.f, 1.f, 1.f, 1.f)), },
     { .X = v3f(-1, +1, +1), .N = v3f(0, 0, +1), .U = v2f(0, 1), .C = abgr_u32_from_rgba_premul(v4f(1.f, 1.f, 1.f, 1.f)), },
   };
+
+  For_U64 (it, sarray_len(cube_vertices)) {
+    V3F *X = &cube_vertices[it].X;
+    X->x = (X->x + 1.f) / 2.f;
+    X->y = (X->y + 1.f) / 2.f;
+    X->z = (X->z + 1.f) / 2.f;
+  }
   
   U32 cube_indices[] = {
-    0,   2,  1, 0,   3,  2,
-    4,   5,  6, 4,   6,  7,
-    8,  10,  9,  8, 11, 10,
-    12, 13, 14, 12, 14, 15,
-    16, 17, 18, 16, 18, 19,
-    20, 22, 21, 20, 23, 22
+    0,   1,  2, 0,   2,  3,
+    4,   6,  5, 4,   7,  6,
+    8,   9,  10,  8, 10, 11,
+    12, 14, 13, 12, 15, 14,
+    16, 18, 17, 16, 19, 18,
+    20, 21, 22, 20, 22, 23
   };
 
   render->cube_index_count = sarray_len(cube_indices);
@@ -171,8 +212,13 @@ fn_internal void cfdr_render_grid_draw(CFDR_Render *render, CFDR_Render_Grid *gr
 
 typedef struct CFDR_Render_Surface {
   CFDR_Resource_Surface *resource;
+  CFDR_Resource_Volume  *sample_volume;
+  M4F                    sample_volume_transform;
+
   R_Buffer               state_buffer;
   R_Bind_Group           bind_group;
+  R_Bind_Group           bind_group_sample;
+  CFDR_Material          material;
   HSVA                   color;
   M4F                    transform;
 } CFDR_Render_Surface;
@@ -196,28 +242,69 @@ fn_internal void cfdr_render_surface_draw(CFDR_Render *render, CFDR_Render_Surfa
   V4F color = rgba_from_hsva(surface->color);
   color.rgb = v3f_mul_f32(color.rgb, color.a);
 
-  R_Constant_Buffer_World_3D world_data = {
-    .World_View_Projection   = world_view_projection,
-    .World_Inverse_Transpose = m4f_trans(world_inv),
-    .World                   = world,
-    .Eye_Position            = eye_position,
-    .Color                   = color
-  };
+  if (surface->material == CFDR_Material_Sample) {
 
-  r_buffer_download(surface->state_buffer, 0, sizeof(world_data), &world_data);
+    if (surface->sample_volume) {
+      M4F sample_world = basis_change;
+      sample_world     = m4f_mul(surface->sample_volume_transform, sample_world);
 
-  r_command_push_draw(&(R_Command_Draw) {
-    .pipeline           = render->pipelines[CFDR_Render_Pipeline_Surface],
-    .bind_group         = surface->bind_group,
-    .vertex_buffer      = surface->resource->vertex_buffer,
-    .index_buffer       = surface->resource->index_buffer,
-    .draw_index_count   = surface->resource->index_count,
-    .draw_index_offset  = 0,
+      V3F volume_min = m4f_mul_v4f(v4f(0, 0, 0, 1), sample_world).xyz;
+      V3F volume_max = m4f_mul_v4f(v4f(1, 1, 1, 1), sample_world).xyz;
 
-    .depth_test         = 1,
-    .draw_region        = r2i_from_r2f(viewport),
-    .clip_region        = r2i_from_r2f(viewport),
-  });
+      R_Constant_Buffer_World_3D world_data = {
+        .World_View_Projection   = world_view_projection,
+        .World_Inverse_Transpose = m4f_trans(world_inv),
+        .World                   = world,
+        .Eye_Position            = eye_position,
+        .Color                   = color,
+        .Volume_Min              = volume_min,
+        .Volume_Max              = volume_max,
+      };
+
+      r_buffer_download(surface->state_buffer, 0, sizeof(world_data), &world_data);
+      r_command_push_draw(&(R_Command_Draw) {
+        .pipeline           = render->pipelines[CFDR_Render_Pipeline_Sample],
+        .bind_group         = surface->bind_group_sample,
+        .vertex_buffer      = surface->resource->vertex_buffer,
+        .index_buffer       = surface->resource->index_buffer,
+        .draw_index_count   = surface->resource->index_count,
+        .draw_index_offset  = 0,
+
+        .depth_test         = 1,
+        .draw_region        = r2i_from_r2f(viewport),
+        .clip_region        = r2i_from_r2f(viewport),
+      });
+    }
+  } else {
+    R_Constant_Buffer_World_3D world_data = {
+      .World_View_Projection   = world_view_projection,
+      .World_Inverse_Transpose = m4f_trans(world_inv),
+      .World                   = world,
+      .Eye_Position            = eye_position,
+      .Color                   = color,
+    };
+
+    r_buffer_download(surface->state_buffer, 0, sizeof(world_data), &world_data);
+
+    R_Pipeline pipeline = R_Resource_None;
+    switch (surface->material) {
+      case CFDR_Material_Flat:    { pipeline = render->pipelines[CFDR_Render_Pipeline_Flat];   } break;
+      case CFDR_Material_Matcap:  { pipeline = render->pipelines[CFDR_Render_Pipeline_Matcap]; } break;
+    }
+
+    r_command_push_draw(&(R_Command_Draw) {
+      .pipeline           = pipeline,
+      .bind_group         = surface->bind_group,
+      .vertex_buffer      = surface->resource->vertex_buffer,
+      .index_buffer       = surface->resource->index_buffer,
+      .draw_index_count   = surface->resource->index_count,
+      .draw_index_offset  = 0,
+
+      .depth_test         = 1,
+      .draw_region        = r2i_from_r2f(viewport),
+      .clip_region        = r2i_from_r2f(viewport),
+    });
+  }
 }
 
 typedef struct CFDR_Render_Volume {
@@ -229,7 +316,7 @@ typedef struct CFDR_Render_Volume {
 fn_internal void cfdr_render_volume_draw(CFDR_Render *render, CFDR_Render_Volume *volume, V3F eye_position, M4F view_projection, R2F viewport) {
   M4F basis_change = {
     .e11 = +1,
-    .e32 = +1,
+    .e32 = -1,
     .e23 = +1,
     .e44 = +1,
   };
@@ -241,8 +328,8 @@ fn_internal void cfdr_render_volume_draw(CFDR_Render *render, CFDR_Render_Volume
   M4F world_inv = { };
   m4f_inv(world, &world_inv);
 
-  V3F volume_min = m4f_mul_v4f(v4f(-1, -1, -1, 1), world).xyz;
-  V3F volume_max = m4f_mul_v4f(v4f(1, 1, 1, 1),    world).xyz;
+  V3F volume_min = m4f_mul_v4f(v4f(0, 0, 0, 1), world).xyz;
+  V3F volume_max = m4f_mul_v4f(v4f(1, 1, 1, 1), world).xyz;
 
   R_Constant_Buffer_World_3D world_data = {
     .World_View_Projection   = world_view_projection,

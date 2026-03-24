@@ -10,9 +10,12 @@ struct World_3D_Type {
   @align(16) World:                   mat4x4<f32>,
   @align(16) Eye_Position          : vec3<f32>,
   @align(16) Volume_Density        : f32,
-  @align(16) Grid_Scale            : f32,
+  @align(16) Grid_Scale           : f32,
   @align(16) Color                 : vec4<f32>,
+  @align(16) Volume_Min            : vec3<f32>,
+  @align(16) Volume_Max            : vec3<f32>,
 };
+
 
 @group(0) @binding(2)
 var<uniform> World_3D : World_3D_Type;
@@ -45,24 +48,19 @@ fn vs_main(@location(0) X : vec3<f32>,
    var out : VS_Out;
 
    out.X_Clip = transpose(World_3D.World_View_Projection) * vec4<f32>(X, 1.0);
-   out.X      = X;
+   out.X      = (transpose(World_3D.World) * vec4<f32>(X, 1.0)).xyz;
    out.C      = vec4_unpack_u32(C);
    out.U      = U;
 
    return out;
 }
 
-const box_min       = vec3<f32>(0, 0, 0);
-const box_max       = vec3<f32>(-1000.0f * 0.025f, 100.0f * 0.025f, 1000.0f * 0.025f);
-const ray_steps     = 512;
-const ray_step_size = 0.02;
+const ray_steps     = 256;
+const ray_step_size = sqrt(sqrt(2) + 1) / ray_steps;
 
 fn sample_volume(position: vec3<f32>) -> f32 {
-    let p = clamp(
-        (position - box_min) / (box_max - box_min),
-        vec3<f32>(0.0),
-        vec3<f32>(1.0)
-    );
+    let p2 = clamp((position - World_3D.Volume_Min) / (World_3D.Volume_Max - World_3D.Volume_Min), vec3<f32>(0.0), vec3<f32>(1.0));
+    let p  = vec3<f32>(p2.z, 1.0 - p2.x, p2.y);
 
     let size = vec3<f32>(textureDimensions(Texture_Volume));
     let coord = p * (size - 1.0);
@@ -96,6 +94,7 @@ fn fs_main(@location(0) X : vec3<f32>,
            @location(2) U : vec2<f32> ) -> @location(0) vec4<f32> {
 
   let sample = sample_volume(X);
-  let color  = textureSample(Texture, Sampler, vec2<f32>(sample, 0));
-  return color;
+  let pixel  = textureSample(Texture, Sampler, vec2<f32>(sample, 0));
+  return pixel;
 }
+

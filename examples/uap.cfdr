@@ -1,10 +1,8 @@
-// NOTE(cmat): Basic walkthrough of the CFDR format.
-
 // NOTE(cmat): Specify CFDR version
 #version 100
 
 // NOTE(cmat): Project title.
-#project "Basic"
+#project "UAP"
 
 // NOTE(cmat): Setup viewport.
 #viewport {
@@ -48,88 +46,45 @@
   shadow_offset:    1,
 }
 
+// NOTE(cmat): Terrain geometry....
 #object {
   tag:              "Terrain",
   visible:          true,
   color:            @hsv [360, 0, 50],
   opacity:          100,
+  material:         "matcap",
   surface:          "examples/uap/terrain.stl"
   scale:            [1, 1, 1]
 }
 
+// NOTE(cmat): Building geometry.
 #object {
   tag:              "Buildings",
   visible:          true,
   color:            @hsv [200, 0, 80],
   opacity:          100,
+  material:         "matcap",
   surface:          "examples/uap/buildings.stl",
   scale:            [1, 1, 1]
 }
 
+// NOTE(cmat): Simulation volume.
 #object {
-  tag:              "Simulation",
+  tag:              "Volume",
   visible:          false,
   volume:           "examples/uap/velocity_32.vol32",
-  scale:            [500, 500, 50],
-  translate:        [0, 0, 0],
+  scale:            [1000, 1000, 100],
+  translate:        [ - 1000, 0, 0],
 }
 
-/*
-// NOTE(cmat): Volumetric visualization
-
-#object {
-  tag:              "Building",
-  visible:          true,
-  content:          @surface "rsim/building.stl",
-  opacity:          100,
-  translate:        [0, 0, 0],
-  rotate:           [0, 0, 0],
-  scale:            [1, 1, 1],
-}
-
-Volume :: @volume [ 1.0 : "rsim/velocity_1.vol32", 2.0 : "rsim/velocity_2.vol32" ]
-
+// NOTE(cmat): Sample into the simulation volume.
 #object {
   tag:              "Slice",
   visible:          true,
-  content:          @surface "rsim/surface.stl",
-  opacity:          100,
-  translate:        [0.0, 0.0, 0.0],
-  rotate:           [0.0, 0.0, 0.0],
-  scale:            [1.0, 1.0, 1.0],
-  material:         @material "sample" Volume
-}
-
-#object {
-  tag:              "Simulation",
-  visible:          true,
-  content:          Volume,
-  opacity:          100,
-  translate:        [0.0, 0.0, 0.0],
-  rotate:           [0.0, 0.0, 0.0],
-  scale:            [1.0, 1.0, 1.0],
-}
-
-
-// NOTE(cmat): Bounding box geometry.
-#object {
-  tag:              "Bounding Box",
-  visible:          true,
-  content:          @surface "fau/frame.stl",
-  opacity:          100,
-  translate:        [0, 0, 0],
-  rotate:           [0, 0, 0],
-  scale:            [1, 1, 1]
-}
-
-// NOTE(cmat): Volumetric visualization
-#object {
-  tag:              "Volume",
-  visible:          true,
-  content:          @volume "fau/velocity_1.vol32",
-  opacity:          100,
-  translate:        [0, 0, 0],
-  rotate:           [0, 0, 0],
+  color:            @hsv [0, 70, 80],
+  material:         "sample"
+  surface:          "examples/uap/slice.stl",
   scale:            [1, 1, 1],
+  translate:        [0, 0, 5],
 }
-*/
+
