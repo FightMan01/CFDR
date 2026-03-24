@@ -16,10 +16,19 @@ fn_internal CFDR_Value cfdr_eval_list(Arena *arena, TK_Scan *scan) {
   TK_Token token = tk_scan_next(scan);
   B32 separated = 1;
   for (;;) {
+    I32 sign = 1;
+
+    if (token.type == TK_Type_Op_Plus) {
+      token = tk_scan_next(scan);
+    } else if (token.type == TK_Type_Op_Minus) {
+      sign = -1;
+      token = tk_scan_next(scan);
+    }
+
     if (token.type == TK_Type_Literal_Integer) {
       if (separated) {
         CFDR_List_Node *node  = arena_push_type(arena, CFDR_List_Node);
-        node->value           = token.value.i64;
+        node->value           = sign * token.value.i64;
 
         queue_push(value.list->first, value.list->last, node);
         value.list->count += 1;
@@ -313,11 +322,26 @@ fn_internal void cfdr_eval_directive_object(CFDR_State *state, Arena *arena, TK_
       else if (str_equals(it->label, str_lit("opacity")))       { obj->color.a           = cfdr_eval_get_i32     (it->value) / 100.f;               }
       else if (str_equals(it->label, str_lit("scale")))         { obj->scale             = cfdr_eval_get_v3f     (it->value);                       }
       else if (str_equals(it->label, str_lit("translate")))     { obj->translate         = cfdr_eval_get_v3f     (it->value);                       }
+      else if (str_equals(it->label, str_lit("material"))) {
+        // obj->translate         = cfdr_eval_get_v3f     (it->value);
+        Str material = cfdr_eval_get_str(it->value);
+        if (str_equals_any_case(material, str_lit("flat"))) {
+          obj->material = CFDR_Material_Flat;
+        } else if (str_equals_any_case(material, str_lit("matcap"))) {
+          obj->material = CFDR_Material_Matcap;
+        } else if (str_equals_any_case(material, str_lit("sample"))) {
+          obj->material = CFDR_Material_Sample;
+        } else {
+          log_warning("unrecognized material %.*s", str_expand(material));
+        }
+      }
+
       else if (str_equals(it->label, str_lit("surface")))       {
         obj->flags |= CFDR_Object_Flag_Draw_Surface;
         Str surface_path = cfdr_eval_get_str(it->value);
         cfdr_resource_surface_init(&obj->surface, surface_path);
       }
+
       else if (str_equals(it->label, str_lit("volume")))        {
         obj->flags |= CFDR_Object_Flag_Draw_Volume;
         Str volume_path = cfdr_eval_get_str(it->value);

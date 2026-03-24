@@ -73,13 +73,8 @@ fn intersect_ray_box(ray_origin : vec3<f32>, ray_direction : vec3<f32>) -> vec2<
 }
 
 fn sample_volume(position: vec3<f32>) -> f32 {
-    let p2 = clamp(
-        (position),
-        vec3<f32>(0.0),
-        vec3<f32>(1.0)
-    );
-    
-    let p = vec3<f32>(p2.x, p2.z, p2.y);
+    let p2 = clamp(position, vec3<f32>(0.0), vec3<f32>(1.0));
+    let p  = vec3<f32>(p2.z, 1.0 - p2.x, p2.y);
 
     let size = vec3<f32>(textureDimensions(Texture_Volume));
     let coord = p * (size - 1.0);
@@ -135,7 +130,6 @@ fn fs_main(@location(0) X : vec3<f32>,
   let t_exit        = t_hit.y;
 
   if (t_exit < t_enter || t_exit < 0.0) {
-    // return vec4<f32>(1, 0, 1, 1);
     discard;
   }
 

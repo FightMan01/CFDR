@@ -11,6 +11,7 @@ typedef struct CFDR_Object_Node {
   B32                       visible;
   Str                       tag;
   HSVA                      color;
+  CFDR_Material             material;
 
   V3F                       scale;
   V3F                       translate;
@@ -21,6 +22,7 @@ typedef struct CFDR_Object_Node {
 
   R_Buffer                  world_state;
   R_Bind_Group              bind_group;
+  R_Bind_Group              bind_group_sample;
 } CFDR_Object_Node;
 
 typedef struct CFDR_Scene_View {
