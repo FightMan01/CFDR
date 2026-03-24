@@ -36,18 +36,10 @@ fn_internal R_Vertex_XNUC_3D *stl_parse_binary(Arena *arena, U64 bytes, U08 *dat
       For_U32 (it, header->tri_count) {
         STL_Binary_Triangle tri = triangles[it];
 
-        V3F R = rgb_from_hsv(v3f(it / (F32)header->tri_count, .8f, .8f));
-        U32 C = abgr_u32_from_rgba_premul(v4f(R.x, R.y, R.z, 1.f));
-
-        tri.position_1 = v3f_mul(.025f, v3f(tri.position_1.x, -tri.position_1.z, tri.position_1.y));
-        tri.position_2 = v3f_mul(.025f, v3f(tri.position_2.x, -tri.position_2.z, tri.position_2.y));
-        tri.position_3 = v3f_mul(.025f, v3f(tri.position_3.x, -tri.position_3.z, tri.position_3.y));
-
-        V3F N = v3f(tri.normal.x, -tri.normal.z, tri.normal.y);
-
-        result[3 * it + 0] = (R_Vertex_XNUC_3D) { .X = tri.position_1, .N = N, .C = 0xFFFFFFFF, .U = v2f(0, 0) };
-        result[3 * it + 1] = (R_Vertex_XNUC_3D) { .X = tri.position_2, .N = N, .C = 0xFFFFFFFF, .U = v2f(1, 0) };
-        result[3 * it + 2] = (R_Vertex_XNUC_3D) { .X = tri.position_3, .N = N, .C = 0xFFFFFFFF, .U = v2f(0, 1) };
+        U32 C = 0xFFFFFFFF;
+        result[3 * it + 0] = (R_Vertex_XNUC_3D) { .X = tri.position_1, .N = tri.normal, .C = 0xFFFFFFFF, .U = v2f(0, 0) };
+        result[3 * it + 1] = (R_Vertex_XNUC_3D) { .X = tri.position_2, .N = tri.normal, .C = 0xFFFFFFFF, .U = v2f(1, 0) };
+        result[3 * it + 2] = (R_Vertex_XNUC_3D) { .X = tri.position_3, .N = tri.normal, .C = 0xFFFFFFFF, .U = v2f(0, 1) };
       }
     } else {
       log_fatal("STL parse error");

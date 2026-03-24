@@ -1,4 +1,4 @@
-fn_internal void cfdr_state_default(CFDR_State *state) {
+fn_internal void cfdr_state_init(CFDR_State *state) {
   arena_init(&state->arena);
 
   state->version  = 0;
@@ -9,14 +9,8 @@ fn_internal void cfdr_state_default(CFDR_State *state) {
     .light_mode = 0,
   };
 
-  state->viewport = (CFDR_Viewport) {
-    .orthographic = 1,
-    .background   = hsva_u32(10, 10, 20, 255),
-    .grid_enabled = 1,
-    .grid_color   = hsva_u32(10, 10, 20, 255),
-    .grid_level   = 1.f,
-    .view_2D      = 0,
-  };
 
+  cfdr_render_init(&state->render);
   cfdr_overlay_init(&state->overlay);
+  cfdr_scene_init(&state->scene);
 }

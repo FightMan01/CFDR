@@ -1,6 +1,9 @@
 #include "cfdr_resource.h"
 #include "cfdr_resource.c"
 
+#include "cfdr_camera.h"
+#include "cfdr_render.h"
+
 #include "cfdr_scene.h"
 #include "cfdr_scene.c"
 
@@ -17,6 +20,6 @@
 
 #include "cfdr_project.c"
 
-#include "cfdr_draw.c"
+// #include "cfdr_draw.c"
 #include "cfdr_ui.c"
 

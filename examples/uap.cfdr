@@ -1,0 +1,135 @@
+// NOTE(cmat): Basic walkthrough of the CFDR format.
+
+// NOTE(cmat): Specify CFDR version
+#version 100
+
+// NOTE(cmat): Project title.
+#project "Basic"
+
+// NOTE(cmat): Setup viewport.
+#viewport {
+  background:       @hsv [ 255, 25, 40 ],
+  orthographic:     false,
+  grid_enabled:     true,
+  grid_color:       @hsv [ 0, 0, 100 ],
+  grid_level:       1,
+}
+
+// NOTE(cmat): We create a basic text overlay
+#overlay {
+  tag:              "Title",
+  visible:          true,
+  content:          "UAP - Stockholm",
+  scale:            100,
+  color:            @hsv [94, 16, 90],
+  shadow_color:     @hsv [252, 57, 0],
+  position_x:       @align "left",
+  position_y:       @align "top",
+  border:           [15, 5],
+  background:       true,
+  shadow:           true,
+  shadow_offset:    1,
+}
+
+// NOTE(cmat): We can even create a watermark user the text overlay
+#overlay {
+  tag:              "Watermark",
+  visible:          true,
+  content:          "HidALGO 2",
+  scale:            150,
+  color:            @hsv [200, 59, 68],
+  opacity:          15,
+  shadow_color:     @hsv [100, 20, 0],
+  position_x:       @align "right",
+  position_y:       @align "bottom",
+  border:           [10, 0],
+  background:       false,
+  shadow:           false,
+  shadow_offset:    1,
+}
+
+#object {
+  tag:              "Terrain",
+  visible:          true,
+  color:            @hsv [360, 0, 50],
+  opacity:          100,
+  surface:          "examples/uap/terrain.stl"
+  scale:            [1, 1, 1]
+}
+
+#object {
+  tag:              "Buildings",
+  visible:          true,
+  color:            @hsv [200, 0, 80],
+  opacity:          100,
+  surface:          "examples/uap/buildings.stl",
+  scale:            [1, 1, 1]
+}
+
+#object {
+  tag:              "Simulation",
+  visible:          false,
+  volume:           "examples/uap/velocity_32.vol32",
+  scale:            [500, 500, 50],
+  translate:        [0, 0, 0],
+}
+
+/*
+// NOTE(cmat): Volumetric visualization
+
+#object {
+  tag:              "Building",
+  visible:          true,
+  content:          @surface "rsim/building.stl",
+  opacity:          100,
+  translate:        [0, 0, 0],
+  rotate:           [0, 0, 0],
+  scale:            [1, 1, 1],
+}
+
+Volume :: @volume [ 1.0 : "rsim/velocity_1.vol32", 2.0 : "rsim/velocity_2.vol32" ]
+
+#object {
+  tag:              "Slice",
+  visible:          true,
+  content:          @surface "rsim/surface.stl",
+  opacity:          100,
+  translate:        [0.0, 0.0, 0.0],
+  rotate:           [0.0, 0.0, 0.0],
+  scale:            [1.0, 1.0, 1.0],
+  material:         @material "sample" Volume
+}
+
+#object {
+  tag:              "Simulation",
+  visible:          true,
+  content:          Volume,
+  opacity:          100,
+  translate:        [0.0, 0.0, 0.0],
+  rotate:           [0.0, 0.0, 0.0],
+  scale:            [1.0, 1.0, 1.0],
+}
+
+
+// NOTE(cmat): Bounding box geometry.
+#object {
+  tag:              "Bounding Box",
+  visible:          true,
+  content:          @surface "fau/frame.stl",
+  opacity:          100,
+  translate:        [0, 0, 0],
+  rotate:           [0, 0, 0],
+  scale:            [1, 1, 1]
+}
+
+// NOTE(cmat): Volumetric visualization
+#object {
+  tag:              "Volume",
+  visible:          true,
+  content:          @volume "fau/velocity_1.vol32",
+  opacity:          100,
+  translate:        [0, 0, 0],
+  rotate:           [0, 0, 0],
+  scale:            [1, 1, 1],
+}
+*/

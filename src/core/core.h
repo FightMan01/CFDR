@@ -576,16 +576,58 @@ force_inline fn_internal F32 f32_sqrt   (F32 x) { return __builtin_sqrtf(x);  }
 force_inline fn_internal F32 f32_fabs   (F32 x) { return __builtin_fabsf(x);  }
 force_inline fn_internal F32 f32_acos   (F32 x) { return __builtin_acosf(x);  }
 force_inline fn_internal F32 f32_asin   (F32 x) { return __builtin_asinf(x);  }
-force_inline fn_internal F32 f32_ln     (F32 x) { return __builtin_logf(x);   }
-force_inline fn_internal F32 f32_exp    (F32 x) { return __builtin_expf(x);   }
 force_inline fn_internal F32 f32_trunc  (F32 x) { return __builtin_truncf(x); }
 
-#else
-#error "F32 core math ops not implemented for this target"
+// TODO(cmat): Verify.
+fn_internal F32 f32_exp(F32 x) {
+    F32 ln2_inv = 1.4426950408889634f;
+    F32 ln2     = 0.69314718f;
+    int n       = (int)(x * ln2_inv + (x >= 0 ? 0.5f : -0.5f));
+    F32 r       = x - n * ln2;
+    F32 r2      = r * r;
+    F32 r3      = r2 * r;
+    F32 r4      = r3 * r;
+    F32 r5      = r4 * r;
+    F32 approx  = 1.0f +
+                  r +
+                  r2 * 0.5f +
+                  r3 * 0.16666667f +
+                  r4 * 0.041666667f +
+                  r5 * 0.008333333f;
 
-#endif
+    union { F32 f; U32 i; } u = { approx };
+    u.i += ((U32)n << 23);
 
-force_inline fn_internal F32 f32_pow(F32 x, F32 y) {
+    F32 result = u.f;
+    return result;
+}
+
+// TODO(cmat): Verify.
+fn_internal F32 f32_ln(F32 x) {
+  if (x <= 0.f) {
+    return (F32)(0.f / 0.f);
+  }
+
+  union { F32 f; U32 i; } u = { x };
+  I32 e = (int)((u.i >> 23) & 0xFF) - 127;
+  u.i   = (u.i & ((1U << 23) - 1)) | (127U << 23);
+  F32 m = u.f;
+
+  if (m > 1.41421356f) {
+      m *= 0.5f;
+      e += 1;
+  }
+
+  F32 y      = (m - 1.0f) / (m + 1.0f);
+  F32 y2     = y * y;
+  F32 poly   = y + y * y2 / 3.0f + y * y2 * y2 / 5.0f;
+  F32 ln_m   = 2.0f * poly;
+  F32 result = ln_m + e * 0.69314718f;
+
+  return result;
+}
+
+fn_internal F32 f32_pow(F32 x, F32 y) {
   F32 result = 0;
 
   if (x >= 0) {
@@ -622,6 +664,102 @@ force_inline fn_internal F32 f32_radians_from_degrees (F32 x) { return (x * f32_
 fn_internal F32 f32_sin (F32 x);
 force_inline fn_internal F32 f32_cos  (F32 x) { return f32_sin(f32_hpi + x);   }
 force_inline fn_internal F32 f32_tan  (F32 x) { return f32_sin(x) / f32_cos(x); }
+
+#else
+#error "F32 core math ops not implemented for this target"
+
+#endif
+
+// ------------------------------------------------------------
+// #-- F64 Core Math
+
+#if COMPILER_CLANG || COMPILER_GCC
+
+force_inline fn_internal F64 f64_floor  (F64 x) { return __builtin_floor(x); }
+force_inline fn_internal F64 f64_ceil   (F64 x) { return __builtin_ceil(x);  }
+force_inline fn_internal F64 f64_sqrt   (F64 x) { return __builtin_sqrt(x);  }
+force_inline fn_internal F64 f64_fabs   (F64 x) { return __builtin_fabs(x);  }
+force_inline fn_internal F64 f64_acos   (F64 x) { return __builtin_acos(x);  }
+force_inline fn_internal F64 f64_asin   (F64 x) { return __builtin_asin(x);  }
+force_inline fn_internal F64 f64_trunc  (F64 x) { return __builtin_trunc(x); }
+
+
+// TODO(cmat): Verify.
+fn_internal F64 f64_exp(F64 x) {
+    F64 ln2_inv = 1.4426950408889634;
+    F64 ln2     = 0.6931471805599453;
+    I64 n       = (I64)(x * ln2_inv + (x >= 0 ? 0.5 : -0.5));
+    F64 r       = x - n * ln2;
+    F64 r2      = r * r;
+    F64 r3      = r2 * r;
+    F64 r4      = r3 * r;
+    F64 r5      = r4 * r;
+    F64 approx  = 1.0 +
+                  r +
+                  r2 * 0.5 +
+                  r3 * 0.16666666666666666 +
+                  r4 * 0.041666666666666664 +
+                  r5 * 0.008333333333333333;
+
+    union { F64 f; U64 i; } u = { approx };
+    u.i += ((U64)n << 52);
+
+    F64 result = u.f;
+    return result;
+}
+
+// TODO(cmat): Verify.
+fn_internal F64 f64_ln(F64 x) {
+  if (x <= 0.f) {
+    return (F64)(0. / 0.);
+  }
+ 
+  union { F64 f; U64 i; } u = { x };
+
+  I32 e = (int)((u.i >> 52) & 0x7FF) - 1023;
+  u.i   = (u.i & ((1ULL << 52) - 1)) | (1023ULL << 52);
+  F64 m = u.f;
+
+  if (m > 1.4142135623730951) {
+      m *= 0.5;
+      e += 1;
+  }
+
+  F64 y      = (m - 1.0) / (m + 1.0);
+  F64 y2     = y * y;
+  F64 poly   = y + y * y2 / 3.0 + y * y2 * y2 / 5.0 + y * y2 * y2 * y2 / 7.0;
+  F64 ln_m   = 2.0 * poly;
+  F64 result = ln_m + e * 0.6931471805599453;
+
+  return result;
+}
+
+fn_internal F64 f64_pow(F64 x, F64 y) {
+  F64 result = 0;
+
+  if (x >= 0) {
+    result  = f64_exp(y * f64_ln(x));
+  } else {
+
+    F64 y_floor  = f64_floor(y);
+    if (y == y_floor) {
+      result = f64_exp(y * f64_ln(-x));
+
+      if ((I32)y_floor % 2 != 0) {
+        result = -result;
+      }
+    } else {
+      // NOTE(cmat): Invalid. Can be complex, (-1)^0.5 = i
+    }
+  }
+ 
+  return result;
+}
+
+#else
+#error "F64 core math ops not implemented for this target"
+
+#endif
 
 // ------------------------------------------------------------
 // #-- Local Time
