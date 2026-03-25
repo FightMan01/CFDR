@@ -31,10 +31,11 @@
 
 #include "http/http_wasm.c"
 #include "mesh/mesh_stl.h"
+
+#include "ug_mesh.c"
 #include "su2.c"
 
 var_global Str Project_Path = { };
-var_global B32 Project_Loaded = { };
 
 #include "cfdr/cfdr_build.h"
 #include "cfdr/cfdr_build.c"
@@ -45,9 +46,6 @@ var_global CFDR_UI_State  CFDR_UI             = { };
 var_global CFDR_Resource  Project_File        = { };
 var_global CFDR_State     State               = { };
 
-var_global CFDR_Resource  SU2_File            = { };
-var_global B32            SU2_Loaded          = { };
-
 fn_internal void init_frame(PL_Render_Context *render_context) {
   arena_init(&Permanent_Storage);
 
@@ -55,11 +53,16 @@ fn_internal void init_frame(PL_Render_Context *render_context) {
   g2_init();
   ui_init();
 
-  cfdr_state_default(&State);
-
-  cfdr_state_init();
-  cfdr_draw_init();
+  cfdr_state_init(&State);
   cfdr_ui_init(&CFDR_UI, &State);
+}
+
+fn_internal V2F place_point(UG_Mesh *mesh, F32 largest_axis, F32 scale, V2F offset, V2F p) {
+  p = v2f_sub(p, mesh->bounds.min);
+  p = v2f_div(p, largest_axis);
+  p = v2f_mul(scale, p);
+  p = v2f_add(p, offset);
+  return p;
 }
 
 fn_internal void next_frame(B32 first_frame, PL_Render_Context *render_context) {
@@ -80,23 +83,16 @@ fn_internal void next_frame(B32 first_frame, PL_Render_Context *render_context) 
     Project_Path = arena_push_str(&Permanent_Storage, project_file);
 
     cfdr_resource_init(&Project_File, Project_Path);
-    cfdr_resource_init(&SU2_File,     str_lit("karman.su2"));
   }
 
   CFDR_Resource_Data data = { };
-  if (!Project_Loaded && cfdr_resource_get(&Project_File, &data)) {
-    Project_Loaded = 1;
+  if (cfdr_resource_fetch(&Project_File, &data)) {
     cfdr_eval(&State, str(data.bytes_total, data.bytes_data));
   }
 
-  if (!SU2_Loaded && cfdr_resource_get(&SU2_File, &data)) {
-    SU2_Loaded = 1;
-    su2_parse(str(data.bytes_total, data.bytes_data), &Permanent_Storage);
-  }
-
   cfdr_ui(&CFDR_UI);
-
   ui_frame_flush();
+ 
   g2_frame_flush();
   r_frame_flush();
 }

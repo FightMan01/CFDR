@@ -148,9 +148,7 @@ fn_internal U64 str_hash(Str string) {
   return hash;
 }
 
-
-// TODO(cmat): Revise these implementations.
-
+// TODO(cmat): 'safe' / 'unsafe' versions
 fn_internal U64 u64_from_str(Str value) {
   U64 result = 0;
   For_U64(it, value.len) {
@@ -160,9 +158,84 @@ fn_internal U64 u64_from_str(Str value) {
   return result;
 }
 
+// NOTE(cmat): Based on stb_c_lexer.h
 fn_internal F64 f64_from_str(Str value) {
-  Not_Implemented;
-  return 0;
+  F64 result    = 0;
+  U64 at        = 0;
+
+
+  I64 base_negative = 0;
+  if (at < value.len && (value.txt[at] == '-' || value.txt[at] == '+')) {
+    base_negative = value.txt[at] == '-';
+    ++at;
+  }
+
+  if (str_starts_with_any_case(value, str_lit("nan"))) {
+      result = base_negative ? (F64)(-0.0 / 0.0): (F64)(0.0 / 0.0);
+  } else {
+
+    // NOTE(cmat): Whole part
+    for (; at < value.len; ++at) {
+      if (char_is_digit(value.txt[at])) {
+        result = 10 * result + (value.txt[at] - '0');
+      } else {
+        break;
+      }
+    }
+
+    // NOTE(cmat): Decimal part
+    if (at < value.len && value.txt[at] == '.') {
+      ++at;
+
+      F64 pow    = 1;
+      F64 addend = 0;
+      
+      for (pow = 1; at < value.len; ++at) {
+        if (char_is_digit(value.txt[at])) {
+          addend = 10 * addend + (value.txt[at] - '0');
+          pow *= 10;
+        } else {
+          break;
+        }
+      }
+
+      result += addend / pow;
+    }
+
+    // NOTE(cmat): Exponent
+    if (at < value.len && (value.txt[at] == 'e' || value.txt[at] == 'E')) {
+      ++at;
+      if (at < value.len) {
+        I32 negative = 0;
+        if (value.txt[at] == '-' || value.txt[at] == '+') {
+          negative = value.txt[at] == '-';
+          ++at;
+        }
+
+        F64 exponent = 0;
+        for (; at < value.len; ++at) {
+          if (char_is_digit(value.txt[at])) {
+            exponent = exponent * 10 + (value.txt[at] - '0');
+          } else {
+            break;
+          }
+        }
+
+        F64 power = f64_pow(10, exponent);
+        if (negative) {
+          result /= power;
+        } else {
+          result *= power;
+        }
+      }
+    }
+
+    if (base_negative) {
+      result = -result;
+    }
+  }
+
+  return result;
 }
 
 fn_internal B32 b32_from_str(Str value) {

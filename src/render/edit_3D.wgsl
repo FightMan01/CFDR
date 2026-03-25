@@ -9,6 +9,8 @@ var Sampler : sampler;
 
 struct World_3D_Type {
   @align(16) World_View_Projection : mat4x4<f32>,
+  @align(16) World_Inverse_Transpose: mat4x4<f32>,
+  @align(16) World:                   mat4x4<f32>,
   @align(16) Eye_Position          : vec3<f32>,
   @align(16) Volume_Density        : f32,
   @align(16) Grid_Scale            : f32,
@@ -47,8 +49,8 @@ fn vs_main(@location(0) X : vec3<f32>,
    var out : VS_Out;
 
    out.X_Clip = transpose(World_3D.World_View_Projection) * vec4<f32>(X, 1.0);
-   out.X      = X;
-   out.N      = N;
+   out.X      = (transpose(World_3D.World) * vec4<f32>(X, 1.0)).xyz;
+   out.N      = (transpose(World_3D.World_Inverse_Transpose) * vec4<f32>(N, 0.0)).xyz;
    out.C      = World_3D.Color * vec4_unpack_u32(C);
    out.U      = U;
 
@@ -61,15 +63,17 @@ fn fs_main(@location(0) X : vec3<f32>,
            @location(2) C : vec4<f32>,
            @location(3) U : vec2<f32> ) -> @location(0) vec4<f32> {
 
+  let E      = World_3D.Eye_Position;
   let N      = normalize(N_in);
-  let V      = normalize(World_3D.Eye_Position - X);
+
+  let V      = normalize(E - X);
   let L      = V;
   let H      = normalize(L + V);
 
   let diffuse = max(dot(N, L), 0.0);
   
-  let shininess = 1.0;
-  let specular_strength = 0.35;
+  let shininess = 100.0;
+  let specular_strength = 0.01;
 
   let specular = pow(max(dot(N, H), 0.0), shininess) * specular_strength;
   let up = vec3<f32>(0.0, 1.0, 0.0);

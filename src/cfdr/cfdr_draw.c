@@ -1,3 +1,5 @@
+#if 0
+
 typedef struct Camera {
   V3F look_at;
   F32 radius_m;
@@ -501,4 +503,4 @@ fn_internal void cfdr_draw_viewport(UI_Response *response, R2F draw_region, void
   }
 }
 
-
+#endif
