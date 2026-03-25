@@ -444,13 +444,13 @@ fn_internal void cfdr_ui_property_object(CFDR_UI_State *ui) {
   }
 }
 
-fn_internal void cfdr_ui_property_object(CFDR_UI_State *ui) {
-  UI_Node *container = ui_container(str_lit("##property_object"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fit);
-  if (ui->state->scene.active) {
+fn_internal void cfdr_ui_property_overlay(CFDR_UI_State *ui) {
+  UI_Node *container = ui_container(str_lit("##property_overlay"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fit);
+  if (ui->state->overlay.active) {
     UI_Parent_Scope(container) {
-      container->layout.gap_border[Axis2_X] = 5;
-      container->layout.gap_border[Axis2_Y] = 5;
-      container->layout.gap_child = 5;
+      container->layout.gap_border[Axis2_X] = ui_px(5);
+      container->layout.gap_border[Axis2_Y] = ui_px(5);
+      container->layout.gap_child = ui_px(5);
 
       var_local_persist Str x_align_list[] = { str_lit("Left"),   str_lit("Right"), str_lit("Center"), };
       var_local_persist Str y_align_list[] = { str_lit("Bottom"), str_lit("Top"),   str_lit("Center"), };
