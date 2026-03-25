@@ -30,7 +30,8 @@ Icon_X(FA_SQUARE_XMARK,                          "\xef\x8b\x93") \
 Icon_X(FA_FLOPPY_DISK,                           "\xef\x83\x87") \
 Icon_X(FA_TABLE_CELLS_LARGE,                     "\xef\x80\x89") \
 Icon_X(FA_SUN,                                   "\xef\x86\x85") \
-Icon_X(FA_MOON,                                  "\xef\x86\x86")
+Icon_X(FA_MOON,                                  "\xef\x86\x86") \
+Icon_X(FA_OBJECT_GROUP,                          "\xef\x89\x87")
 
 #undef  Icon_X
 #define Icon_X(name_, value_) var_global Str Icon_##name_ = str_lit(value_);
@@ -74,12 +75,14 @@ typedef struct CFDR_UI_State {
   CFDR_UI_Split_Mode split_mode;
   B32                fullscreen;
   B32                dark_mode;
+
+  B32                overlay_tab;
 } CFDR_UI_State;
 
 fn_internal void cfdr_ui_viewport_draw_hook(UI_Response *response, R2F draw_region, void *user_data) {
   CFDR_State *state = (CFDR_State *)user_data;
 
-  g2_draw_rect(draw_region.min, r2f_size(draw_region), .color = rgba_from_hsva(state->viewport.background));
+  cfdr_scene_draw(&state->render, response, &state->scene, draw_region);
   cfdr_overlay_draw(&state->overlay, draw_region);
 }
 
@@ -123,9 +126,6 @@ fn_internal void cfdr_ui_init(CFDR_UI_State *ui, CFDR_State *state) {
 
 fn_internal void cfdr_ui_menu_bar(CFDR_UI_State *ui) {
   UI_Node *menu_bar = ui_container(str_lit("##menu_bar"), UI_Container_Box, Axis2_X, UI_Size_Fill, UI_Size_Fit);
-  // menu_bar->palette.idle  = hsv_u32(200, 10, 10);
-  // menu_bar->palette.hover = hsv_u32(210, 10, 15);
-  // menu_bar->palette.down  = hsv_u32(220, 10, 15);
 
   UI_Parent_Scope(menu_bar) {
 
@@ -165,8 +165,6 @@ fn_internal void cfdr_ui_menu_bar(CFDR_UI_State *ui) {
 
 fn_internal void cfdr_ui_status_bar(CFDR_UI_State *ui) {
   UI_Parent_Scope(ui_container(str_lit("##status_bar"), UI_Container_Box, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
-    // ui_label(Project_Path);
-    // ui_container(str_lit("##spacing"), UI_Container_None, Axis2_X, UI_Size_Fixed(25), UI_Size_Fit);
     ui_label(ui->state->project);
 
     UI_Font_Scope(&ui->font_icon) { ui_label(Icon_FA_SQUARE_XMARK); }
@@ -182,7 +180,6 @@ fn_internal void cfdr_ui_status_bar(CFDR_UI_State *ui) {
 }
 
 fn_internal void cfdr_ui_viewport_menu_bar(CFDR_UI_State *ui, I32 viewport_index) {
-  Viewport *viewport = &CFDR_Draw_State.viewport_array[viewport_index];
   UI_Parent_Scope(ui_container(str_lit("##menu_bar"), UI_Container_Box, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
 
     UI_Parent_Scope(ui_container(str_lit("##viewport_tab"), UI_Container_None, Axis2_X, UI_Size_Fit, UI_Size_Fit)) {
@@ -196,14 +193,14 @@ fn_internal void cfdr_ui_viewport_menu_bar(CFDR_UI_State *ui, I32 viewport_index
     UI_Parent_Scope(ui_container(str_lit("##left"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
       ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(ui_px(25)), UI_Size_Fit);
       UI_Parent_Scope(ui_container(str_lit("##toolbar"), UI_Container_None, Axis2_X, UI_Size_Fit, UI_Size_Fit)) {
-        ui_f32_edit_static(str_lit("Grid Level"), &ui->state->viewport.grid_level, 0.1f, 10.f, 0.01f);
+        ui_f32_edit_static(str_lit("Grid Level"), &ui->state->scene.view.grid.subdiv, 0.1f, 10.f, 0.01f);
 
-        ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(ui_px(10)), UI_Size_Fit);
-        ui_color_hsv(str_lit("Grid Color"), &ui->state->viewport.grid_color.hsv);
+        ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fixed(10), UI_Size_Fit);
+        ui_color_hsv(str_lit("Grid Color"), &ui->state->scene.view.grid.color.hsv);
 
         ui_container(str_lit("##padding_2"), UI_Container_None, Axis2_X, UI_Size_Fixed(ui_px(10)), UI_Size_Fit);
         UI_Parent_Scope(ui_container(str_lit("##background_color"), UI_Container_None, Axis2_X, UI_Size_Fit, UI_Size_Fit)) {
-          ui_color_hsv(str_lit("Background"), &ui->state->viewport.background.hsv);
+          ui_color_hsv(str_lit("Background"), &ui->state->scene.view.background.hsv);
         }
       }
     }
@@ -229,8 +226,6 @@ fn_internal void cfdr_ui_viewport_menu_bar(CFDR_UI_State *ui, I32 viewport_index
 
     UI_Parent_Scope(ui_container(str_lit("##right"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
     }
-
-    // ui_separator(str_lit("##sep_title"));
   }
 }
 
@@ -253,7 +248,7 @@ fn_internal void cfdr_ui_viewport(CFDR_UI_State *ui, I32 viewport_index) {
     }
 
     if (pl_input()->keyboard.state[PL_KB_O].press) {
-      CFDR_Draw_State.viewport_array[viewport_index].camera.orthographic = ! CFDR_Draw_State.viewport_array[viewport_index].camera.orthographic;
+        ui->state->scene.view.camera.orthographic = !ui->state->scene.view.camera.orthographic;
     }
 
     UI_Context_Scope(content, str_lit("##context")) {
@@ -269,129 +264,198 @@ fn_internal void cfdr_ui_viewport(CFDR_UI_State *ui, I32 viewport_index) {
           ui_separator(str_lit("##break"));
         }
 
-        ui_checkbox(str_lit("Orthographic View"), &CFDR_Draw_State.viewport_array[viewport_index].camera.orthographic);
+        ui_checkbox(str_lit("Orthographic View"), &ui->state->scene.view.camera.orthographic);
         ui_checkbox(str_lit("Fullscreen"), &ui->fullscreen);
-        ui_checkbox(str_lit("Show Grid"),  &CFDR_Draw_State.viewport_array[viewport_index].show_grid);
+        ui_checkbox(str_lit("Show Grid"), &ui->state->scene.view.grid.visible);
       }
     }
 
   }
 }
 
-fn_internal void cfdr_ui_overlay_panel(CFDR_UI_State *ui) {
-  UI_Parent_Scope(ui_container(str_lit("##overlay_panel"), UI_Container_Box, Axis2_Y, UI_Size_Fill, UI_Size_Fit)) {
+fn_internal void cfdr_ui_layer_entry(CFDR_UI_State *ui, Str tag, B32 *visible, I32 entry_at, void *entry_ptr, void **active_ptr, Str icon) {
+  char buffer[512] = { };
+  stbsp_snprintf(buffer, 512,"##entry_%d", entry_at);
 
-    UI_Parent_Scope(ui_container(str_lit("##overlay_tab"), UI_Container_None, Axis2_X, UI_Size_Fit, UI_Size_Fit)) {
-      UI_Font_Scope(&ui->font_icon) {
-        ui_label(Icon_FA_TABLE_CELLS_LARGE);
+  UI_Parent_Scope(ui_container(str_from_cstr(buffer), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
+    UI_Node *node = ui_container(str_from_cstr(buffer), UI_Container_Box, Axis2_X, UI_Size_Fill, UI_Size_Fit);
+    node->layout.gap_border[Axis2_X] = 5;
+    node->layout.gap_border[Axis2_Y] = 5;
+    node->flags |= UI_Flag_Draw_Rounded;
+
+    if (entry_ptr != *active_ptr) {
+      node->flags &= ~UI_Flag_Draw_Border;
+    } else {
+      node->palette.border = hsv_u32(200, 80, 100);
+    }
+
+    if (entry_at % 2) {
+      node->palette.idle  = hsv_u32(235, 0, 15);
+      node->palette.hover = hsv_u32(235, 0, 30);
+      node->palette.down  = hsv_u32(200, 0, 50);
+    } else {
+      node->palette.idle  = hsv_u32(235, 0, 15 + 5);
+      node->palette.hover = hsv_u32(235, 0, 30 + 5);
+      node->palette.down  = hsv_u32(200, 0, 50 + 5);
+    }
+
+    if (entry_ptr == *active_ptr) {
+      node->palette.idle  = hsv_u32(200, 80, 50);
+      node->palette.hover = hsv_u32(200, 80, 50);
+    }
+
+    if (node->response.press) {
+      *active_ptr = entry_ptr;
+    }
+
+    UI_Parent_Scope(node) {
+      UI_Font_Scope(&ui->font_icon) { ui_label(icon); }
+      ui_label(tag);
+      ui_container(str_lit("##padding"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fill);
+    }
+
+    UI_Font_Scope(&ui->font_icon) {
+
+      F32 icon_1_width = fo_text_width(&ui->font_icon.font, Icon_FA_EYE);
+      F32 icon_2_width = fo_text_width(&ui->font_icon.font, Icon_FA_EYE_SLASH);
+      F32 icon_width   = f32_max(icon_1_width, icon_2_width);
+
+      UI_Node *eye = ui_container(*visible ? Icon_FA_EYE : Icon_FA_EYE_SLASH, UI_Container_Box, Axis2_X, UI_Size_Fixed(icon_width), UI_Size_Fill);
+      eye->flags  |= UI_Flag_Draw_Label;
+      eye->flags  |= UI_Flag_Draw_Label_Centered;
+      eye->flags  |= UI_Flag_Draw_Rounded;
+
+      eye->palette = UI_Theme_Active.button;
+      if (eye->response.press) {
+        *visible = !*visible;
+      }
+    }
+  }
+}
+
+fn_internal void cfdr_ui_layer_panel(CFDR_UI_State *ui) {
+  UI_Parent_Scope(ui_container(str_lit("##layer_panel"), UI_Container_Box, Axis2_Y, UI_Size_Fill, UI_Size_Fit)) {
+    UI_Node *tab_bar = ui_container(str_lit("##tab_bar"), UI_Container_None, Axis2_X, UI_Size_Fit, UI_Size_Fit);
+    tab_bar->layout.gap_child = 2.f;
+    UI_Parent_Scope(tab_bar) {
+      UI_Node *object_tab = ui_container(str_lit("##object_tab"), UI_Container_Box, Axis2_X, UI_Size_Fit, UI_Size_Fit);
+      object_tab->palette = UI_Theme_Active.button;
+      if (!ui->overlay_tab) {
+        object_tab->palette.idle = object_tab->palette.down;
+        object_tab->palette.hover = hsv_u32(36, 70, 25);
       }
 
-      ui_label(str_lit("Overlay"));
+      if (object_tab->response.press) {
+        ui->overlay_tab = 0;
+      }
+
+      UI_Parent_Scope(object_tab) {
+        UI_Font_Scope(&ui->font_icon) { ui_label(Icon_FA_CUBES); }
+        ui_label(str_lit("Objects"));
+      }
+
+      UI_Node *overlay_tab = ui_container(str_lit("##layer_tab"), UI_Container_Box, Axis2_X, UI_Size_Fit, UI_Size_Fit);
+      overlay_tab->palette = UI_Theme_Active.button;
+
+      if (ui->overlay_tab) {
+        overlay_tab->palette.idle = overlay_tab->palette.down;
+        overlay_tab->palette.hover = hsv_u32(36, 70, 25);
+      }
+
+      if (overlay_tab->response.press) {
+        ui->overlay_tab = 1;
+      }
+
+      UI_Parent_Scope(overlay_tab) {
+        UI_Font_Scope(&ui->font_icon) { ui_label(Icon_FA_OBJECT_GROUP); }
+        ui_label(str_lit("Overlays"));
+      }
     }
 
     ui_separator(str_lit("##sep_title"));
+ 
+    UI_Node *layer_container = ui_container(str_lit("##layer_container"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fit);
+    UI_Parent_Scope(layer_container) {
+      layer_container->layout.gap_border[Axis2_X] = 2;
+      layer_container->layout.gap_border[Axis2_Y] = 5;
+      layer_container->layout.gap_child = 0;
 
-    UI_Node *overlay_container = ui_container(str_lit("##overlay_container"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fit);
-    UI_Parent_Scope(overlay_container) {
-      overlay_container->layout.gap_border[Axis2_X] = ui_px(2);
-      overlay_container->layout.gap_border[Axis2_Y] = ui_px(5);
-      overlay_container->layout.gap_child = 0;
-
-#if 0
-      var_local_persist Str layer_type_icons[CFDR_Layer_Type_Count] = { };
-      layer_type_icons[CFDR_Layer_Type_Text]        = Icon_FA_FONT;
-      layer_type_icons[CFDR_Layer_Type_Image]       = Icon_FA_IMAGE;
-      layer_type_icons[CFDR_Layer_Type_Surface]     = Icon_FA_CUBES;
-      layer_type_icons[CFDR_Layer_Type_Volume]      = Icon_FA_FLOPPY_DISK;
-      layer_type_icons[CFDR_Layer_Type_Annotation]  = Icon_FA_STICKY_NOTE;
-#endif
-
-      I32 overlay_at = 0;
-      for (CFDR_Overlay_Node *it = ui->state->overlay.first; it; it = it->next, ++overlay_at) {
-        char buffer[512] = { };
-        stbsp_snprintf(buffer, 512,"##overlay_%d", overlay_at);
-
-        UI_Parent_Scope(ui_container(str_from_cstr(buffer), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
-          UI_Node *node = ui_container(str_from_cstr(buffer), UI_Container_Box, Axis2_X, UI_Size_Fill, UI_Size_Fit);
-          node->layout.gap_border[Axis2_X] = ui_px(5);
-          node->layout.gap_border[Axis2_Y] = ui_px(5);
-          node->flags |= UI_Flag_Draw_Rounded;
-
-          if (it != ui->state->overlay.active) {
-            node->flags &= ~UI_Flag_Draw_Border;
-          } else {
-            node->palette.border = hsv_u32(200, 80, 100);
-          }
-
-          if (overlay_at % 2) {
-            node->palette.idle  = hsv_u32(235, 0, 15);
-            node->palette.hover = hsv_u32(235, 0, 30);
-            node->palette.down  = hsv_u32(200, 0, 50);
-          } else {
-            node->palette.idle  = hsv_u32(235, 0, 15 + 5);
-            node->palette.hover = hsv_u32(235, 0, 30 + 5);
-            node->palette.down  = hsv_u32(200, 0, 50 + 5);
-          }
-
-          if (ui->state->overlay.active == it) {
-            node->palette.idle  = hsv_u32(200, 80, 50);
-            node->palette.hover = hsv_u32(200, 80, 50);
-          }
-
-          if (node->response.press) {
-            ui->state->overlay.active = it;
-          }
-
-          UI_Parent_Scope(node) {
-            UI_Font_Scope(&ui->font_icon) { ui_label(Icon_FA_FONT); }
-            ui_label(it->tag);
-            ui_container(str_lit("##padding"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fill);
-          }
-
-          UI_Font_Scope(&ui->font_icon) {
-
-            F32 icon_1_width = fo_text_width(&ui->font_icon.font, Icon_FA_EYE);
-            F32 icon_2_width = fo_text_width(&ui->font_icon.font, Icon_FA_EYE_SLASH);
-            F32 icon_width   = f32_max(icon_1_width, icon_2_width);
-
-            UI_Node *eye = ui_container(it->visible ? Icon_FA_EYE : Icon_FA_EYE_SLASH, UI_Container_Box, Axis2_X, UI_Size_Fixed(icon_width), UI_Size_Fill);
-            eye->flags  |= UI_Flag_Draw_Label;
-            eye->flags  |= UI_Flag_Draw_Label_Centered;
-            eye->flags  |= UI_Flag_Draw_Rounded;
-
-            eye->palette = UI_Theme_Active.button;
-            
-            // eye->palette.idle  = hsv_u32(235, 27, 25);
-            // eye->palette.hover = hsv_u32(235, 24, 44);
-            // eye->palette.down  = hsv_u32(235, 10, 15);
-
-            if (eye->response.press) {
-              it->visible = !it->visible;
-            }
-          }
+      I32 layer_at = 0;
+      if (ui->overlay_tab) {
+        for (CFDR_Overlay_Node *it = ui->state->overlay.first; it; it = it->next, ++layer_at) {
+          void *active = ui->state->overlay.active;
+          cfdr_ui_layer_entry(ui, it->tag, &it->visible, layer_at, it, &active, Icon_FA_FONT);
+          ui->state->overlay.active = active;
+        }
+      } else {
+        for (CFDR_Object_Node *it = ui->state->scene.first; it; it = it->next, ++layer_at) {
+          void *active = ui->state->scene.active;
+          cfdr_ui_layer_entry(ui, it->tag, &it->visible, layer_at, it, &active, Icon_FA_CUBE);
+          ui->state->scene.active = active;
         }
       }
     }
   }
 }
 
-fn_internal void cfdr_ui_property_overlay(CFDR_UI_State *ui) {
-  UI_Node *container = ui_container(str_lit("##property_overlay"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fit);
-  if (ui->state->overlay.active) {
+fn_internal void cfdr_ui_property_object(CFDR_UI_State *ui) {
+  UI_Node *container = ui_container(str_lit("##property_object"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fit);
+  if (ui->state->scene.active) {
     UI_Parent_Scope(container) {
-      container->layout.gap_border[Axis2_X] = ui_px(5);
-      container->layout.gap_border[Axis2_Y] = ui_px(5);
-      container->layout.gap_child = ui_px(5);
+      container->layout.gap_border[Axis2_X] = 5;
+      container->layout.gap_border[Axis2_Y] = 5;
+      container->layout.gap_child = 5;
+
+      CFDR_Object_Node *object = ui->state->scene.active;
+
+      ui_label(str_lit("Base"));
+      ui_separator(str_lit("##separator_1"));
+
+      ui_color_hsv  (str_lit("Color"),    &object->color.hsv);
+      ui_f32_edit   (str_lit("Opacity"),  &object->color.a, 0.0f, 1.0f, 0.01f);
+
+
+      var_local_persist Str material_list[] = { str_lit("Flat"), str_lit("Matcap"), str_lit("Sample"), };
+      ui_list(str_lit("Material"), &object->material, sarray_len(CFDR_Material_String_List), CFDR_Material_String_List); 
+
+      UI_Parent_Scope(ui_container(str_lit("##scale"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
+        ui_label(str_lit("Scale"));
+        ui_container(str_lit("##padding"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit);
+        ui_f32_edit_static(str_lit("##x"), &object->scale.x, -5000.0f, 5000.0f, 0.05f);
+        ui_f32_edit_static(str_lit("##y"), &object->scale.y, -5000.0f, 5000.0f, 0.05f);
+        ui_f32_edit_static(str_lit("##z"), &object->scale.z, -5000.0f, 5000.0f, 0.05f);
+      }
+
+      UI_Parent_Scope(ui_container(str_lit("##translate"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
+        ui_label(str_lit("Translate"));
+        ui_container(str_lit("##padding"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit);
+        ui_f32_edit_static(str_lit("##x"), &object->translate.x, -5000.0f, 5000.0f, 0.05f);
+        ui_f32_edit_static(str_lit("##y"), &object->translate.y, -5000.0f, 5000.0f, 0.05f);
+        ui_f32_edit_static(str_lit("##z"), &object->translate.z, -5000.0f, 5000.0f, 0.05f);
+      }
+
+      if (object->flags & CFDR_Object_Flag_Draw_Volume) {
+        ui_separator(str_lit("##separator_2"));
+        ui_label(str_lit("Volume"));
+        ui_separator(str_lit("##separator_3"));
+        ui_f32_edit(str_lit("Volume Density"), &object->volume_density, 0.f, 10.f, 0.005f);
+      }
+    }
+  }
+}
+
+fn_internal void cfdr_ui_property_object(CFDR_UI_State *ui) {
+  UI_Node *container = ui_container(str_lit("##property_object"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fit);
+  if (ui->state->scene.active) {
+    UI_Parent_Scope(container) {
+      container->layout.gap_border[Axis2_X] = 5;
+      container->layout.gap_border[Axis2_Y] = 5;
+      container->layout.gap_child = 5;
 
       var_local_persist Str x_align_list[] = { str_lit("Left"),   str_lit("Right"), str_lit("Center"), };
       var_local_persist Str y_align_list[] = { str_lit("Bottom"), str_lit("Top"),   str_lit("Center"), };
 
-      // CFDR_Layer *layer = &CFDR_Res_State.layer_array.dat[CFDR_Res_State.layer_active];
       CFDR_Overlay_Node *overlay = ui->state->overlay.active;
-
-      var_local_persist HSV my_value = { };
-      ui_color_hsv(str_lit("My Color Value"), &my_value);
-
 
       ui_color_hsv(str_lit("Color"),  &overlay->color.hsv);
       ui_f32_edit(str_lit("Opacity"), &overlay->color.a, 0.0f, 1.0f, 0.01f);
@@ -427,25 +491,6 @@ fn_internal void cfdr_ui_property_overlay(CFDR_UI_State *ui) {
           ui_f32_edit(str_lit("Offset"),  &overlay->shadow_offset, 0.0f, 100.0f, 0.1f);
         }
       }
-
-#if 0
-#define tweak_color(comp_) \
-      ui_color_hsv(str_lit(Macro_Stringize(comp_) "border"), &UI_Theme_Dark.comp_.border);  \
-      ui_color_hsv(str_lit(Macro_Stringize(comp_) "idle"), &UI_Theme_Dark.comp_.idle);  \
-      ui_color_hsv(str_lit(Macro_Stringize(comp_) "hover"), &UI_Theme_Dark.comp_.hover);  \
-      ui_color_hsv(str_lit(Macro_Stringize(comp_) "down"), &UI_Theme_Dark.comp_.down);  \
-      ui_color_hsv(str_lit(Macro_Stringize(comp_) "inner_fill"), &UI_Theme_Dark.comp_.inner_fill);
-
-      tweak_color(box);
-      tweak_color(separator);
-      tweak_color(button);
-      tweak_color(checkbox);
-      tweak_color(edit_value);
-      tweak_color(list);
-
-#undef tweak_color
-#endif
-
     }
   }
 }
@@ -457,6 +502,7 @@ fn_internal void cfdr_ui_property_surface(CFDR_UI_State *ui) {
     container->layout.gap_border[Axis2_Y] = ui_px(5);
     container->layout.gap_child = ui_px(5);
 
+#if 0
     CFDR_Layer *layer = &CFDR_Res_State.layer_array.dat[CFDR_Res_State.layer_active];
     ui_color_hsv(str_lit("Color"), &layer->color.hsv);
 
@@ -467,6 +513,7 @@ fn_internal void cfdr_ui_property_surface(CFDR_UI_State *ui) {
 
     ui_list(str_lit("Material"), &layer->material_type, sarray_len(material_list), material_list); 
     ui_checkbox(str_lit("Wireframe"), &layer->wireframe);
+#endif
   }
 }
 
@@ -477,9 +524,10 @@ fn_internal void cfdr_ui_property_volume(CFDR_UI_State *ui) {
     container->layout.gap_border[Axis2_Y] = ui_px(5);
     container->layout.gap_child = ui_px(5);
 
+#if 0
     CFDR_Layer *layer = &CFDR_Res_State.layer_array.dat[CFDR_Res_State.layer_active];
-
     ui_f32_edit(str_lit("Density"), &layer->volume_density, 0.0f, 10.0f, 0.01f);
+#endif
   }
 }
 
@@ -487,38 +535,39 @@ fn_internal void cfdr_ui_property_panel(CFDR_UI_State *ui) {
   UI_Node *container = ui_container(str_lit("##property_panel"), UI_Container_Box, Axis2_Y, UI_Size_Fill, UI_Size_Fill);
   UI_Parent_Scope(container) {
 
-    if (CFDR_Res_State.layer_array.len) {
-      CFDR_Layer *layer = &CFDR_Res_State.layer_array.dat[CFDR_Res_State.layer_active];
 
-      UI_Parent_Scope(ui_container(str_lit("##property_tab"), UI_Container_None, Axis2_X, UI_Size_Fit, UI_Size_Fit)) {
-        UI_Font_Scope(&ui->font_icon) {
-          ui_label(Icon_FA_WRENCH);
-        }
-
-        char buffer[512];
-        // stbsp_snprintf(buffer, 512,"Properties: %.*s###Properties", str_expand(CFDR_Res_State.layer_array.dat[CFDR_Res_State.layer_active].label));
-        ui_label(str_lit("Properties"));
-      }
-
-        ui_separator(str_lit("##sep_title"));
-
-      cfdr_ui_property_overlay(ui);
-#if 0
-      if (layer->type == CFDR_Layer_Type_Text) {
-        cfdr_ui_property_text(ui);
-      } else if (layer->type == CFDR_Layer_Type_Surface) {
-        cfdr_ui_property_surface(ui);
-      } else if (layer->type == CFDR_Layer_Type_Volume) {
-        cfdr_ui_property_volume(ui);
-      }
-#endif
+  UI_Parent_Scope(ui_container(str_lit("##property_tab"), UI_Container_None, Axis2_X, UI_Size_Fit, UI_Size_Fit)) {
+    UI_Font_Scope(&ui->font_icon) {
+      ui_label(Icon_FA_WRENCH);
     }
+
+    char buffer[512];
+    ui_label(str_lit("Properties"));
+  }
+
+  ui_separator(str_lit("##sep_title"));
+
+ 
+  if (ui->overlay_tab) {
+    cfdr_ui_property_overlay(ui);
+  } else {
+    cfdr_ui_property_object(ui);
+  }
+#if 0
+    if (layer->type == CFDR_Layer_Type_Text) {
+      cfdr_ui_property_text(ui);
+    } else if (layer->type == CFDR_Layer_Type_Surface) {
+      cfdr_ui_property_surface(ui);
+    } else if (layer->type == CFDR_Layer_Type_Volume) {
+      cfdr_ui_property_volume(ui);
+    }
+#endif
   }
 }
 
 fn_internal void cfdr_ui_side_panel(CFDR_UI_State *ui) {
-  UI_Parent_Scope(ui_container(str_lit("##side_panel"), UI_Container_None, Axis2_Y, UI_Size_Fixed(ui_px(450)), UI_Size_Fill)) {
-    cfdr_ui_overlay_panel   (ui);
+  UI_Parent_Scope(ui_container(str_lit("##side_panel"), UI_Container_None, Axis2_Y, UI_Size_Fixed(450), UI_Size_Fill)) {
+    cfdr_ui_layer_panel     (ui);
     cfdr_ui_property_panel  (ui);
   }
 }
@@ -565,7 +614,6 @@ fn_internal void cfdr_ui_log_panel(CFDR_UI_State *ui) {
     ui_separator(str_lit("##sep_title"));
 
     UI_Font_Scope(&ui->font_mono) {
-      // ui_log_box(str_lit("##log_box"));
     }
   }
 }
@@ -596,7 +644,7 @@ fn_internal void cfdr_ui(CFDR_UI_State *ui) {
       cfdr_ui_viewport_all(ui);
     } else {
       UI_Parent_Scope(ui_container(str_lit("##global"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fill)) {
-        cfdr_ui_menu_bar(ui);
+        // cfdr_ui_menu_bar(ui);
         cfdr_ui_workspace(ui);
         cfdr_ui_status_bar(ui);
       }

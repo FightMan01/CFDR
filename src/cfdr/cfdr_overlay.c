@@ -37,14 +37,15 @@ fn_internal CFDR_Overlay_Node *cfdr_overlay_push(CFDR_Overlay *overlay) {
 
 fn_internal void cfdr_overlay_draw_text(CFDR_Overlay *overlay, CFDR_Overlay_Node *node, R2F draw_region) {
   // TODO(cmat): This is very much temporary. We want to refer to a global font cache.
-  if (node->font_last_scale != node->scale) {
+  F32 real_scale = js_web_device_pixel_ratio();
+  if (node->font_last_scale != real_scale * node->scale) {
     if (node->font.init) {
       g2_font_destroy(&node->font);
       arena_clear(&node->font_arena);
     }
 
-    g2_font_init(&node->font, &node->font_arena, Overlay_Font_Baked, node->scale, v2_u16(1024, 1024), Codepoints_ASCII);
-    node->font_last_scale = node->scale;
+    g2_font_init(&node->font, &node->font_arena, Overlay_Font_Baked, real_scale * node->scale, v2_u16(2048, 2048), Codepoints_ASCII);
+    node->font_last_scale = real_scale * node->scale;
   }
 
   F32 text_width = fo_text_width(&node->font.font, node->content);
@@ -65,6 +66,12 @@ fn_internal void cfdr_overlay_draw_text(CFDR_Overlay *overlay, CFDR_Overlay_Node
   node->color_shadow.a = node->color.a;
   if (node->flags & CFDR_Overlay_Flag_Shadow) {
     g2_draw_text(node->content, &node->font, v2f_add(text_at, v2f(node->shadow_offset, -node->shadow_offset)), .color = rgba_from_hsva(node->color_shadow));
+  }
+
+  if (node->flags & CFDR_Overlay_Flag_Background) {
+    V2F from = v2f_sub(v2f(text_at.x, text_at.y + node->font.font.metric_descent), v2f(10, 0));
+    V2F size = v2f_add(v2f(text_width, node->font.font.metric_height), v2f(20, 0));
+    g2_draw_rect_rounded(from, size, 8, .inner_color = v4f(0, 0, 0, .3f), .outer_color = v4f(0, 0, 0, .3f));
   }
 
   g2_draw_text(node->content, &node->font, text_at, .color = rgba_from_hsva(node->color));

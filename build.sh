@@ -7,7 +7,7 @@ for arg in "$@"; do
 done
 
 # NOTE(cmat): Generate tags file.
-ctags -R .
+# ctags -R .
 
 # NOTE(cmat): Exit on error.
 set -eu
@@ -96,7 +96,8 @@ cp "${source_folder}/web/index.html"                          "${build_folder}/"
 cp "${source_folder}/web/alice_canvas.js"                     "${build_folder}/"
 fi
 
-cp -r examples/ build/
+pwd
+ln -sf $(realpath examples) build/
 
 # NOTE(cmat): Compile with walloc.c
 # TODO(cmat): We want to remove this dependency as soon as possible.

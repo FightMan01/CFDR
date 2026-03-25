@@ -6,9 +6,14 @@ var Sampler : sampler;
 
 struct World_3D_Type {
   @align(16) World_View_Projection : mat4x4<f32>,
+  @align(16) World_Inverse_Transpose: mat4x4<f32>,
+  @align(16) World:                   mat4x4<f32>,
   @align(16) Eye_Position          : vec3<f32>,
   @align(16) Volume_Density        : f32,
+  @align(16) Grid_Scale           : f32,
   @align(16) Color                 : vec4<f32>,
+  @align(16) Volume_Min            : vec3<f32>,
+  @align(16) Volume_Max            : vec3<f32>,
 };
 
 @group(0) @binding(2)
@@ -42,26 +47,21 @@ fn vs_main(@location(0) X : vec3<f32>,
    var out : VS_Out;
 
    out.X_Clip = transpose(World_3D.World_View_Projection) * vec4<f32>(X, 1.0);
-   out.X      = X;
+   out.X      = (transpose(World_3D.World) * vec4<f32>(X, 1.0)).xyz;
    out.C      = vec4_unpack_u32(C);
    out.U      = U;
 
    return out;
 }
 
-const box_min       = vec3<f32>(0, 0, 0);
-const box_max       = vec3<f32>(-1000.0f * 0.025f, 100.0f * 0.025f, 1000.0f * 0.025f);
-const ray_steps     = 512;
-const ray_step_size = 0.02;
-
-// const ray_steps     = 512;
-// const ray_step_size = 0.01;
+const ray_steps     = 256;
+const ray_step_size = sqrt(sqrt(2) + 1) / ray_steps;
 
 fn intersect_ray_box(ray_origin : vec3<f32>, ray_direction : vec3<f32>) -> vec2<f32> {
   let inv_direction = 1.f / ray_direction;
 
-  let t0      = (box_min - ray_origin) * inv_direction;
-  let t1      = (box_max - ray_origin) * inv_direction;
+  let t0      = (vec3<f32>(0, 0, 0) - ray_origin) * inv_direction;
+  let t1      = (vec3<f32>(1, 1, 1) - ray_origin) * inv_direction;
 
   let t_min   = min(t0, t1);
   let t_max   = max(t0, t1);
@@ -73,13 +73,8 @@ fn intersect_ray_box(ray_origin : vec3<f32>, ray_direction : vec3<f32>) -> vec2<
 }
 
 fn sample_volume(position: vec3<f32>) -> f32 {
-    let p2 = clamp(
-        (position - box_min) / (box_max - box_min),
-        vec3<f32>(0.0),
-        vec3<f32>(1.0)
-    );
-    
-    let p = vec3<f32>(p2.x, p2.z, p2.y);
+    let p2 = clamp(position, vec3<f32>(0.0), vec3<f32>(1.0));
+    let p  = vec3<f32>(p2.z, 1.0 - p2.x, p2.y);
 
     let size = vec3<f32>(textureDimensions(Texture_Volume));
     let coord = p * (size - 1.0);
@@ -118,11 +113,21 @@ fn fs_main(@location(0) X : vec3<f32>,
            @location(1) C : vec4<f32>,
            @location(2) U : vec2<f32> ) -> @location(0) vec4<f32> {
 
-  let ray_origin    = World_3D.Eye_Position;
-  let ray_direction = normalize(X - ray_origin);
+  let world_min = World_3D.Volume_Min;
+  let world_max = World_3D.Volume_Max;
+  let extent    = world_max - world_min;
+
+  // NOTE(cmat): Transform to [0,1] ^ 3
+  let ray_origin = (World_3D.Eye_Position - world_min) / extent;
+  let ray_target = (X - world_min) / extent;
+  let ray_direction = normalize(ray_target - ray_origin);
+
+
+  // let ray_origin    = World_3D.Eye_Position;
+  // let ray_direction = normalize(X - ray_origin);
   let t_hit         = intersect_ray_box(ray_origin, ray_direction);
-  let t_enter     = t_hit.x;
-  let t_exit      = t_hit.y;
+  let t_enter       = max(t_hit.x, 0.0);
+  let t_exit        = t_hit.y;
 
   if (t_exit < t_enter || t_exit < 0.0) {
     discard;
@@ -144,5 +149,5 @@ fn fs_main(@location(0) X : vec3<f32>,
     ray_t              += ray_step_size;
   }
 
-  return accum_color;
+  return 2.f * accum_color;
 }

@@ -305,9 +305,13 @@ typedef struct {
 
 typedef struct {
   alignas(16) M4F World_View_Projection;
+  alignas(16) M4F World_Inverse_Transpose;
+  alignas(16) M4F World;
   alignas(16) V3F Eye_Position;
   alignas(16) F32 Volume_Density;
   alignas(16) F32 Grid_Scale;
   alignas(16) V4F Color;
+  alignas(16) V3F Volume_Min;
+  alignas(16) V3F Volume_Max;
 } R_Constant_Buffer_World_3D;
 
