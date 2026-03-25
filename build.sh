@@ -96,8 +96,8 @@ cp "${source_folder}/web/index.html"                          "${build_folder}/"
 cp "${source_folder}/web/alice_canvas.js"                     "${build_folder}/"
 fi
 
-pwd
-ln -sf $(realpath examples) build/
+rm -rf "${build_folder}/examples"
+ln -sf "$(realpath examples)" "${build_folder}/examples"
 
 # NOTE(cmat): Compile with walloc.c
 # TODO(cmat): We want to remove this dependency as soon as possible.
