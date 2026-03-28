@@ -1262,7 +1262,8 @@ fn_internal void ui_list(Str label, I32 *entry_selection, I32 entry_count, Str *
   }
 }
 
-fn_internal void ui_list_fixed(Str label, I32 *entry_selection, I32 entry_count, Str *entry_list) {
+fn_internal B32 ui_list_fixed(Str label, I32 *entry_selection, I32 entry_count, Str *entry_list) {
+  B32 result = 0;
   *entry_selection = i32_clamp(*entry_selection, 0, entry_count - 1);
 
   UI_Parent_Scope(ui_container(label, UI_Container_None, Axis2_X, UI_Size_Fit, UI_Size_Fit)) {
@@ -1310,10 +1311,13 @@ fn_internal void ui_list_fixed(Str label, I32 *entry_selection, I32 entry_count,
 
         if (entry_container->response.press) {
           *entry_selection = it;
+          result = 1;
         }
       }
     }
   }
+
+  return result;
 }
 
 

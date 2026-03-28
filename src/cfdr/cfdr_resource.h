@@ -138,7 +138,7 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
         if (min_range == max_range) {
           data[it] = 1.0f;
         } else {
-          data[it] = 1.f - ((data[it] - min_range) / (max_range - min_range));
+          data[it] =/* 1.f - */ ((data[it] - min_range) / (max_range - min_range));
         }
       }
 

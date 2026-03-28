@@ -68,7 +68,7 @@ fn PristineGrid(uv: vec2f, lineWidth: vec2f) -> f32 {
     return mix(grid2.x, 1.0, grid2.y);
 }
 
-const line_width: vec2<f32> = vec2<f32>(0.0075, 0.0075);
+const line_width: vec2<f32> = vec2<f32>(0.015);
 
 @fragment
 fn fs_main(@location(0) C : vec4<f32>,

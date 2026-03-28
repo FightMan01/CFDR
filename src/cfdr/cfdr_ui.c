@@ -129,13 +129,33 @@ fn_internal void cfdr_ui_menu_bar(CFDR_UI_State *ui) {
 
   UI_Parent_Scope(menu_bar) {
 
-    if (ui_button(str_lit("File")).press) {
-      log_info("Button has been pressed");
+    var_local_persist Str demo_names[] = {
+      str_lit("Urbain Airflow"),
+      str_lit("MRI Scan"),
+    };
+
+    var_local_persist Str demo_paths[] = {
+      str_lit("uap.cfdr"),
+      str_lit("mri.cfdr"),
+    };
+
+    var_local_persist Str demo_list[] = { str_lit("Urban Air Pollution"), str_lit("Karman 2D") };
+    var_local_persist I32 demo_index = 0;
+    if (ui_list_fixed(str_lit("Examples"), &demo_index, sarray_len(demo_list), demo_names)) {
+      U08 url_buffer[512] = { };
+      js_web_current_url_base(511, url_buffer);
+      Str url = str_from_cstr((char *)url_buffer);
+
+      Scratch scratch = { };
+      Scratch_Scope(&scratch, 0) {
+        Str load_url = str_cat(scratch.arena, url, str_cat(scratch.arena, str_lit("/?project=examples/"), demo_paths[demo_index]));
+        js_web_load_page(load_url.len, load_url.txt);
+      }
+
     }
 
-
-    ui_button(str_lit("Export"));
     ui_container(str_lit("##padding"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit);
+
 
     UI_Font_Scope(&ui->font_icon) {
       F32 icon_1_width = fo_text_width(&ui->font_icon.font, Icon_FA_MOON);
@@ -608,7 +628,7 @@ fn_internal void cfdr_ui_log_panel(CFDR_UI_State *ui) {
       UI_Font_Scope(&ui->font_icon) {
         ui_label(Icon_FA_LIST_UL);
       }
-      ui_label(str_lit("Logs"));
+      ui_label(str_lit("Log"));
     }
 
     ui_separator(str_lit("##sep_title"));
@@ -644,7 +664,7 @@ fn_internal void cfdr_ui(CFDR_UI_State *ui) {
       cfdr_ui_viewport_all(ui);
     } else {
       UI_Parent_Scope(ui_container(str_lit("##global"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fill)) {
-        // cfdr_ui_menu_bar(ui);
+        cfdr_ui_menu_bar(ui);
         cfdr_ui_workspace(ui);
         cfdr_ui_status_bar(ui);
       }
