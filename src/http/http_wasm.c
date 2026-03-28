@@ -25,7 +25,9 @@ typedef struct HTTP_Request {
 
 fn_external void js_http_request_send       (HTTP_Request *request, Arena *arena, U32 url_len, char *url_txt);
 fn_external void js_web_current_url         (U32 url_cap, U08 *url);
+fn_external void js_web_current_url_base    (U32 url_cap, U08 *url);
 fn_external F32  js_web_device_pixel_ratio  (void);
+fn_external B32  js_web_load_page           (U32 url_len, U08 *url_txt);
 
 fn_internal void http_request_send(HTTP_Request *request, Arena *arena, Str url) {
   js_http_request_send(request, arena, (U32)url.len, (char *)url.txt);
