@@ -273,8 +273,26 @@ function js_web_current_url(url_cap, url_ptr) {
   }
 }
 
+function js_web_current_url_base(url_cap, url_ptr) {
+  const url     = window.location.origin;
+  const encoder = new TextEncoder();
+  const bytes   = encoder.encode(url);
+  const view    = new DataView(wasm_context.memory.buffer, url_ptr, url_cap);
+
+  const len     = Math.min(url_cap, bytes.length);
+  for (let it = 0; it < len; it++) {
+    view.setUint8(it, bytes[it], true);
+  }
+}
+
+
 function js_web_device_pixel_ratio() {
   return window.devicePixelRatio || 1;
+}
+
+function js_web_load_page(url_len, url_txt) {
+  const url_string = js_string_from_c_string(url_len, url_txt);
+  window.location.href = url_string;
 }
 
 // ------------------------------------------------------------
@@ -893,6 +911,8 @@ function wasm_module_load(wasm_bytecode) {
 
       // NOTE(cmat): Web-specific API
       js_web_current_url:             js_web_current_url,
+      js_web_current_url_base:        js_web_current_url_base,
+      js_web_load_page:               js_web_load_page,
       js_web_device_pixel_ratio:      js_web_device_pixel_ratio,
 
       // NOTE(cmat): Platform API.
