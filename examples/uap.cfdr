@@ -33,7 +33,7 @@
 #overlay {
   tag:              "Watermark",
   visible:          true,
-  content:          "HidALGO 2",
+  content:          "HiDALGO 2",
   scale:            150,
   color:            @hsv [200, 59, 68],
   opacity:          15,
@@ -74,7 +74,7 @@
   visible:          false,
   volume:           "examples/uap/velocity_32.vol32",
   scale:            [1000, 1000, 100],
-  translate:        [ - 1000, 0, 0],
+  translate:        [ -1000, 0, 0 ],
 }
 
 // NOTE(cmat): Sample into the simulation volume.
@@ -84,7 +84,6 @@
   color:            @hsv [0, 70, 80],
   material:         "sample"
   surface:          "examples/uap/slice.stl",
-  scale:            [1, 1, 1],
-  translate:        [0, 0, 5],
+  // scale:            [1, 1, 1],
+  translate:        [0, 0, 2],
 }
-

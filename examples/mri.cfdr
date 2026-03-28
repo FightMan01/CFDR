@@ -1,0 +1,61 @@
+#version 100
+#project "MRI Scan"
+
+#viewport {
+  background:       @hsv [ 255, 0, 0 ],
+  orthographic:     false,
+  grid_enabled:     true,
+  grid_color:       @hsv [ 0, 0, 100 ],
+  grid_level:       0,
+}
+
+#overlay {
+  tag:              "Title",
+  visible:          true,
+  content:          "MRI Scan",
+  scale:            100,
+  color:            @hsv [94, 16, 90],
+  shadow_color:     @hsv [252, 57, 0],
+  position_x:       @align "left",
+  position_y:       @align "top",
+  border:           [15, 5],
+  background:       true,
+  shadow:           true,
+  shadow_offset:    1,
+}
+
+#overlay {
+  tag:              "Credit",
+  visible:          true,
+  content:          "Dataset from: http://www.graphics.stanford.edu/data/voldata/",
+  scale:            40,
+  color:            @hsv [94, 16, 90],
+  shadow_color:     @hsv [252, 57, 0],
+  position_x:       @align "right",
+  position_y:       @align "bottom",
+  border:           [15, 5],
+  background:       true,
+  shadow:           true,
+  shadow_offset:    1,
+}
+
+#object {
+  tag:              "Volume",
+  visible:          true,
+  color:            @hsv [360, 0, 50],
+  opacity:          100,
+  volume:           "examples/mri/mri.vol32",
+  scale:            [256, 256, 99],
+}
+
+#object {
+  tag:              "Slice",
+  visible:          true,
+  color:            @hsv [360, 0, 50],
+  opacity:          100,
+  material:         "sample",
+  surface:           "examples/mri/slice.stl",
+  scale:            [256, 256, 1],
+  translate:        [128, 128, 0 ],
+}
+

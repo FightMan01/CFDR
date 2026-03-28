@@ -178,6 +178,7 @@ fn_internal void cfdr_render_grid_init(CFDR_Render_Grid *grid) {
   grid->scale   = 1000.f;
   grid->subdiv  = 1;
   grid->color   = v4f(0, 0, 1, 1);
+  grid->visible = 1;
 }
 
 fn_internal void cfdr_render_grid_draw(CFDR_Render *render, CFDR_Render_Grid *grid, M4F view_projection, R2F viewport) {
