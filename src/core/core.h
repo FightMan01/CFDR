@@ -338,7 +338,7 @@ typedef struct {
 // #-- C Stack-Allocated Array Operations
 
 #define sarray_len(array_)           (sizeof(array_) / sizeof((array_)[0]))
-#define sarray_zero(array_)          memory_fill(array_, 0, sarray_len(array_))
+#define sarray_zero(array_)          memory_fill(array_, 0, sizeof(array_))
 #define sarray_fill(array_, value)   do { For_U64(it, sarray_len(array_)) { array_[it] = value; } } while(0)
 
 // ------------------------------------------------------------

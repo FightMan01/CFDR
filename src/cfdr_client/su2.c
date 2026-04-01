@@ -218,8 +218,8 @@ fn_internal void su2_parse_block_element(Scan *scan, Arena *arena, UG_Mesh *mesh
   U64 element_count = scan_u64(scan);
   log_info("parsing %llu elements...", element_count);
   if (!scan_error(scan)) {
-    mesh->tri_count = element_count;
-    mesh->tri_array = arena_push_count(arena, UG_Tri, element_count);
+    mesh->cell_count = element_count;
+    mesh->cell_array = arena_push_count(arena, UG_Cell, element_count);
 
     For_U64(it, element_count) {
       U64 element_type = scan_u64(scan);
@@ -227,7 +227,7 @@ fn_internal void su2_parse_block_element(Scan *scan, Arena *arena, UG_Mesh *mesh
         U64 e0 = scan_u64(scan);
         U64 e1 = scan_u64(scan);
         U64 e2 = scan_u64(scan);
-        mesh->tri_array[it] = (UG_Tri) { e0, e1, e2 };
+        mesh->cell_array[it] = (UG_Cell) { e0, e1, e2 };
 
       } else {
         scan_error_push(scan, str_lit("unsupported element type in element block"));

@@ -1723,6 +1723,49 @@ fn_internal Str str_cat(Arena *arena, Str lhs, Str rhs) {
   return result;
 }
 
+
+// ------------------------------------------------------------
+// #-- Radix Sort.
+
+fn_internal void u64_sort_radix(U64 array_len, U64 array_stride, U64 *array_dat) {
+  Scratch scratch = { };
+  Scratch_Scope(&scratch, 0) {
+
+    U64 *temp_array = arena_push_count(scratch.arena, U64, array_len);
+    U64 count [256] = { };
+
+    For_U64(it_byte, 8) {
+      sarray_zero(count);
+
+      // NOTE(cmat): Build histogram.
+      For_U64(it, array_len) {
+        U08 byte = (array_dat[it * array_stride] >> (it_byte * 8)) & 0xFF;
+        count[byte] += 1;
+      }
+      
+      // NOTE(cmat): Convert to offsets (prefix sum)
+      U64 sum = 0;
+      For_U64(it, 256) {
+        U64 c     = count[it];
+        count[it] = sum;
+        sum      += c;
+      }
+
+      // NOTE(cmat): Stable placement into temporary buffer.
+      For_U64(it, array_len) {
+        U08 byte = (array_dat[it * array_stride] >> (it_byte * 8)) & 0xFF;
+        temp_array[count[byte]++] = array_dat[it * array_stride];
+      }
+
+      // NOTE(cmat): Copy back to input buffer.
+      For_U64 (it, array_len) {
+        array_dat[it * array_stride] = temp_array[it];
+      }
+    }
+  }
+}
+
+
 // ------------------------------------------------------------
 // #-- Entry Point
 
