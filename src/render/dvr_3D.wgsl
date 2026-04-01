@@ -5,15 +5,15 @@ var Texture : texture_2d<f32>;
 var Sampler : sampler;
 
 struct World_3D_Type {
-  @align(16) World_View_Projection : mat4x4<f32>,
-  @align(16) World_Inverse_Transpose: mat4x4<f32>,
-  @align(16) World:                   mat4x4<f32>,
-  @align(16) Eye_Position          : vec3<f32>,
-  @align(16) Volume_Density        : f32,
-  @align(16) Grid_Scale           : f32,
-  @align(16) Color                 : vec4<f32>,
-  @align(16) Volume_Min            : vec3<f32>,
-  @align(16) Volume_Max            : vec3<f32>,
+  @align(16) World_View_Projection    : mat4x4<f32>,
+  @align(16) World_Inverse_Transpose  : mat4x4<f32>,
+  @align(16) World                    : mat4x4<f32>,
+  @align(16) Eye_Position             : vec3<f32>,
+  @align(16) Volume_Density           : f32,
+  @align(16) Grid_Scale               : f32,
+  @align(16) Color                    : vec4<f32>,
+  @align(16) Volume_Min               : vec3<f32>,
+  @align(16) Volume_Max               : vec3<f32>,
 };
 
 @group(0) @binding(2)
@@ -54,7 +54,7 @@ fn vs_main(@location(0) X : vec3<f32>,
    return out;
 }
 
-const ray_steps     = 256;
+const ray_steps     = 64; // 256;
 const ray_step_size = sqrt(sqrt(2) + 1) / ray_steps;
 
 fn intersect_ray_box(ray_origin : vec3<f32>, ray_direction : vec3<f32>) -> vec2<f32> {
