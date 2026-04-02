@@ -44,7 +44,7 @@
   visible:          true,
   color:            @hsv [360, 0, 50],
   opacity:          100,
-  volume:           "examples/mri/mri.vol32",
+  volume:           "examples/mri/mri.vol8",
   scale:            [256, 256, 99],
 }
 
