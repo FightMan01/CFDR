@@ -430,7 +430,7 @@ function binding_list_from_shader_layout(shader_layout) {
         binding.texture = { sampleType: 'float', viewDimension: '2d' };
         break;
       case 3:
-        binding.texture = { sampleType: 'unfilterable-float', viewDimension: '3d' };
+        binding.texture = { sampleType: 'float', viewDimension: '3d' };
         break;
       case 4:
         binding.sampler = { type: 'filtering' };
@@ -466,15 +466,19 @@ const WebGPU_Texture_Format_Lookup_Name = [
   'rgba8snorm',
   'r8unorm',
   'r8snorm',
+  
+  'r16float',
   'r32float',
 ];
 
 const WebGPU_Texture_Format_Lookup_Bytes = [
-  4,
-  4,
-  1,
-  1,
-  4
+  4, // rgba8unorm
+  4, // rgba8snorm
+  1, // r8unorm
+  1, // r8snorm
+
+  2, // r16float
+  4, // r32float
 ];
 
 function js_webgpu_texture_3D_allocate(format, width, height, depth) {

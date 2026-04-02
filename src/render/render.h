@@ -42,6 +42,7 @@ enum {
   R_Texture_Format_R_U08_Normalized,
   R_Texture_Format_R_I08_Normalized,
 
+  R_Texture_Format_F16,
   R_Texture_Format_F32,
 };
 

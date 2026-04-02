@@ -35,46 +35,57 @@ fn_internal CFDR_Overlay_Node *cfdr_overlay_push(CFDR_Overlay *overlay) {
   return node;
 }
 
+
+
 fn_internal void cfdr_overlay_draw_text(CFDR_Overlay *overlay, CFDR_Overlay_Node *node, R2F draw_region) {
-  // TODO(cmat): This is very much temporary. We want to refer to a global font cache.
-  F32 real_scale = js_web_device_pixel_ratio();
-  if (node->font_last_scale != real_scale * node->scale) {
-    if (node->font.init) {
-      g2_font_destroy(&node->font);
-      arena_clear(&node->font_arena);
+  Scratch scratch = { };
+  Scratch_Scope(&scratch, 0) {
+
+    Str step = str_lit("29");
+
+    // TODO(cmat): Implement this properly, as a seperate parse step.
+    Str text = str_replace(scratch.arena, node->content, str_lit("$/step"), step);
+
+    // TODO(cmat): This is very much temporary. We want to refer to a global font cache.
+    F32 real_scale = js_web_device_pixel_ratio();
+    if (node->font_last_scale != real_scale * node->scale) {
+      if (node->font.init) {
+        g2_font_destroy(&node->font);
+        arena_clear(&node->font_arena);
+      }
+
+      g2_font_init(&node->font, &node->font_arena, Overlay_Font_Baked, real_scale * node->scale, v2_u16(2048, 2048), Codepoints_ASCII_Extended);
+      node->font_last_scale = real_scale * node->scale;
     }
 
-    g2_font_init(&node->font, &node->font_arena, Overlay_Font_Baked, real_scale * node->scale, v2_u16(2048, 2048), Codepoints_ASCII);
-    node->font_last_scale = real_scale * node->scale;
-  }
+    F32 text_width = fo_text_width(&node->font.font, text);
+    V2F text_at    = v2f(0, 0);
 
-  F32 text_width = fo_text_width(&node->font.font, node->content);
-  V2F text_at    = v2f(0, 0);
+    switch (node->position_x) {
+      case Align2_Left:    { text_at.x = draw_region.min.x + node->border.x;                                                  } break;
+      case Align2_Right:   { text_at.x = draw_region.max.x - text_width - node->border.x;                                     } break;
+      case Align2_Center:  { text_at.x = draw_region.min.x + .5f * ((draw_region.max.x - draw_region.min.x) - text_width);    } break;
+    }
 
-  switch (node->position_x) {
-    case Align2_Left:    { text_at.x = draw_region.min.x + node->border.x;                                                  } break;
-    case Align2_Right:   { text_at.x = draw_region.max.x - text_width - node->border.x;                                     } break;
-    case Align2_Center:  { text_at.x = draw_region.min.x + .5f * ((draw_region.max.x - draw_region.min.x) - text_width);    } break;
-  }
+    switch (node->position_y) {
+      case Align2_Bottom:    { text_at.y = draw_region.min.y - node->font.font.metric_descent + node->border.y;                                   } break;
+      case Align2_Top:       { text_at.y = draw_region.max.y - node->font.font.metric_ascent - node->border.y;                                    } break;
+      case Align2_Center:    { text_at.y = draw_region.min.y + .5f * ((draw_region.max.y - draw_region.min.y) - overlay->font.font.metric_height);   } break;
+    }
+   
+    node->color_shadow.a = node->color.a;
+    if (node->flags & CFDR_Overlay_Flag_Shadow) {
+      g2_draw_text(text, &node->font, v2f_add(text_at, v2f(node->shadow_offset, -node->shadow_offset)), .color = rgba_from_hsva(node->color_shadow));
+    }
 
-  switch (node->position_y) {
-    case Align2_Bottom:    { text_at.y = draw_region.min.y - node->font.font.metric_descent + node->border.y;                                   } break;
-    case Align2_Top:       { text_at.y = draw_region.max.y - node->font.font.metric_ascent - node->border.y;                                    } break;
-    case Align2_Center:    { text_at.y = draw_region.min.y + .5f * ((draw_region.max.y - draw_region.min.y) - overlay->font.font.metric_height);   } break;
-  }
- 
-  node->color_shadow.a = node->color.a;
-  if (node->flags & CFDR_Overlay_Flag_Shadow) {
-    g2_draw_text(node->content, &node->font, v2f_add(text_at, v2f(node->shadow_offset, -node->shadow_offset)), .color = rgba_from_hsva(node->color_shadow));
-  }
+    if (node->flags & CFDR_Overlay_Flag_Background) {
+      V2F from = v2f_sub(v2f(text_at.x, text_at.y + node->font.font.metric_descent), v2f(10, 0));
+      V2F size = v2f_add(v2f(text_width, node->font.font.metric_height), v2f(20, 0));
+      g2_draw_rect_rounded(from, size, 8, .inner_color = v4f(0, 0, 0, .3f), .outer_color = v4f(0, 0, 0, .3f));
+    }
 
-  if (node->flags & CFDR_Overlay_Flag_Background) {
-    V2F from = v2f_sub(v2f(text_at.x, text_at.y + node->font.font.metric_descent), v2f(10, 0));
-    V2F size = v2f_add(v2f(text_width, node->font.font.metric_height), v2f(20, 0));
-    g2_draw_rect_rounded(from, size, 8, .inner_color = v4f(0, 0, 0, .3f), .outer_color = v4f(0, 0, 0, .3f));
+    g2_draw_text(text, &node->font, text_at, .color = rgba_from_hsva(node->color));
   }
-
-  g2_draw_text(node->content, &node->font, text_at, .color = rgba_from_hsva(node->color));
 }
 
 fn_internal void cfdr_overlay_draw(CFDR_Overlay *overlay, R2F draw_region) {
@@ -84,6 +95,6 @@ fn_internal void cfdr_overlay_draw(CFDR_Overlay *overlay, R2F draw_region) {
       cfdr_overlay_draw_text(overlay, it, draw_region);
     }
   }
-
+ 
   g2_submit_draw();
 }

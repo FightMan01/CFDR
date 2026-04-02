@@ -5,15 +5,15 @@ var Texture : texture_2d<f32>;
 var Sampler : sampler;
 
 struct World_3D_Type {
-  @align(16) World_View_Projection : mat4x4<f32>,
-  @align(16) World_Inverse_Transpose: mat4x4<f32>,
-  @align(16) World:                   mat4x4<f32>,
-  @align(16) Eye_Position          : vec3<f32>,
-  @align(16) Volume_Density        : f32,
-  @align(16) Grid_Scale           : f32,
-  @align(16) Color                 : vec4<f32>,
-  @align(16) Volume_Min            : vec3<f32>,
-  @align(16) Volume_Max            : vec3<f32>,
+  @align(16) World_View_Projection    : mat4x4<f32>,
+  @align(16) World_Inverse_Transpose  : mat4x4<f32>,
+  @align(16) World                    : mat4x4<f32>,
+  @align(16) Eye_Position             : vec3<f32>,
+  @align(16) Volume_Density           : f32,
+  @align(16) Grid_Scale               : f32,
+  @align(16) Color                    : vec4<f32>,
+  @align(16) Volume_Min               : vec3<f32>,
+  @align(16) Volume_Max               : vec3<f32>,
 };
 
 @group(0) @binding(2)
@@ -54,7 +54,7 @@ fn vs_main(@location(0) X : vec3<f32>,
    return out;
 }
 
-const ray_steps     = 256;
+const ray_steps     = 64; // 256;
 const ray_step_size = sqrt(sqrt(2) + 1) / ray_steps;
 
 fn intersect_ray_box(ray_origin : vec3<f32>, ray_direction : vec3<f32>) -> vec2<f32> {
@@ -72,35 +72,6 @@ fn intersect_ray_box(ray_origin : vec3<f32>, ray_direction : vec3<f32>) -> vec2<
   return vec2<f32>(t_enter, t_exit);
 }
 
-fn sample_volume(position: vec3<f32>) -> f32 {
-    let p2 = clamp(position, vec3<f32>(0.0), vec3<f32>(1.0));
-    let p  = vec3<f32>(p2.z, 1.0 - p2.x, p2.y);
-
-    let size = vec3<f32>(textureDimensions(Texture_Volume));
-    let coord = p * (size - 1.0);
-
-    let base = vec3<i32>(floor(coord));
-    let frac = fract(coord);
-
-    let c000 = textureLoad(Texture_Volume, base + vec3<i32>(0,0,0), 0).r;
-    let c100 = textureLoad(Texture_Volume, base + vec3<i32>(1,0,0), 0).r;
-    let c010 = textureLoad(Texture_Volume, base + vec3<i32>(0,1,0), 0).r;
-    let c110 = textureLoad(Texture_Volume, base + vec3<i32>(1,1,0), 0).r;
-    let c001 = textureLoad(Texture_Volume, base + vec3<i32>(0,0,1), 0).r;
-    let c101 = textureLoad(Texture_Volume, base + vec3<i32>(1,0,1), 0).r;
-    let c011 = textureLoad(Texture_Volume, base + vec3<i32>(0,1,1), 0).r;
-    let c111 = textureLoad(Texture_Volume, base + vec3<i32>(1,1,1), 0).r;
-
-    let c00 = mix(c000, c100, frac.x);
-    let c10 = mix(c010, c110, frac.x);
-    let c01 = mix(c001, c101, frac.x);
-    let c11 = mix(c011, c111, frac.x);
-
-    let c0 = mix(c00, c10, frac.y);
-    let c1 = mix(c01, c11, frac.y);
-
-    return mix(c0, c1, frac.z);
-}
 
 fn transfer_function(value : f32) -> vec4<f32> {
   let color = textureSampleLevel(Texture, Sampler, vec2<f32>(value, 0), 0.0);
@@ -143,7 +114,8 @@ fn fs_main(@location(0) X : vec3<f32>,
     // let mask = select(1.0, 0.0, (ray_t > t_exit) || accum_color.a >= 1.0);
 
     let sample_position = ray_origin + ray_t * ray_direction;
-    let value           = World_3D.Volume_Density * sample_volume(sample_position);
+    let sample_uv       =  vec3<f32>(sample_position.z, 1.0 - sample_position.x, sample_position.y);
+    let value           = World_3D.Volume_Density * textureSample(Texture_Volume, Sampler, sample_uv).r;
     let color           = transfer_function(value);
     accum_color        += /* mask * */ (1.0 - accum_color.a) * vec4<f32>(color.rgb * color.a, color.a);
     ray_t              += ray_step_size;
