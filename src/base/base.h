@@ -1723,6 +1723,24 @@ fn_internal Str str_cat(Arena *arena, Str lhs, Str rhs) {
   return result;
 }
 
+fn_internal Str str_replace(Arena *arena, Str base_string, Str find, Str replace) {
+  Str result = base_string;
+
+  I64 find_at = str_find(base_string, find);
+  if (find_at != -1) {
+    log_info("found");
+    U64 new_len = base_string.len - find.len + replace.len;
+    U08 *buffer = arena_push_size(arena, new_len);
+    memory_copy(buffer,                           base_string.txt,                              find_at);
+    memory_copy(buffer + find_at,                 replace.txt,                                  replace.len);
+    memory_copy(buffer + find_at + replace.len,   base_string.txt + find_at + find.len,         base_string.len - find_at - replace.len);
+
+    result = str(new_len, buffer);
+  }
+
+  return result;
+}
+
 
 // ------------------------------------------------------------
 // #-- Radix Sort.

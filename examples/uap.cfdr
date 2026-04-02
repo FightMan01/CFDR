@@ -17,7 +17,7 @@
 #overlay {
   tag:              "Title",
   visible:          true,
-  content:          "UAP - Stockholm",
+  content:          "UAP - Stockholm $/step°",
   scale:            100,
   color:            @hsv [94, 16, 90],
   shadow_color:     @hsv [252, 57, 0],
