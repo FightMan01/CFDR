@@ -58,43 +58,15 @@ fn vs_main(@location(0) X : vec3<f32>,
 const ray_steps     = 256;
 const ray_step_size = sqrt(sqrt(2) + 1) / ray_steps;
 
-fn sample_volume(position: vec3<f32>) -> f32 {
-    let p2 = clamp((position - World_3D.Volume_Min) / (World_3D.Volume_Max - World_3D.Volume_Min), vec3<f32>(0.0), vec3<f32>(1.0));
-    let p  = vec3<f32>(p2.z, 1.0 - p2.x, p2.y);
-
-    let size = vec3<f32>(textureDimensions(Texture_Volume));
-    let coord = p * (size - 1.0);
-
-    let base = vec3<i32>(floor(coord));
-    let frac = fract(coord);
-
-    let c000 = textureLoad(Texture_Volume, base + vec3<i32>(0,0,0), 0).r;
-    let c100 = textureLoad(Texture_Volume, base + vec3<i32>(1,0,0), 0).r;
-    let c010 = textureLoad(Texture_Volume, base + vec3<i32>(0,1,0), 0).r;
-    let c110 = textureLoad(Texture_Volume, base + vec3<i32>(1,1,0), 0).r;
-    let c001 = textureLoad(Texture_Volume, base + vec3<i32>(0,0,1), 0).r;
-    let c101 = textureLoad(Texture_Volume, base + vec3<i32>(1,0,1), 0).r;
-    let c011 = textureLoad(Texture_Volume, base + vec3<i32>(0,1,1), 0).r;
-    let c111 = textureLoad(Texture_Volume, base + vec3<i32>(1,1,1), 0).r;
-
-    let c00 = mix(c000, c100, frac.x);
-    let c10 = mix(c010, c110, frac.x);
-    let c01 = mix(c001, c101, frac.x);
-    let c11 = mix(c011, c111, frac.x);
-
-    let c0 = mix(c00, c10, frac.y);
-    let c1 = mix(c01, c11, frac.y);
-
-    return mix(c0, c1, frac.z);
-}
-
 @fragment
 fn fs_main(@location(0) X : vec3<f32>,
            @location(1) C : vec4<f32>,
            @location(2) U : vec2<f32> ) -> @location(0) vec4<f32> {
 
-  let sample = sample_volume(X);
-  let pixel  = textureSample(Texture, Sampler, vec2<f32>(sample, 0));
+  let p2 = clamp((X - World_3D.Volume_Min) / (World_3D.Volume_Max - World_3D.Volume_Min), vec3<f32>(0.0), vec3<f32>(1.0));
+  let p  = vec3<f32>(p2.z, 1.0 - p2.x, p2.y);
+  let sample    = textureSample(Texture_Volume, Sampler, p).r;
+  let pixel     = textureSample(Texture, Sampler, vec2<f32>(sample, 0));
   return pixel;
 }
 
