@@ -127,7 +127,7 @@ fn_internal B32 str_contains_any_case(Str base, Str sub) {
 fn_internal I64 str_find(Str base, Str sub) {
   I64 result = -1;
   if (sub.len <= base.len) {
-    For_U64(it, base.len - sub.len) {
+    For_U64(it, base.len - sub.len + 1) {
       if (str_equals(str_slice(base, it, sub.len), sub)) {
         result = (I64)it;
         break;
