@@ -47,7 +47,7 @@ var_global CFDR_Resource  Project_File        = { };
 var_global CFDR_State     State               = { };
 
 int lz4_test() {
-    const char *input = "testthisisreallylong";
+    const char *input = "this is my input string";
     int inputSize = str_from_cstr(input).len + 1;// strlen(input) + 1; // include null terminator
 
     // Allocate output buffer (max compressed size)
@@ -142,6 +142,8 @@ fn_internal void next_frame(B32 first_frame, PL_Render_Context *render_context) 
  
   g2_frame_flush();
   r_frame_flush();
+
+  Resource_Downloading = 0;
 }
 
 fn_internal void log_co_context(void) {

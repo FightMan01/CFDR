@@ -129,13 +129,13 @@ fn_internal void cfdr_ui_menu_bar(CFDR_UI_State *ui) {
   UI_Parent_Scope(menu_bar) {
 
     var_local_persist Str demo_names[] = {
-      str_lit("Urbain Airflow"),
-      str_lit("MRI Scan"),
+      str_lit("SZE - Wind Comfort"),
+      str_lit("FAU - Lattice Boltzman"),
     };
 
     var_local_persist Str demo_paths[] = {
       str_lit("uap.cfdr"),
-      str_lit("mri.cfdr"),
+      str_lit("fau.cfdr"),
     };
 
     var_local_persist Str demo_list[] = { str_lit("Urban Air Pollution"), str_lit("Karman 2D") };
@@ -190,6 +190,11 @@ fn_internal void cfdr_ui_status_bar(CFDR_UI_State *ui) {
     ui_label(str_lit("0 Errors"));
     UI_Font_Scope(&ui->font_icon) { ui_label(Icon_FA_EXCLAMATION_TRIANGLE); }
     ui_label(str_lit("0 Warnings"));
+
+    if (Resource_Downloading) {
+      ui_label(str_lit("Downloading Resources..."));
+    }
+
     ui_container(str_lit("##pad_left"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit);
 
     UI_Font_Scope(&ui->font_mono) {

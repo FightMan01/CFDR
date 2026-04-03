@@ -54,7 +54,7 @@
   opacity:          100,
   material:         "matcap",
   surface:          "examples/uap/terrain.stl"
-  scale:            [1, 1, 1]
+  # scale:            [1, 1, 1]
 }
 
 // NOTE(cmat): Building geometry.
@@ -65,7 +65,7 @@
   opacity:          100,
   material:         "matcap",
   surface:          "examples/uap/buildings.stl",
-  scale:            [1, 1, 1]
+  # scale:            [1, 1, 1]
 }
 
 // NOTE(cmat): Simulation volume.
@@ -73,10 +73,10 @@
   tag:              "Volume",
   visible:          false,
   volume:           [
-                      [ 1,  "examples/uap/velocity_1.vol8"  ],
-                      [ 11, "examples/uap/velocity_11.vol8" ],
-                      [ 21, "examples/uap/velocity_21.vol8" ],
-                      [ 31, "examples/uap/velocity_31.vol8" ],
+                      [ 1,  "examples/uap/velocity_1.vol"  ],
+                      [ 11, "examples/uap/velocity_11.vol" ],
+                      [ 21, "examples/uap/velocity_21.vol" ],
+                      [ 31, "examples/uap/velocity_31.vol" ],
                     ],
   scale:            [1000, 1000, 100],
   translate:        [ -1000, 0, 0 ],

@@ -19,9 +19,12 @@ fn_internal void cfdr_resource_init(CFDR_Resource *resource, Str path) {
  // resource->path = path;
 }
 
+var_global B32 Resource_Downloading = 1;
+
 fn_internal B32 cfdr_resource_fetch(CFDR_Resource *resource, CFDR_Resource_Data *data) {
   B32 result = 0;
   if (!resource->complete) {
+    Resource_Downloading = 1;
     if (!resource->request_sent) {
       resource->request_sent = 1;
       log_info("Resource Request: %.*s", str_expand(resource->path));
@@ -117,6 +120,8 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
     Scratch_Scope(&scratch, 0) {
       U08 *data_view = data.bytes_data;
 
+      U32 magic_number      = *(U64 *)(data_view); data_view += sizeof(U32);
+      U32 format_type       = *(U64 *)(data_view); data_view += sizeof(U32);
       U64 compressed_size   = *(U64 *)(data_view); data_view += sizeof(U64);
       U64 decompressed_size = *(U64 *)(data_view); data_view += sizeof(U64);
       U32 flags             = *(U32 *)(data_view); data_view += sizeof(U32);
@@ -125,6 +130,8 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
       U32 Z                 = *(U32 *)(data_view); data_view += sizeof(U32);
       F32 min_range         = *(F32 *)(data_view); data_view += sizeof(F32);
       F32 max_range         = *(F32 *)(data_view); data_view += sizeof(F32);
+      V3F min_bounds        = *(V3F *)(data_view); data_view += sizeof(V3F);
+      V3F max_bounds        = *(V3F *)(data_view); data_view += sizeof(V3F);
       U08 *data_compressed  = data_view;
 
       log_info("Compressed Size: %llu", compressed_size);

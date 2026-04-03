@@ -68,7 +68,7 @@ fn_internal void cfdr_scene_draw_surface(CFDR_Render *render, CFDR_Object_Node *
           .count      = 4,
           .entry_list = {
             { .binding = 0, .type = R_Binding_Type_Texture_2D, .resource = Last_Volume->color_map        },
-            { .binding = 1, .type = R_Binding_Type_Sampler,    .resource = R_Sampler_Linear_Clamp        },
+            { .binding = 1, .type = R_Binding_Type_Sampler,    .resource = R_Sampler_Nearest_Clamp       },
             { .binding = 2, .type = R_Binding_Type_Uniform,    .resource = object->world_state           },
             { .binding = 3, .type = R_Binding_Type_Texture_3D, .resource = Last_Volume->volume           },
           }
@@ -206,7 +206,6 @@ fn_internal void cfdr_scene_draw(CFDR_Render *render, UI_Response *response, CFD
       scene->step.step_count = i32_max(scene->step.step_count, it->volume.step_count);
       scene->step.step_value = it->volume.step_array[scene->step.step_at];
     }
-
 
     cfdr_scene_draw_volume  (render, scene->step.step_at, it, eye_position, view_projection, scene_transform, draw_region);
   }
