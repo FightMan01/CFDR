@@ -37,11 +37,13 @@ fn_internal CFDR_Overlay_Node *cfdr_overlay_push(CFDR_Overlay *overlay) {
 
 
 
-fn_internal void cfdr_overlay_draw_text(CFDR_Overlay *overlay, CFDR_Overlay_Node *node, R2F draw_region) {
+fn_internal void cfdr_overlay_draw_text(CFDR_Overlay *overlay, CFDR_Scene *scene, CFDR_Overlay_Node *node, R2F draw_region) {
   Scratch scratch = { };
   Scratch_Scope(&scratch, 0) {
 
-    Str step = str_lit("29");
+    char buffer[512] = { };
+    stbsp_snprintf(buffer, 512, "%d", scene->step.step_value);
+    Str step = str_from_cstr(buffer);
 
     // TODO(cmat): Implement this properly, as a seperate parse step.
     Str text = str_replace(scratch.arena, node->content, str_lit("$/step"), step);
@@ -88,11 +90,11 @@ fn_internal void cfdr_overlay_draw_text(CFDR_Overlay *overlay, CFDR_Overlay_Node
   }
 }
 
-fn_internal void cfdr_overlay_draw(CFDR_Overlay *overlay, R2F draw_region) {
+fn_internal void cfdr_overlay_draw(CFDR_Overlay *overlay, CFDR_Scene *scene, R2F draw_region) {
   g2_clip_region(r2i_from_r2f(draw_region));
   for (CFDR_Overlay_Node *it = overlay->first; it; it = it->next) {
     if (it->visible) {
-      cfdr_overlay_draw_text(overlay, it, draw_region);
+      cfdr_overlay_draw_text(overlay, scene, it, draw_region);
     }
   }
  

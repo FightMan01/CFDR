@@ -104,13 +104,6 @@ fn_internal void log_co_context(void) {
     log_info("Page Size: %$$llu",    co_context()->mmu_page_bytes);
     log_info("RAM Capacity: %$$llu", co_context()->ram_capacity_bytes);
   }
-
-  U64 data[] = { 1, 9, 2, 1204, 249, 24901, 4295, 1, 51592, 2 };
-  u64_sort_radix(sarray_len(data), 1, data);
-
-  For_U64(it, sarray_len(data)) {
-    log_info("radix: %u", data[it]);
-  }
 }
 
 fn_internal void pl_entry_point(Array_Str command_line, PL_Bootstrap *boot) {

@@ -1,14 +1,3 @@
-typedef struct CFDR_List_Node {
-  struct CFDR_List_Node *next;
-  I64                    value;
-} CFDR_List_Node;
-
-typedef struct CFDR_List {
-  U64             count;
-  CFDR_List_Node *first;
-  CFDR_List_Node *last;
-} CFDR_List;
-
 typedef U32 CFDR_Value_Type;
 enum {
   CFDR_Value_Type_None,
@@ -36,6 +25,17 @@ typedef struct CFDR_Value {
     Align2             align;
   };
 } CFDR_Value;
+
+typedef struct CFDR_List_Node {
+  struct CFDR_List_Node *next;
+  CFDR_Value             value;
+} CFDR_List_Node;
+
+typedef struct CFDR_List {
+  U64             count;
+  CFDR_List_Node *first;
+  CFDR_List_Node *last;
+} CFDR_List;
 
 typedef struct CFDR_Table_Node {
   struct CFDR_Table_Node *next;

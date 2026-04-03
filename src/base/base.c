@@ -217,6 +217,9 @@ fn_internal U08 *arena_push_ext(Arena *arena, U64 bytes, Arena_Push *config) {
         user_allocation = arena_allocate_within_new_chunk(arena, bytes, config);
       }
     } else {
+#if BUILD_DEBUG
+      log_fatal("arena error at: %.*s", str_expand(config->meta_caller_info));
+#endif
       Assert(0, "arena exceeded reserved limit, and does not have chaining enabled");
     }
   }

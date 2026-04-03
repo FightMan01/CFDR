@@ -15,7 +15,8 @@ typedef struct CFDR_Resource {
 fn_internal void cfdr_resource_init(CFDR_Resource *resource, Str path) {
   zero_fill(resource);
   arena_init(&resource->arena);
-  resource->path = path;
+  resource->path = arena_push_str(&resource->arena, path);
+ // resource->path = path;
 }
 
 fn_internal B32 cfdr_resource_fetch(CFDR_Resource *resource, CFDR_Resource_Data *data) {
