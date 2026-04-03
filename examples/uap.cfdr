@@ -17,7 +17,7 @@
 #overlay {
   tag:              "Title",
   visible:          true,
-  content:          "UAP - Stockholm $/step°",
+  content:          "UAP - Stockholm $/step",
   scale:            100,
   color:            @hsv [94, 16, 90],
   shadow_color:     @hsv [252, 57, 0],
@@ -46,7 +46,7 @@
   shadow_offset:    1,
 }
 
-// NOTE(cmat): Terrain geometry....
+// NOTE(cmat): Terrain geometry.
 #object {
   tag:              "Terrain",
   visible:          true,
@@ -72,7 +72,12 @@
 #object {
   tag:              "Volume",
   visible:          false,
-  volume:           "examples/uap/velocity_32.vol8",
+  volume:           [
+                      [ 10, "examples/uap/velocity_1.vol8" ],
+                      [ 20, "examples/uap/velocity_2.vol8" ],
+                      [ 30, "examples/uap/velocity_3.vol8" ],
+                      [ 40, "examples/uap/velocity_4.vol8" ],
+                    ],
   scale:            [1000, 1000, 100],
   translate:        [ -1000, 0, 0 ],
 }
@@ -84,6 +89,6 @@
   color:            @hsv [0, 70, 80],
   material:         "sample"
   surface:          "examples/uap/slice.stl",
-  // scale:            [1, 1, 1],
-  translate:        [0, 0, 2],
+  // scale:         [1, 1, 1],
+  translate:        [0, 0, 3],
 }

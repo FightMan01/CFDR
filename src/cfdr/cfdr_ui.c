@@ -82,7 +82,7 @@ fn_internal void cfdr_ui_viewport_draw_hook(UI_Response *response, R2F draw_regi
   CFDR_State *state = (CFDR_State *)user_data;
 
   cfdr_scene_draw(&state->render, response, &state->scene, draw_region);
-  cfdr_overlay_draw(&state->overlay, draw_region);
+  cfdr_overlay_draw(&state->overlay, &state->scene, draw_region);
 }
 
 fn_internal void cfdr_ui_update_fonts(CFDR_UI_State *ui) {
@@ -224,7 +224,9 @@ fn_internal void cfdr_ui_viewport_menu_bar(CFDR_UI_State *ui, I32 viewport_index
       }
     }
 
-    UI_Parent_Scope(ui_container(str_lit("##center"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
+    UI_Node *center = ui_container(str_lit("##center"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit);
+    center->layout.gap_child = 2.f;
+    UI_Parent_Scope(center) {
       UI_Font_Scope(&ui->font_icon) {
 
         Scratch scratch = { };
@@ -233,13 +235,23 @@ fn_internal void cfdr_ui_viewport_menu_bar(CFDR_UI_State *ui, I32 viewport_index
           Str forward_fast_reverse = str_cat(scratch.arena, Icon_FA_FORWARD_FAST, str_lit("##reverse"));
           Str forward_step_reverse = str_cat(scratch.arena, Icon_FA_FORWARD_STEP, str_lit("##reverse"));
           
-          ui_button_flipped(forward_fast_reverse);
-          ui_button_flipped(forward_step_reverse);
+          if (ui_button_flipped(forward_fast_reverse).press) {
+            ui->state->scene.step.step_at = 0;
+          }
+
+          if (ui_button_flipped(forward_step_reverse).press) {
+            ui->state->scene.step.step_at = i32_max(ui->state->scene.step.step_at - 1, 0);
+          }
         }
 
-        ui_button(Icon_FA_PLAY);
-        ui_button(Icon_FA_FORWARD_STEP);
-        ui_button(Icon_FA_FORWARD_FAST);
+        // ui_button(Icon_FA_PLAY);
+        if (ui_button(Icon_FA_FORWARD_STEP).press) {
+          ui->state->scene.step.step_at = i32_min(ui->state->scene.step.step_at + 1, ui->state->scene.step.step_count ? ui->state->scene.step.step_count - 1 : 0);
+        }
+
+        if (ui_button(Icon_FA_FORWARD_FAST).press) {
+          ui->state->scene.step.step_at = ui->state->scene.step.step_count ? ui->state->scene.step.step_count - 1 : 0;
+        }
       }
     }
 
@@ -585,7 +597,7 @@ fn_internal void cfdr_ui_property_panel(CFDR_UI_State *ui) {
 }
 
 fn_internal void cfdr_ui_side_panel(CFDR_UI_State *ui) {
-  UI_Parent_Scope(ui_container(str_lit("##side_panel"), UI_Container_None, Axis2_Y, UI_Size_Fixed(450), UI_Size_Fill)) {
+  UI_Parent_Scope(ui_container(str_lit("##side_panel"), UI_Container_None, Axis2_Y, UI_Size_Fit, UI_Size_Fill)) {
     cfdr_ui_layer_panel     (ui);
     cfdr_ui_property_panel  (ui);
   }
@@ -643,7 +655,7 @@ fn_internal void cfdr_ui_workspace(CFDR_UI_State *ui) {
     UI_Parent_Scope(ui_container(str_lit("##container_1"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fill)) {
       cfdr_ui_viewport_all(ui);
 
-      UI_Parent_Scope(ui_container(str_lit("##container_2"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fixed(200))) {
+      UI_Parent_Scope(ui_container(str_lit("##container_2"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
         cfdr_ui_resource_panel(ui);
         cfdr_ui_log_panel(ui);
       }

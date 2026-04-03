@@ -225,6 +225,8 @@ function js_http_request_send(request_ptr, arena_ptr, url_len, url_txt) {
     if (xhr.status == 200) {
       const data      = xhr.response;
       const bytes     = data.byteLength;
+
+      console.log("Download complete for " + url + ": " + bytes);
       const dst_ptr   = wasm_context.export_table.wasm_arena_push_size(arena_ptr, bytes);
       const src_wasm  = new Uint8Array(data);
       const dst_wasm  = new Uint8Array(wasm_context.memory.buffer, dst_ptr, bytes);

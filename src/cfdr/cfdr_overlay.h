@@ -37,4 +37,4 @@ typedef struct CFDR_Overlay {
 
 fn_internal void                cfdr_overlay_init(CFDR_Overlay *overlay);
 fn_internal CFDR_Overlay_Node  *cfdr_overlay_push(CFDR_Overlay *overlay);
-fn_internal void                cfdr_overlay_draw(CFDR_Overlay *overlay, R2F draw_region);
+fn_internal void                cfdr_overlay_draw(CFDR_Overlay *overlay, CFDR_Scene *scene, R2F draw_region);

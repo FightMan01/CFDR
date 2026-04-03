@@ -4,9 +4,9 @@
 #include "cfdr_render.h"
 
 #include "cfdr_scene.h"
-#include "cfdr_scene.c"
-
 #include "cfdr_overlay.h"
+
+#include "cfdr_scene.c"
 #include "cfdr_overlay.c"
 
 #include "cfdr_state.h"
