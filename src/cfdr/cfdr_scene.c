@@ -20,11 +20,11 @@ fn_internal CFDR_Object_Node *cfdr_scene_push(CFDR_Scene *scene) {
   queue_push(scene->first, scene->last, object);
 
   zero_fill(object);
-  object->flags       = 0;
-  object->color       = v4f(1.f, 0.f, 1.f, 1.f);
-  object->scale       = v3f(1, 1, 1);
+  object->flags          = 0;
+  object->color          = v4f(1.f, 0.f, 1.f, 1.f);
+  object->scale          = v3f(1, 1, 1);
   object->volume_density = 1.f;
-  object->world_state = r_buffer_allocate(sizeof(R_Constant_Buffer_World_3D), R_Buffer_Mode_Static);
+  object->world_state    = r_buffer_allocate(sizeof(R_Constant_Buffer_World_3D), R_Buffer_Mode_Static);
 
   object->bind_group  = r_bind_group_create(&Flat_2D_Layout, &(R_Bind_Group_Entry_List) {
     .count      = 4,
@@ -57,17 +57,25 @@ fn_internal void cfdr_scene_draw_surface(CFDR_Render *render, CFDR_Object_Node *
     cfdr_resource_surface_update(&object->surface);
     if (object->surface.valid && object->visible) {
 
-      if (object->material == CFDR_Material_Sample && Last_Volume && object->bind_group_sample == R_Resource_None) {
+      // if (object->material == CFDR_Material_Sample && Last_Volume && object->bind_group_sample == R_Resource_None) {
+
+      if (object->material == CFDR_Material_Sample && Last_Volume) {
+        if (object->bind_group_sample != R_Resource_None) {
+          r_bind_group_destroy(&object->bind_group_sample);
+        }
+
         object->bind_group_sample = r_bind_group_create(&Flat_2D_Layout, &(R_Bind_Group_Entry_List) {
           .count      = 4,
           .entry_list = {
             { .binding = 0, .type = R_Binding_Type_Texture_2D, .resource = Last_Volume->color_map        },
-            { .binding = 1, .type = R_Binding_Type_Sampler,    .resource = R_Sampler_Nearest_Clamp       },
+            { .binding = 1, .type = R_Binding_Type_Sampler,    .resource = R_Sampler_Linear_Clamp        },
             { .binding = 2, .type = R_Binding_Type_Uniform,    .resource = object->world_state           },
             { .binding = 3, .type = R_Binding_Type_Texture_3D, .resource = Last_Volume->volume           },
           }
         });
       }
+
+      // }
 
       CFDR_Render_Surface render_surface = {
         .resource                = &object->surface,
@@ -88,13 +96,13 @@ fn_internal void cfdr_scene_draw_surface(CFDR_Render *render, CFDR_Object_Node *
   }
 }
 
-fn_internal void cfdr_scene_draw_volume(CFDR_Render *render, CFDR_Object_Node *object, V3F eye_position, M4F view_projection, M4F scene_transform, R2F viewport) {
+fn_internal void cfdr_scene_draw_volume(CFDR_Render *render, U32 step_at, CFDR_Object_Node *object, V3F eye_position, M4F view_projection, M4F scene_transform, R2F viewport) {
   if (object->flags & CFDR_Object_Flag_Draw_Volume) {
-    cfdr_resource_volume_update(&object->volume);
-    if (object->volume.valid) {
+    cfdr_resource_volume_update(&object->volume.vol_array[step_at]);
+    if (object->volume.vol_array[step_at].valid) {
       
       CFDR_Render_Volume render_volume = {
-        .resource     = &object->volume,
+        .resource     = &object->volume.vol_array[step_at],
         .transform    = m4f_mul(cfdr_object_node_transform(object), scene_transform),
         .volume_density = object->volume_density
       };
@@ -189,16 +197,17 @@ fn_internal void cfdr_scene_draw(CFDR_Render *render, UI_Response *response, CFD
 
   // NOTE(cmat): Draw opaque objects first.
   for (CFDR_Object_Node *it = scene->first; it; it = it->next) {
-    //if (it->visible) {
-      cfdr_scene_draw_surface (render, it, eye_position, view_projection, scene_transform, draw_region);
-    //}
+    cfdr_scene_draw_surface (render, it, eye_position, view_projection, scene_transform, draw_region);
   }
 
   // NOTE(cmat): Draw opaque transparent objects last.
   for (CFDR_Object_Node *it = scene->first; it; it = it->next) {
-    //if (it->visible) {
-      cfdr_scene_draw_volume  (render, it, eye_position, view_projection, scene_transform, draw_region);
-    //}
-  }
+    if (it->flags & CFDR_Object_Flag_Draw_Volume) {
+      scene->step.step_count = i32_max(scene->step.step_count, it->volume.step_count);
+      scene->step.step_value = it->volume.step_array[scene->step.step_at];
+    }
 
+
+    cfdr_scene_draw_volume  (render, scene->step.step_at, it, eye_position, view_projection, scene_transform, draw_region);
+  }
 }

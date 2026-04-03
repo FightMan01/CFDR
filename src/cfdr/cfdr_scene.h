@@ -5,6 +5,12 @@ enum {
   CFDR_Object_Flag_Draw_Volume  = 1 << 1,
 };
 
+typedef struct CFDR_Volume {
+  U32                    step_count;
+  I32                   *step_array;
+  CFDR_Resource_Volume  *vol_array;
+} CFDR_Volume;
+
 typedef struct CFDR_Object_Node {
   struct CFDR_Object_Node  *next;
   CFDR_Object_Flag          flags;
@@ -18,7 +24,7 @@ typedef struct CFDR_Object_Node {
   F32                       volume_density;
 
   CFDR_Resource_Surface     surface;
-  CFDR_Resource_Volume      volume;
+  CFDR_Volume               volume;
 
   R_Buffer                  world_state;
   R_Bind_Group              bind_group;
@@ -31,6 +37,12 @@ typedef struct CFDR_Scene_View {
   CFDR_Render_Grid  grid;
 } CFDR_Scene_View;
 
+typedef struct CFDR_Scene_Step {
+  I32 step_count;
+  I32 step_at;
+  I32 step_value;
+} CFDR_Scene_Step;
+
 typedef struct CFDR_Scene {
   Arena              arena;
   U32                count;
@@ -38,6 +50,7 @@ typedef struct CFDR_Scene {
   CFDR_Object_Node  *first;
   CFDR_Object_Node  *last;
   CFDR_Scene_View    view;
+  CFDR_Scene_Step    step;
 } CFDR_Scene;
 
 fn_internal void              cfdr_scene_init(CFDR_Scene *object);

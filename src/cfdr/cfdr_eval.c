@@ -1,5 +1,6 @@
 fn_internal CFDR_Value cfdr_eval_expr(Arena *arena, TK_Scan *scan);
 
+#if 0
 fn_internal void cfdr_list_extract_i64(CFDR_List *list, I64 count, I64 *values) {
   I64 at = 0;
   for (CFDR_List_Node *it = list->first; it; it = it->next) {
@@ -7,6 +8,7 @@ fn_internal void cfdr_list_extract_i64(CFDR_List *list, I64 count, I64 *values) 
     values[at++] = it->value;
   }
 }
+#endif
 
 fn_internal CFDR_Value cfdr_eval_list(Arena *arena, TK_Scan *scan) {
   CFDR_Value value = { };
@@ -25,10 +27,18 @@ fn_internal CFDR_Value cfdr_eval_list(Arena *arena, TK_Scan *scan) {
       token = tk_scan_next(scan);
     }
 
-    if (token.type == TK_Type_Literal_Integer) {
+    if (token.type == TK_Type_Literal_Integer || token.type == TK_Type_Literal_String || token.type == TK_Type_Block_Open_Bracket) {
       if (separated) {
         CFDR_List_Node *node  = arena_push_type(arena, CFDR_List_Node);
-        node->value           = sign * token.value.i64;
+        if (token.type == TK_Type_Literal_Integer) {
+          node->value.type      = CFDR_Value_Type_Integer;
+          node->value.i32       = (I32)(sign * token.value.i64);
+        } else if (token.type == TK_Type_Literal_String) {
+          node->value.type      = CFDR_Value_Type_String;
+          node->value.str       = token.value.str;
+        } else if (token.type == TK_Type_Block_Open_Bracket) {
+          node->value = cfdr_eval_list(arena, scan);
+        }
 
         queue_push(value.list->first, value.list->last, node);
         value.list->count += 1;
@@ -39,7 +49,7 @@ fn_internal CFDR_Value cfdr_eval_list(Arena *arena, TK_Scan *scan) {
     } else if (token.type == TK_Type_Block_Close_Bracket) {
       break;
     } else {
-      log_fatal("Invalid syntax for list, expected integer or end of list");
+      log_fatal("Invalid syntax for list, expected entry or end of list");
       break;
     }
 
@@ -88,57 +98,6 @@ fn_internal CFDR_Value cfdr_eval_table(Arena *arena, TK_Scan *scan) {
     if (token.type == TK_Type_Op_Comma) {
       token     = tk_scan_next(scan);
       separated = 1;
-    }
-  }
-
-  return value;
-}
-
-fn_internal CFDR_Value cfdr_eval_literal_def(Arena *arena, TK_Scan *scan) {
-  CFDR_Value value = { };
-
-  TK_Token token = tk_scan_next(scan);
-  if (str_equals(token.text, str_lit("rgb"))) {
-    value.type = CFDR_Value_Type_Color;
-    CFDR_Value color_value = cfdr_eval_expr(arena, scan);
-    if (color_value.type == CFDR_Value_Type_List) {
-      if (color_value.list->count == 3) {
-        I64 rgb[3] = { };
-        cfdr_list_extract_i64(color_value.list, 3, rgb);
-        value.color = rgb_u32(rgb[0], rgb[1], rgb[2]);
-      } else {
-        log_fatal("@rgb directive requires a list with 3 elements");
-      }
-    } else {
-      log_fatal("expected list after @rgb directive");
-    }
-  } else if (str_equals(token.text, str_lit("hsv"))) {
-    value.type = CFDR_Value_Type_Color;
-    CFDR_Value color_value = cfdr_eval_expr(arena, scan);
-    if (color_value.type == CFDR_Value_Type_List) {
-      if (color_value.list->count == 3) {
-        I64 hsv[3] = { };
-        cfdr_list_extract_i64(color_value.list, 3, hsv);
-        value.color = hsv_u32(hsv[0], hsv[1], hsv[2]);
-      } else {
-        log_fatal("@hsv directive requires a list with 3 elements");
-      }
-    } else {
-      log_fatal("expected list after @hsv directive");
-    }
-  } else if (str_equals(token.text, str_lit("align"))) {
-    if (tk_scan_require(scan, TK_Type_Literal_String, &token)) {
-      value.type = CFDR_Value_Type_Align;
-      if        (str_equals(token.value.str, str_lit("center")))   { value.align = Align2_Center; }
-      else if   (str_equals(token.value.str, str_lit("left")))     { value.align = Align2_Left;   }
-      else if   (str_equals(token.value.str, str_lit("right")))    { value.align = Align2_Right;  }
-      else if   (str_equals(token.value.str, str_lit("bottom")))   { value.align = Align2_Bottom; }
-      else if   (str_equals(token.value.str, str_lit("top")))      { value.align = Align2_Top;    }
-      else {
-        log_fatal("string for @align directive must be one of \"center\", \"left\", \"right\", \"bottom\" or \"top\"");
-      }
-    } else {
-      log_fatal("expected string after @align");
     }
   }
 
@@ -203,9 +162,15 @@ fn_internal V2I cfdr_eval_get_v2i(CFDR_Value value) {
   V2I result = { };
   if (value.type == CFDR_Value_Type_List) {
     if (value.list->count == 2) {
-      I64 list_value[2] = { };
-      cfdr_list_extract_i64(value.list, 2, list_value);
-      result = v2i((I32)list_value[0], (I32)list_value[1]);
+      I32 list_values[2] = { };
+      
+      I64 at = 0;
+      for (CFDR_List_Node *it = value.list->first; it; it = it->next) {
+        if (at >= value.list->count) { break; }
+        list_values[at++] = it->value.i32;
+      }
+
+      result = v2i(list_values[0], list_values[1]);
     } else {
       log_fatal("expected a list of 2 integers");
     }
@@ -216,30 +181,19 @@ fn_internal V2I cfdr_eval_get_v2i(CFDR_Value value) {
   return result;
 }
 
-fn_internal V2F cfdr_eval_get_v2f(CFDR_Value value) {
-  V2F result = { };
-  if (value.type == CFDR_Value_Type_List) {
-    if (value.list->count == 2) {
-      I64 list_value[2] = { };
-      cfdr_list_extract_i64(value.list, 2, list_value);
-      result = v2f((F32)list_value[0], (F32)list_value[1]);
-    } else {
-      log_fatal("expected a list of 2 integers");
-    }
-  } else {
-    log_fatal("type mismatch, expected a list value");
-  }
-
-  return result;
-}
-
-fn_internal V3F cfdr_eval_get_v3f(CFDR_Value value) {
-  V3F result = { };
+fn_internal V3I cfdr_eval_get_v3i(CFDR_Value value) {
+  V3I result = { };
   if (value.type == CFDR_Value_Type_List) {
     if (value.list->count == 3) {
-      I64 list_value[3] = { };
-      cfdr_list_extract_i64(value.list, 3, list_value);
-      result = v3f((F32)list_value[0], (F32)list_value[1], (F32)list_value[2]);
+      I32 list_values[3] = { };
+      
+      I64 at = 0;
+      for (CFDR_List_Node *it = value.list->first; it; it = it->next) {
+        if (at >= value.list->count) { break; }
+        list_values[at++] = it->value.i32;
+      }
+
+      result = v3i(list_values[0], list_values[1], list_values[2]);
     } else {
       log_fatal("expected a list of 3 integers");
     }
@@ -249,6 +203,68 @@ fn_internal V3F cfdr_eval_get_v3f(CFDR_Value value) {
 
   return result;
 }
+
+fn_internal V2F cfdr_eval_get_v2f(CFDR_Value value) {
+  V2I result_v2i = cfdr_eval_get_v2i(value);
+  V2F result     = v2f(result_v2i.x, result_v2i.y);
+  return result;
+}
+
+fn_internal V3F cfdr_eval_get_v3f(CFDR_Value value) {
+  V3I result_v3i = cfdr_eval_get_v3i(value);
+  V3F result     = v3f(result_v3i.x, result_v3i.y, result_v3i.z);
+  return result;
+}
+
+fn_internal CFDR_Value cfdr_eval_literal_def(Arena *arena, TK_Scan *scan) {
+  CFDR_Value value = { };
+
+  TK_Token token = tk_scan_next(scan);
+  if (str_equals(token.text, str_lit("rgb"))) {
+    value.type = CFDR_Value_Type_Color;
+    CFDR_Value color_value = cfdr_eval_expr(arena, scan);
+    if (color_value.type == CFDR_Value_Type_List) {
+      if (color_value.list->count == 3) {
+        V3I rgb = cfdr_eval_get_v3i(color_value);
+        value.color = rgb_u32(rgb.x, rgb.y, rgb.z);
+      } else {
+        log_fatal("@rgb directive requires a list with 3 elements");
+      }
+    } else {
+      log_fatal("expected list after @rgb directive");
+    }
+  } else if (str_equals(token.text, str_lit("hsv"))) {
+    value.type = CFDR_Value_Type_Color;
+    CFDR_Value color_value = cfdr_eval_expr(arena, scan);
+    if (color_value.type == CFDR_Value_Type_List) {
+      if (color_value.list->count == 3) {
+        V3I hsv     = cfdr_eval_get_v3i(color_value);
+        value.color = hsv_u32(hsv.x, hsv.y, hsv.z);
+      } else {
+        log_fatal("@hsv directive requires a list with 3 elements");
+      }
+    } else {
+      log_fatal("expected list after @hsv directive");
+    }
+  } else if (str_equals(token.text, str_lit("align"))) {
+    if (tk_scan_require(scan, TK_Type_Literal_String, &token)) {
+      value.type = CFDR_Value_Type_Align;
+      if        (str_equals(token.value.str, str_lit("center")))   { value.align = Align2_Center; }
+      else if   (str_equals(token.value.str, str_lit("left")))     { value.align = Align2_Left;   }
+      else if   (str_equals(token.value.str, str_lit("right")))    { value.align = Align2_Right;  }
+      else if   (str_equals(token.value.str, str_lit("bottom")))   { value.align = Align2_Bottom; }
+      else if   (str_equals(token.value.str, str_lit("top")))      { value.align = Align2_Top;    }
+      else {
+        log_fatal("string for @align directive must be one of \"center\", \"left\", \"right\", \"bottom\" or \"top\"");
+      }
+    } else {
+      log_fatal("expected string after @align");
+    }
+  }
+
+  return value;
+}
+
 
 fn_internal CFDR_Value cfdr_eval_expr(Arena *arena, TK_Scan *scan) {
   CFDR_Value value = { };
@@ -340,12 +356,43 @@ fn_internal void cfdr_eval_directive_object(CFDR_State *state, Arena *arena, TK_
         obj->flags |= CFDR_Object_Flag_Draw_Surface;
         Str surface_path = cfdr_eval_get_str(it->value);
         cfdr_resource_surface_init(&obj->surface, surface_path);
+        log_info("Added surface resource [%.*s]", str_expand(surface_path));
       }
 
       else if (str_equals(it->label, str_lit("volume")))        {
         obj->flags |= CFDR_Object_Flag_Draw_Volume;
-        Str volume_path = cfdr_eval_get_str(it->value);
-        cfdr_resource_volume_init(&obj->volume, volume_path);
+        if (it->value.type == CFDR_Value_Type_String) {
+          obj->volume.step_count       = 1;
+          obj->volume.step_array       = arena_push_type(&state->scene.arena, I32);
+          obj->volume.vol_array        = arena_push_type(&state->scene.arena, CFDR_Resource_Volume);
+          obj->volume.step_array[0]    = 0;
+          Str volume_path              = cfdr_eval_get_str(it->value);
+
+          cfdr_resource_volume_init(&obj->volume.vol_array[0], volume_path);
+          log_info("Added volume resource [%.*s]", str_expand(volume_path));
+
+        } else if (it->value.type == CFDR_Value_Type_List) {
+          CFDR_List *list        = it->value.list;
+          obj->volume.step_count = list->count;
+          obj->volume.step_array = arena_push_count(&state->scene.arena, I32, list->count);
+          obj->volume.vol_array  = arena_push_count(&state->scene.arena, CFDR_Resource_Volume, list->count);
+          U64 step_at            = 0;
+
+          for (CFDR_List_Node *it = list->first; it; it = it->next) {
+            if (it->value.type != CFDR_Value_Type_List || it->value.list->count != 2) {
+              log_fatal("invalid value type in list for volume entry (expected list of form: [step, path])");
+            } else {
+              I32 step        = cfdr_eval_get_i32(it->value.list->first->value);
+              Str volume_path = cfdr_eval_get_str(it->value.list->last->value);
+              obj->volume.step_array[step_at] = step;
+              cfdr_resource_volume_init(&obj->volume.vol_array[step_at], volume_path);
+              ++step_at;
+              log_info("Added volume resource (step = %d) [%.*s]", step, str_expand(volume_path));
+            }
+          }
+        } else {
+          log_fatal("invalid value type for volume entry");
+        }
       }
 
     }

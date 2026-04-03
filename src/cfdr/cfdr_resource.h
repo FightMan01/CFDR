@@ -15,7 +15,8 @@ typedef struct CFDR_Resource {
 fn_internal void cfdr_resource_init(CFDR_Resource *resource, Str path) {
   zero_fill(resource);
   arena_init(&resource->arena);
-  resource->path = path;
+  resource->path = arena_push_str(&resource->arena, path);
+ // resource->path = path;
 }
 
 fn_internal B32 cfdr_resource_fetch(CFDR_Resource *resource, CFDR_Resource_Data *data) {
@@ -116,20 +117,27 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
     Scratch_Scope(&scratch, 0) {
       U08 *data_view = data.bytes_data;
 
-      U32 Y         = *(U32 *)(data_view); data_view += sizeof(U32);
-      U32 X         = *(U32 *)(data_view); data_view += sizeof(U32);
-      U32 Z         = *(U32 *)(data_view); data_view += sizeof(U32);
-      F32 min_range = *(F32 *)(data_view); data_view += sizeof(F32);
-      F32 max_range = *(F32 *)(data_view); data_view += sizeof(F32);
+      U64 compressed_size   = *(U64 *)(data_view); data_view += sizeof(U64);
+      U64 decompressed_size = *(U64 *)(data_view); data_view += sizeof(U64);
+      U32 flags             = *(U32 *)(data_view); data_view += sizeof(U32);
+      U32 Y                 = *(U32 *)(data_view); data_view += sizeof(U32);
+      U32 X                 = *(U32 *)(data_view); data_view += sizeof(U32);
+      U32 Z                 = *(U32 *)(data_view); data_view += sizeof(U32);
+      F32 min_range         = *(F32 *)(data_view); data_view += sizeof(F32);
+      F32 max_range         = *(F32 *)(data_view); data_view += sizeof(F32);
+      U08 *data_compressed  = data_view;
 
+      log_info("Compressed Size: %llu", compressed_size);
+      log_info("Decompressed Size: %llu", decompressed_size);
+      log_info("Compression Flags: %d", flags);
       log_info("Voxel Dimensions: %u %u %u", X, Y, Z);
-      U64 bytes_total = X * Y * Z * sizeof(U08);
-      log_info("Expected: %llu, Got: %llu", bytes_total + sizeof(U32) * 3 + sizeof(U08) * 2, data.bytes_total);
-
       log_info("Dataset Bounds: %f %f", min_range, max_range);
 
+      U08 *data = arena_push_size(scratch.arena, decompressed_size);
+      LZ4_decompress_safe((char *)data_compressed, (char *)data, compressed_size, decompressed_size);
+
       volume->volume = r_texture_3D_allocate(R_Texture_Format_R_U08_Normalized, X, Y, Z);
-      r_texture_3D_download(volume->volume, R_Texture_Format_R_U08_Normalized, r3i(0, 0, 0, X, Y, Z), data_view);
+      r_texture_3D_download(volume->volume, R_Texture_Format_R_U08_Normalized, r3i(0, 0, 0, X, Y, Z), data);
     }
 
     volume->color_map = r_texture_2D_allocate(R_Texture_Format_RGBA_U08_Normalized, 1024, 1);

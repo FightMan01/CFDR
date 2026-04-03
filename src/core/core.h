@@ -346,8 +346,11 @@ typedef struct {
 
 #if COMPILER_CLANG || COMPILER_GCC
 force_inline fn_internal void memory_copy    (void *dst, void *src, U64 bytes) { __builtin_memcpy(dst, src, bytes); }
+force_inline fn_internal void memory_move    (void *dst, void *src, U64 bytes) { __builtin_memmove(dst, src, bytes); }
 force_inline fn_internal void memory_fill    (void *dst, U08 fill, U64 bytes)  { __builtin_memset(dst, fill, bytes); }
 // force_inline fn_internal B32  memory_compare (void *lhs, void *rhs, U64 bytes) { return __builtin_memcmp(lhs, rhs, bytes) == 0; }
+
+
 
 inline fn_internal B32 memory_compare (void *lhs, void *rhs, U64 bytes) {
   U08 *a = (U08 *)lhs;

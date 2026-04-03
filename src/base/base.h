@@ -72,6 +72,9 @@ enum {
 typedef struct { 
   U32             align;
   Arena_Push_Flag flags;
+#if BUILD_DEBUG
+  Str             meta_caller_info;
+#endif
 } Arena_Push;
 
 enum {
@@ -148,7 +151,11 @@ fn_internal U08 *arena_push_ext (Arena *arena, U64 bytes, Arena_Push *push);
 fn_internal void arena_clear    (Arena *arena);
 
 #define arena_init(arena, ...)                      arena_init_ext((arena), &(Arena_Init) { .flags = Arena_Flag_Defaults, .reserve_initial = 0, __VA_ARGS__ })
+#if BUILD_DEBUG
+#define arena_push_size(arena, bytes, ...)          arena_push_ext((arena), (bytes), &(Arena_Push) { .align = Arena_Alignment_Default, .flags = Arena_Push_Flags_Default, .meta_caller_info = str_lit(__FILE__ ":" Macro_Stringize(__LINE__)), __VA_ARGS__ })
+#else
 #define arena_push_size(arena, bytes, ...)          arena_push_ext((arena), (bytes), &(Arena_Push) { .align = Arena_Alignment_Default, .flags = Arena_Push_Flags_Default, __VA_ARGS__ })
+#endif
 #define arena_push_type(arena, type, ...)           (type *)arena_push_size((arena), sizeof(type),  __VA_ARGS__)
 #define arena_push_count(arena, type, count, ...)   (type *)arena_push_size((arena), (count) * sizeof(type), __VA_ARGS__)
 
@@ -1728,7 +1735,6 @@ fn_internal Str str_replace(Arena *arena, Str base_string, Str find, Str replace
 
   I64 find_at = str_find(base_string, find);
   if (find_at != -1) {
-    log_info("found");
     U64 new_len = base_string.len - find.len + replace.len;
     U08 *buffer = arena_push_size(arena, new_len);
     memory_copy(buffer,                           base_string.txt,                              find_at);

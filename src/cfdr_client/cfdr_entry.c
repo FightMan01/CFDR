@@ -46,12 +46,59 @@ var_global CFDR_UI_State  CFDR_UI             = { };
 var_global CFDR_Resource  Project_File        = { };
 var_global CFDR_State     State               = { };
 
+int lz4_test() {
+    const char *input = "testthisisreallylong";
+    int inputSize = str_from_cstr(input).len + 1;// strlen(input) + 1; // include null terminator
+
+    // Allocate output buffer (max compressed size)
+    int maxCompressedSize = LZ4_compressBound(inputSize);
+    char *compressed = (char *)arena_push_size(&Permanent_Storage, maxCompressedSize);
+
+    // Compress
+    int compressedSize = LZ4_compress_default(
+        input,
+        compressed,
+        inputSize,
+        maxCompressedSize
+    );
+
+    if (compressedSize <= 0) {
+        log_info("Compression failed!\n");
+        return 1;
+    }
+
+    log_info("Original size: %d\n", inputSize);
+    log_info("Compressed size: %d\n", compressedSize);
+
+    // Decompress
+    char *decompressed = (char *)arena_push_size(&Permanent_Storage, inputSize);
+
+    int decompressedSize = LZ4_decompress_safe(
+        compressed,
+        decompressed,
+        compressedSize,
+        inputSize
+    );
+
+    if (decompressedSize < 0) {
+        log_info("Decompression failed!\n");
+        return 1;
+    }
+
+    log_info("Decompressed: %s\n", decompressed);
+
+    return 0;
+}
+
 fn_internal void init_frame(PL_Render_Context *render_context) {
   arena_init(&Permanent_Storage);
 
+  lz4_init();
   r_init(render_context);
   g2_init();
   ui_init();
+
+  lz4_test();
 
   cfdr_state_init(&State);
   cfdr_ui_init(&CFDR_UI, &State);
@@ -103,13 +150,6 @@ fn_internal void log_co_context(void) {
     log_info("Logical Cores: %llu",  co_context()->cpu_logical_cores);
     log_info("Page Size: %$$llu",    co_context()->mmu_page_bytes);
     log_info("RAM Capacity: %$$llu", co_context()->ram_capacity_bytes);
-  }
-
-  U64 data[] = { 1, 9, 2, 1204, 249, 24901, 4295, 1, 51592, 2 };
-  u64_sort_radix(sarray_len(data), 1, data);
-
-  For_U64(it, sarray_len(data)) {
-    log_info("radix: %u", data[it]);
   }
 }
 
