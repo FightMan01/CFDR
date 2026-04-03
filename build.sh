@@ -15,6 +15,9 @@ set -eu
 # NOTE(cmat): Set working directory to the build.sh folder.
 cd "$(dirname "$0")"
 
+# NOTE(cmat): Remove old build directory.
+rm -rf build/
+
 # NOTE(cmat): Absolute path for source files (compiler errors are cleaner).
 source_folder=$(realpath "./src")
 
