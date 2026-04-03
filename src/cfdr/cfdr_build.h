@@ -1,3 +1,12 @@
+#include "cfdr_lz4.c"
+
+#pragma clang diagnostic ignored "-Wincompatible-pointer-types-discards-qualifiers"
+
+#define LZ4_USER_MEMORY_FUNCTIONS
+#define LZ4_FREESTANDING 1
+#include "thirdparty/lz4.h"
+#include "thirdparty/lz4.c"
+
 #include "cfdr_resource.h"
 
 #include "cfdr_camera.h"
