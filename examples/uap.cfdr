@@ -54,7 +54,7 @@
   opacity:          100,
   material:         "matcap",
   surface:          "examples/uap/terrain.stl"
-  # scale:            [1, 1, 1]
+  scale:            [1, 1, 1]
 }
 
 // NOTE(cmat): Building geometry.
@@ -65,7 +65,7 @@
   opacity:          100,
   material:         "matcap",
   surface:          "examples/uap/buildings.stl",
-  # scale:            [1, 1, 1]
+  scale:            [1, 1, 1],
 }
 
 // NOTE(cmat): Simulation volume.
@@ -76,7 +76,6 @@
                       [ 1,  "examples/uap/velocity_1.vol"  ],
                       [ 11, "examples/uap/velocity_11.vol" ],
                       [ 21, "examples/uap/velocity_21.vol" ],
-                      [ 31, "examples/uap/velocity_31.vol" ],
                     ],
   scale:            [1000, 1000, 100],
   translate:        [ -1000, 0, 0 ],
@@ -89,6 +88,19 @@
   color:            @hsv [0, 70, 80],
   material:         "sample"
   surface:          "examples/uap/slice.stl",
-  // scale:         [1, 1, 1],
+  scale:            [1, 1, 1],
   translate:        [0, 0, 3],
 }
+
+/*
+// NOTE(cmat): Sample into the simulation volume.
+#object {
+  tag:              "Vertical Slice",
+  visible:          true,
+  color:            @hsv [0, 70, 80],
+  material:         "sample"
+  surface:          "examples/uap/vertical_slice.stl",
+  scale:            [1, 1, 1],
+  translate:        [0, 0, 0],
+}
+*/

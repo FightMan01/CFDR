@@ -110,14 +110,14 @@ fn fs_main(@location(0) X : vec3<f32>,
   for (var it = 0; it < ray_steps; it++) {
   
     // NOTE(cmat): If dynamic loops supported.
-    if ((ray_t > t_exit) || accum_color.a >= 1.0) { break; }
-    // let mask = select(1.0, 0.0, (ray_t > t_exit) || accum_color.a >= 1.0);
+   // if ((ray_t > t_exit) || accum_color.a >= 1.0) { break; }
+    let mask = select(1.0, 0.0, (ray_t > t_exit) || accum_color.a >= 1.0);
 
     let sample_position = ray_origin + ray_t * ray_direction;
-    let sample_uv       =  vec3<f32>(sample_position.z, 1.0 - sample_position.x, sample_position.y);
-    let value           = World_3D.Volume_Density * textureSample(Texture_Volume, Sampler, sample_uv).r;
+    let sample_uv       = vec3<f32>(sample_position.z, 1.0 - sample_position.x, sample_position.y);
+    let value           = World_3D.Volume_Density * (1.0 - textureSample(Texture_Volume, Sampler, sample_uv).r);
     let color           = transfer_function(value);
-    accum_color        += /* mask * */ (1.0 - accum_color.a) * vec4<f32>(color.rgb * color.a, color.a);
+    accum_color        += mask * (1.0 - accum_color.a) * vec4<f32>(color.rgb * color.a, color.a);
     ray_t              += ray_step_size;
   }
 
