@@ -317,5 +317,6 @@ typedef struct {
   alignas(16) V2F Volume_Data_Bounds;
   alignas(16) V2F Visualize_Range;
   alignas(16) F32 Volume_Saturate;
+  alignas(16) I32 Volume_XYZ;
 } R_Constant_Buffer_World_3D;
 

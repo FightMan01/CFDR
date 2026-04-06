@@ -25,6 +25,7 @@ typedef struct CFDR_Object_Node {
   V3F                       translate;
   F32                       volume_density;
   F32                       volume_saturate;
+  I32                       volume_xyz;
 
   CFDR_Resource_Surface     surface;
   CFDR_Volume               volume;

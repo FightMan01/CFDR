@@ -34,6 +34,12 @@ fn_internal R_Vertex_XNUC_3D *stl_parse_binary(Arena *arena, U64 bytes, U08 *dat
       For_U32 (it, header->tri_count) {
         STL_Binary_Triangle tri = triangles[it];
 
+        if (v3f_len(tri.normal) < 0.00001f) {
+          tri.normal = v3f_cross(v3f_noz(v3f_sub(tri.position_1, tri.position_2)),
+                                 v3f_noz(v3f_sub(tri.position_3, tri.position_2)));
+          tri.normal = v3f_mul(-1.f, tri.normal);
+        }
+
         U32 C = 0xFFFFFFFF;
         result[3 * it + 0] = (R_Vertex_XNUC_3D) { .X = tri.position_1, .N = tri.normal, .C = 0xFFFFFFFF, .U = v2f(0, 0) };
         result[3 * it + 1] = (R_Vertex_XNUC_3D) { .X = tri.position_2, .N = tri.normal, .C = 0xFFFFFFFF, .U = v2f(1, 0) };
@@ -92,10 +98,11 @@ fn_internal R_Vertex_XNUC_3D *stl_parse_ascii(Arena *arena, U64 bytes, U08 *data
         } else if (str_equals(block, str_lit("facet"))) {
           scan_require(&scan, str_lit("normal"));
 
-          F64 nx = scan_f64(&scan); // nx
-          F64 ny = scan_f64(&scan); // ny
-          F64 nz = scan_f64(&scan); // nz
-          log_info("%f %f %f", nx, ny, nz);
+          F32 nx = (F32)scan_f64(&scan); // nx
+          F32 ny = (F32)scan_f64(&scan); // ny
+          F32 nz = (F32)scan_f64(&scan); // nz
+          V3F N = v3f(nx, ny, nz);
+
           scan_skip_line(&scan);
 
           if (scan_error(&scan)) {
@@ -114,19 +121,31 @@ fn_internal R_Vertex_XNUC_3D *stl_parse_ascii(Arena *arena, U64 bytes, U08 *data
           R_Vertex_XNUC_3D *vertex = result + 3 * (tri_at++);
           var_local_persist V2F uv_lookup[] = { { 0, 0}, { 1, 0 }, { 0, 1 }, };
 
+          V3F positions[3] = { };
+
           For_U32(it, 3) {
             scan_require(&scan, str_lit("vertex"));
-            F64 x = scan_f64(&scan); // vx
-            F64 y = scan_f64(&scan); // vy
-            F64 z = scan_f64(&scan); // vz
+            F32 x = (F32)scan_f64(&scan); // vx
+            F32 y = (F32)scan_f64(&scan); // vy
+            F32 z = (F32)scan_f64(&scan); // vz
             
-            vertex[it] = (R_Vertex_XNUC_3D) { .X = v3f(x, y, z), .N = v3f(nx, ny, nz), .C = 0xFFFFFFFF, .U = uv_lookup[it] };
+            positions[it] = v3f(x, y, z);
 
             scan_skip_line(&scan);
             if (scan_error(&scan)) {
               break;
             }
           }
+
+          if (v3f_len(N) < 0.00001f) {
+            N = v3f_cross(v3f_noz(v3f_sub(positions[0], positions[1])),
+                          v3f_noz(v3f_sub(positions[2], positions[1])));
+            N = v3f_mul(-1.f, N);
+          }
+
+          vertex[0] = (R_Vertex_XNUC_3D) { .X = positions[0], .N = N, .C = 0xFFFFFFFF, .U = uv_lookup[0] };
+          vertex[1] = (R_Vertex_XNUC_3D) { .X = positions[1], .N = N, .C = 0xFFFFFFFF, .U = uv_lookup[1] };
+          vertex[2] = (R_Vertex_XNUC_3D) { .X = positions[2], .N = N, .C = 0xFFFFFFFF, .U = uv_lookup[2] };
 
           if (scan_error(&scan)) {
             break;

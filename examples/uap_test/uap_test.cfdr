@@ -71,7 +71,7 @@
   color:            @hsv [360, 0, 25],
   opacity:          100,
   material:         "matcap",
-  surface:          "examples/uap/terrain.stl"
+  surface:          "examples/uap_test/domain_surface.stl"
   scale:            [1, 1, 1]
 }
 
@@ -81,38 +81,16 @@
   color:            @hsv [200, 0, 80],
   opacity:          100,
   material:         "matcap",
-  surface:          "examples/uap/buildings.stl",
+  surface:          "examples/uap_test/buildings.stl",
   scale:            [1, 1, 1],
 }
 
 // NOTE(cmat): Simulation volume.
 #object "Simulation" {
-  visible:          false,
-  volume:           [
-                      [ 1,  "examples/uap/velocity_1.vol"  ],
-                      [ 11, "examples/uap/velocity_11.vol" ],
-                      [ 21, "examples/uap/velocity_21.vol" ],
-                    ],
-  scale:            [1000, 1000, 100],
-  translate:        [ -1000, 0, 0 ],
-}
-
-// NOTE(cmat): Sample into the simulation volume.
-#object "Terrain Slice" {
   visible:          true,
-  color:            @hsv [0, 70, 80],
-  material:         "sample",
-  surface:          "examples/uap/slice.stl",
-  scale:            [1, 1, 1],
-  translate:        [0, 0, 3],
+  volume:           [
+                      [ 1,  "examples/uap_test/velocity_30.vol"  ],
+                    ],
+  scale:            [202, 180, 100],
 }
 
-// NOTE(cmat): Sample into the simulation volume.
-#object "Vertical Slice" {
-  visible:          false,
-  color:            @hsv [0, 70, 80],
-  material:         "sample",
-  surface:          "examples/uap/vertical_slice.stl",
-  scale:            [1, 1, 1],
-  translate:        [0, 0, 0],
-}

@@ -632,7 +632,7 @@ fn_internal void ui_draw(UI_Node *node, UI_Draw_Context *context) {
 
     F32 rounding = 0.f;
     if (node->flags & UI_Flag_Draw_Rounded) {
-      rounding = 0;
+      rounding = 4;
     }
 
     R2F region = node->solved.region_absolute;
