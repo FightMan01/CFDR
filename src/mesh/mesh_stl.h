@@ -95,7 +95,6 @@ fn_internal R_Vertex_XNUC_3D *stl_parse_ascii(Arena *arena, U64 bytes, U08 *data
           F64 nx = scan_f64(&scan); // nx
           F64 ny = scan_f64(&scan); // ny
           F64 nz = scan_f64(&scan); // nz
-          log_info("%f %f %f", nx, ny, nz);
           scan_skip_line(&scan);
 
           if (scan_error(&scan)) {

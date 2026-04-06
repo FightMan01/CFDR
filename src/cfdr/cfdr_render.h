@@ -66,7 +66,7 @@ fn_internal void cfdr_render_init(CFDR_Render *render) {
     .format      = &R_Vertex_Format_XNUC_3D,
     .depth_test  = 1,
     .depth_write = 1,
-    .depth_bias  = 1,
+    .depth_bias  = 0,
   });
 
   render->pipelines[CFDR_Render_Pipeline_Sample] = r_pipeline_create(&(R_Pipeline_Layout) {
@@ -216,6 +216,7 @@ typedef struct CFDR_Render_Surface {
   CFDR_Resource_Volume  *sample_volume;
   M4F                    sample_volume_transform;
   V2F                    sample_vis_range;
+  I32                    sample_volume_xyz;
 
   R_Buffer               state_buffer;
   R_Bind_Group           bind_group;
@@ -263,6 +264,7 @@ fn_internal void cfdr_render_surface_draw(CFDR_Render *render, CFDR_Render_Surfa
         .Volume_Max              = volume_max,
         .Volume_Data_Bounds      = surface->sample_volume->data_range,
         .Visualize_Range         = surface->sample_vis_range,
+        .Volume_XYZ              = surface->sample_volume_xyz,
       };
 
       r_buffer_download(surface->state_buffer, 0, sizeof(world_data), &world_data);
@@ -317,6 +319,7 @@ typedef struct CFDR_Render_Volume {
   R_Bind_Group           bind_group;
   F32                    volume_density;
   F32                    volume_saturate;
+  I32                    volume_xyz;
   V2F                    vis_range;
 } CFDR_Render_Volume;
 
@@ -350,6 +353,7 @@ fn_internal void cfdr_render_volume_draw(CFDR_Render *render, CFDR_Render_Volume
     .Volume_Data_Bounds      = volume->resource->data_range,
     .Visualize_Range         = volume->vis_range,
     .Volume_Saturate         = volume->volume_saturate,
+    .Volume_XYZ              = volume->volume_xyz,
   };
 
   r_buffer_download(volume->resource->constant_buffer, 0, sizeof(world_data), &world_data);
