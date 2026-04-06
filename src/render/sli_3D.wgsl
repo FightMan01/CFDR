@@ -16,6 +16,8 @@ struct World_3D_Type {
   @align(16) Volume_Max              : vec3<f32>,
   @align(16) Volume_Data_Bounds      : vec2<f32>,
   @align(16) Visualize_Range         : vec2<f32>,
+  @align(16) Volume_Saturate         : f32,
+  @align(16) Volume_XYZ              : i32,
 };
 
 @group(0) @binding(2)
@@ -64,12 +66,21 @@ fn fs_main(@location(0) X : vec3<f32>,
            @location(1) C : vec4<f32>,
            @location(2) U : vec2<f32> ) -> @location(0) vec4<f32> {
 
-  let p2 = clamp((X - World_3D.Volume_Min) / (World_3D.Volume_Max - World_3D.Volume_Min), vec3<f32>(0.0), vec3<f32>(1.0));
-  let p  = vec3<f32>(p2.z, 1.0 - p2.x, p2.y);
-  let sample = textureSample(Texture_Volume, Sampler, p).r;
-  if (sample == 0) { 
-    discard;
+  let sample_position = clamp((X - World_3D.Volume_Min) / (World_3D.Volume_Max - World_3D.Volume_Min), vec3<f32>(0.0), vec3<f32>(1.0));
+  // let p  = vec3<f32>(p2.z, 1.0 - p2.x, p2.y);
+
+  // TODO(cmat): This is very much temporary.
+  var sample_uv       = vec3<f32>(0, 0, 0);
+  if (World_3D.Volume_XYZ == 0) {
+    sample_uv       = vec3<f32>(sample_position.z, 1.0 - sample_position.x, sample_position.y);
+  } else {
+    sample_uv       = vec3<f32>(sample_position.x, sample_position.y, sample_position.z);
   }
+
+  let sample = textureSample(Texture_Volume, Sampler, sample_uv).r;
+  // if (sample == 0) { 
+  //  discard;
+  // }
 
   // let sample_range = World_3D.Visualize_Range * (World_3D.Volume_Data_Bounds.y - World_3D.Volume_Data_Bounds.x) - World_3D.Volume_Data_Bounds.x;
   // let sample_clamp = clamp(sample, sample_range.x, sample_range.y);

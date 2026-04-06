@@ -27,6 +27,7 @@ fn_internal CFDR_Object_Node *cfdr_scene_push(CFDR_Scene *scene) {
   object->volume_density = 1.f;
   object->volume_saturate = 2.5f;
   object->world_state    = r_buffer_allocate(sizeof(R_Constant_Buffer_World_3D), R_Buffer_Mode_Static);
+  object->volume_xyz     = 0;
 
   object->bind_group  = r_bind_group_create(&Flat_2D_Layout, &(R_Bind_Group_Entry_List) {
     .count      = 4,
@@ -52,6 +53,7 @@ fn_internal M4F cfdr_object_node_transform(CFDR_Object_Node *object) {
 
 // TODO(cmat): Temporary test globals.
 var_global CFDR_Resource_Volume *Last_Volume;
+var_global I32                   Last_Volume_XYZ;
 var_global M4F                   Last_Volume_Transform;
 
 fn_internal void cfdr_scene_draw_surface(CFDR_Render *render, CFDR_CMap_Table *cmap_table, Str cmap_key, CFDR_Object_Node *object, V3F eye_position, M4F view_projection, M4F scene_transform, R2F viewport) {
@@ -94,6 +96,7 @@ fn_internal void cfdr_scene_draw_surface(CFDR_Render *render, CFDR_CMap_Table *c
         .sample_volume           = Last_Volume,
         .sample_volume_transform = Last_Volume_Transform,
         .sample_vis_range        = vis_range,
+        .sample_volume_xyz       = Last_Volume_XYZ,
         .state_buffer            = object->world_state,
         .bind_group              = object->bind_group,
         .bind_group_sample       = object->bind_group_sample,
@@ -144,12 +147,14 @@ fn_internal void cfdr_scene_draw_volume(CFDR_Render *render, CFDR_CMap_Table *cm
         .transform    = m4f_mul(cfdr_object_node_transform(object), scene_transform),
         .volume_density = object->volume_density,
         .volume_saturate = object->volume_saturate,
+        .volume_xyz     = object->volume_xyz,
         .bind_group = object->bind_group,
         .vis_range  = vis_range,
       };
 
       // TODO(cmat): Temporary.
       Last_Volume           = render_volume.resource;
+      Last_Volume_XYZ       = object->volume_xyz;
       Last_Volume_Transform = render_volume.transform;
 
       if (object->visible) { 

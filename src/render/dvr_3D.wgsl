@@ -17,6 +17,7 @@ struct World_3D_Type {
   @align(16) Volume_Data_Bounds      : vec2<f32>,
   @align(16) Visualize_Range         : vec2<f32>,
   @align(16) Volume_Saturate         : f32,
+  @align(16) Volume_XYZ              : i32,
 };
 
 @group(0) @binding(2)
@@ -117,7 +118,16 @@ fn fs_main(@location(0) X : vec3<f32>,
     let mask = select(1.0, 0.0, (ray_t > t_exit) || accum_color.a >= 1.0);
 
     let sample_position = ray_origin + ray_t * ray_direction;
-    let sample_uv       = vec3<f32>(sample_position.z, 1.0 - sample_position.x, sample_position.y);
+
+    // TODO(cmat): This is very much temporary.
+    var sample_uv       = vec3<f32>(0, 0, 0);
+    if (World_3D.Volume_XYZ == 0) {
+      // sample_uv       = vec3<f32>(sample_position.z, 1.0 - sample_position.x, sample_position.y);
+      sample_uv       = vec3<f32>(sample_position.x, sample_position.z, sample_position.y);
+    } else {
+      sample_uv       = vec3<f32>(sample_position.x, sample_position.y, sample_position.z);
+    }
+
     let sample          = World_3D.Volume_Density * (textureSample(Texture_Volume, Sampler, sample_uv).r);
 
     let data_min     = World_3D.Volume_Data_Bounds.x;
@@ -130,8 +140,7 @@ fn fs_main(@location(0) X : vec3<f32>,
     let sample_remap = (sample_clamp - vis_min) / (vis_max - vis_min);
 
 
-    let color           = World_3D.Volume_Saturate
-* transfer_function(sample_remap);
+    let color           = World_3D.Volume_Saturate * transfer_function(sample_remap);
     accum_color        += mask * (1.0 - accum_color.a) * vec4<f32>(color.rgb * color.a, color.a);
     ray_t              += ray_step_size;
   }
