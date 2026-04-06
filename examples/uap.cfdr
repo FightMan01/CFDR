@@ -59,7 +59,7 @@
 // NOTE(cmat): Terrain geometry.
 #object "Terrain" {
   visible:          true,
-  color:            @hsv [360, 0, 50],
+  color:            @hsv [360, 0, 25],
   opacity:          100,
   material:         "matcap",
   surface:          "examples/uap/terrain.stl"

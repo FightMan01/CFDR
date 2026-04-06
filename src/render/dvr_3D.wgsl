@@ -14,6 +14,9 @@ struct World_3D_Type {
   @align(16) Color                    : vec4<f32>,
   @align(16) Volume_Min               : vec3<f32>,
   @align(16) Volume_Max               : vec3<f32>,
+  @align(16) Volume_Data_Bounds      : vec2<f32>,
+  @align(16) Visualize_Range         : vec2<f32>,
+  @align(16) Volume_Saturate         : f32,
 };
 
 @group(0) @binding(2)
@@ -76,7 +79,7 @@ fn intersect_ray_box(ray_origin : vec3<f32>, ray_direction : vec3<f32>) -> vec2<
 fn transfer_function(value : f32) -> vec4<f32> {
   let color = textureSampleLevel(Texture, Sampler, vec2<f32>(value, 0), 0.0);
   let alpha = 1.0 - exp(-value * ray_step_size);
-  return vec4<f32>(color.rgb, alpha);
+  return vec4<f32>(color.rgb, alpha * color.a);
 }
 
 @fragment
@@ -115,8 +118,19 @@ fn fs_main(@location(0) X : vec3<f32>,
 
     let sample_position = ray_origin + ray_t * ray_direction;
     let sample_uv       = vec3<f32>(sample_position.z, 1.0 - sample_position.x, sample_position.y);
-    let value           = World_3D.Volume_Density * (1.0 - textureSample(Texture_Volume, Sampler, sample_uv).r);
-    let color           = transfer_function(value);
+    let sample          = World_3D.Volume_Density * (textureSample(Texture_Volume, Sampler, sample_uv).r);
+
+    let data_min     = World_3D.Volume_Data_Bounds.x;
+    let data_max     = World_3D.Volume_Data_Bounds.y;
+    let sample_data  = mix(data_min, data_max, sample);
+
+    let vis_min      = World_3D.Visualize_Range.x;
+    let vis_max      = World_3D.Visualize_Range.y;
+    let sample_clamp = clamp(sample_data, vis_min, vis_max);
+    let sample_remap = (sample_clamp - vis_min) / (vis_max - vis_min);
+
+
+    let color           = World_3D.Volume_Saturate * transfer_function(sample_remap);
     accum_color        += mask * (1.0 - accum_color.a) * vec4<f32>(color.rgb * color.a, color.a);
     ray_t              += ray_step_size;
   }

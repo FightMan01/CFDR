@@ -82,7 +82,6 @@ fn fs_main(@location(0) X : vec3<f32>,
   let vis_min      = World_3D.Visualize_Range.x;
   let vis_max      = World_3D.Visualize_Range.y;
   let sample_clamp = clamp(sample_data, vis_min, vis_max);
-
   let sample_remap = (sample_clamp - vis_min) / (vis_max - vis_min);
   
   let pixel = textureSample(Texture, Sampler, vec2<f32>(sample_remap, 0));
