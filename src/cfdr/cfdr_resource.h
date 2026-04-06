@@ -102,9 +102,9 @@ typedef struct CFDR_Resource_Volume {
   B32           valid;
   R_Texture_3D  volume;
   V2F           data_range;
-  R_Texture_2D  color_map;
+  // R_Texture_2D  color_map;
   R_Buffer      constant_buffer;
-  R_Bind_Group  bind_group;
+  // R_Bind_Group  bind_group;
 } CFDR_Resource_Volume;
 
 fn_internal void cfdr_resource_volume_init(CFDR_Resource_Volume *volume, Str path) {
@@ -150,6 +150,7 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
       r_texture_3D_download(volume->volume, R_Texture_Format_R_U08_Normalized, r3i(0, 0, 0, X, Y, Z), data);
     }
 
+#if 0
     volume->color_map = r_texture_2D_allocate(R_Texture_Format_RGBA_U08_Normalized, 1024, 1);
 
     U32 texture_width = 1024;
@@ -168,7 +169,10 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
 
     r_texture_2D_download(volume->color_map, R_Texture_Format_RGBA_U08_Normalized, r2i(0, 0, 1024, 1), texture_data);
 
+#endif
+
     volume->constant_buffer = r_buffer_allocate(sizeof(R_Constant_Buffer_World_3D), R_Buffer_Mode_Dynamic);
+#if 0
     volume->bind_group = r_bind_group_create(&Flat_2D_Layout, &(R_Bind_Group_Entry_List) {
       .count      = 4,
       .entry_list = {
@@ -178,6 +182,7 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
         { .binding = 3, .type = R_Binding_Type_Texture_3D, .resource = volume->volume                },
       }
     });
+#endif
   }
 }
 

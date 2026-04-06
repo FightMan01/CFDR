@@ -314,7 +314,10 @@ fn_internal void cfdr_render_surface_draw(CFDR_Render *render, CFDR_Render_Surfa
 typedef struct CFDR_Render_Volume {
   CFDR_Resource_Volume  *resource;
   M4F                    transform;
+  R_Bind_Group           bind_group;
   F32                    volume_density;
+  F32                    volume_saturate;
+  V2F                    vis_range;
 } CFDR_Render_Volume;
 
 fn_internal void cfdr_render_volume_draw(CFDR_Render *render, CFDR_Render_Volume *volume, V3F eye_position, M4F view_projection, R2F viewport) {
@@ -344,13 +347,16 @@ fn_internal void cfdr_render_volume_draw(CFDR_Render *render, CFDR_Render_Volume
     .Volume_Min              = volume_min,
     .Volume_Max              = volume_max,
     .Volume_Density          = volume->volume_density,
+    .Volume_Data_Bounds      = volume->resource->data_range,
+    .Visualize_Range         = volume->vis_range,
+    .Volume_Saturate         = volume->volume_saturate,
   };
 
   r_buffer_download(volume->resource->constant_buffer, 0, sizeof(world_data), &world_data);
 
   r_command_push_draw(&(R_Command_Draw) {
     .pipeline           = render->pipelines[CFDR_Render_Pipeline_Volume],
-    .bind_group         = volume->resource->bind_group,
+    .bind_group         = volume->bind_group,
     .vertex_buffer      = render->cube_vertex_buffer,
     .index_buffer       = render->cube_index_buffer,
     .draw_index_count   = render->cube_index_count,

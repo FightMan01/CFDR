@@ -493,6 +493,7 @@ fn_internal void cfdr_ui_property_object(CFDR_UI_State *ui) {
         ui_label(str_lit("Volume"));
         ui_separator(str_lit("##separator_3"));
         ui_f32_edit(str_lit("Volume Density"), &object->volume_density, 0.f, 10.f, 0.005f);
+        ui_f32_edit(str_lit("Volume Saturate"), &object->volume_saturate, 0.f, 10.f, 0.005f);
       }
     }
   }
