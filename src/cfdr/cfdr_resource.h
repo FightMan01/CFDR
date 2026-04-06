@@ -68,7 +68,7 @@ fn_internal void cfdr_resource_surface_update(CFDR_Resource_Surface *surface) {
     Scratch scratch = { };
     Scratch_Scope(&scratch, 0) {
       U32 triangle_count = 0;
-      R_Vertex_XNUC_3D *vertices = stl_parse_binary(&surface->resource.arena, data.bytes_total, data.bytes_data, &triangle_count);
+      R_Vertex_XNUC_3D *vertices = stl_parse(&surface->resource.arena, data.bytes_total, data.bytes_data, &triangle_count);
       log_info("loaded surface resource \"%.*s\", %u triangles", str_expand(surface->resource.path), triangle_count);
 
       surface->vertex_buffer = r_buffer_allocate(3 * sizeof(R_Vertex_XNUC_3D) * triangle_count, R_Buffer_Mode_Static);

@@ -225,7 +225,7 @@ fn_internal void cfdr_cmap_table_init(CFDR_CMap_Table *cm) {
   }
 
   {
-    CFDR_CMap *cmap = cfdr_cmap_table_push(cm, str_lit("Pastel Rainbow"));
+    CFDR_CMap *cmap = cfdr_cmap_table_push(cm, str_lit("Rainbow-Pastel"));
     if (cmap) {
       cfdr_cmap_init(cmap, CFDR_CMap_Interpolate_HSV, CFDR_CMap_Opacity_Solid, v4f(0, .6f, 1.f, 1.f), v4f(1.f, .8f, 1.f, 1.f));
     }
