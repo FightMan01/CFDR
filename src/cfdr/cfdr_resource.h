@@ -19,9 +19,12 @@ fn_internal void cfdr_resource_init(CFDR_Resource *resource, Str path) {
  // resource->path = path;
 }
 
+var_global B32 Resource_Downloading = 1;
+
 fn_internal B32 cfdr_resource_fetch(CFDR_Resource *resource, CFDR_Resource_Data *data) {
   B32 result = 0;
   if (!resource->complete) {
+    Resource_Downloading = 1;
     if (!resource->request_sent) {
       resource->request_sent = 1;
       log_info("Resource Request: %.*s", str_expand(resource->path));
@@ -98,9 +101,10 @@ typedef struct CFDR_Resource_Volume {
   CFDR_Resource resource;
   B32           valid;
   R_Texture_3D  volume;
-  R_Texture_2D  color_map;
+  V2F           data_range;
+  // R_Texture_2D  color_map;
   R_Buffer      constant_buffer;
-  R_Bind_Group  bind_group;
+  // R_Bind_Group  bind_group;
 } CFDR_Resource_Volume;
 
 fn_internal void cfdr_resource_volume_init(CFDR_Resource_Volume *volume, Str path) {
@@ -117,6 +121,8 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
     Scratch_Scope(&scratch, 0) {
       U08 *data_view = data.bytes_data;
 
+      U32 magic_number      = *(U64 *)(data_view); data_view += sizeof(U32);
+      U32 format_type       = *(U64 *)(data_view); data_view += sizeof(U32);
       U64 compressed_size   = *(U64 *)(data_view); data_view += sizeof(U64);
       U64 decompressed_size = *(U64 *)(data_view); data_view += sizeof(U64);
       U32 flags             = *(U32 *)(data_view); data_view += sizeof(U32);
@@ -125,6 +131,8 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
       U32 Z                 = *(U32 *)(data_view); data_view += sizeof(U32);
       F32 min_range         = *(F32 *)(data_view); data_view += sizeof(F32);
       F32 max_range         = *(F32 *)(data_view); data_view += sizeof(F32);
+      V3F min_bounds        = *(V3F *)(data_view); data_view += sizeof(V3F);
+      V3F max_bounds        = *(V3F *)(data_view); data_view += sizeof(V3F);
       U08 *data_compressed  = data_view;
 
       log_info("Compressed Size: %llu", compressed_size);
@@ -133,6 +141,8 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
       log_info("Voxel Dimensions: %u %u %u", X, Y, Z);
       log_info("Dataset Bounds: %f %f", min_range, max_range);
 
+      volume->data_range = v2f(min_range, max_range);
+
       U08 *data = arena_push_size(scratch.arena, decompressed_size);
       LZ4_decompress_safe((char *)data_compressed, (char *)data, compressed_size, decompressed_size);
 
@@ -140,6 +150,7 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
       r_texture_3D_download(volume->volume, R_Texture_Format_R_U08_Normalized, r3i(0, 0, 0, X, Y, Z), data);
     }
 
+#if 0
     volume->color_map = r_texture_2D_allocate(R_Texture_Format_RGBA_U08_Normalized, 1024, 1);
 
     U32 texture_width = 1024;
@@ -158,7 +169,10 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
 
     r_texture_2D_download(volume->color_map, R_Texture_Format_RGBA_U08_Normalized, r2i(0, 0, 1024, 1), texture_data);
 
+#endif
+
     volume->constant_buffer = r_buffer_allocate(sizeof(R_Constant_Buffer_World_3D), R_Buffer_Mode_Dynamic);
+#if 0
     volume->bind_group = r_bind_group_create(&Flat_2D_Layout, &(R_Bind_Group_Entry_List) {
       .count      = 4,
       .entry_list = {
@@ -168,6 +182,7 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
         { .binding = 3, .type = R_Binding_Type_Texture_3D, .resource = volume->volume                },
       }
     });
+#endif
   }
 }
 

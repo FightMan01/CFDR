@@ -314,5 +314,8 @@ typedef struct {
   alignas(16) V4F Color;
   alignas(16) V3F Volume_Min;
   alignas(16) V3F Volume_Max;
+  alignas(16) V2F Volume_Data_Bounds;
+  alignas(16) V2F Visualize_Range;
+  alignas(16) F32 Volume_Saturate;
 } R_Constant_Buffer_World_3D;
 

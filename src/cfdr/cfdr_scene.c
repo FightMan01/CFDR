@@ -11,6 +11,7 @@ fn_internal void cfdr_scene_init(CFDR_Scene *scene) {
   scene->count = 0;
   scene->first = 0;
   scene->last  = 0;
+  scene->cmap  = str_lit("hsv-pastel");
 
   cfdr_scene_view_init(&scene->view);
 }
@@ -24,6 +25,7 @@ fn_internal CFDR_Object_Node *cfdr_scene_push(CFDR_Scene *scene) {
   object->color          = v4f(1.f, 0.f, 1.f, 1.f);
   object->scale          = v3f(1, 1, 1);
   object->volume_density = 1.f;
+  object->volume_saturate = 2.5f;
   object->world_state    = r_buffer_allocate(sizeof(R_Constant_Buffer_World_3D), R_Buffer_Mode_Static);
 
   object->bind_group  = r_bind_group_create(&Flat_2D_Layout, &(R_Bind_Group_Entry_List) {
@@ -52,23 +54,33 @@ fn_internal M4F cfdr_object_node_transform(CFDR_Object_Node *object) {
 var_global CFDR_Resource_Volume *Last_Volume;
 var_global M4F                   Last_Volume_Transform;
 
-fn_internal void cfdr_scene_draw_surface(CFDR_Render *render, CFDR_Object_Node *object, V3F eye_position, M4F view_projection, M4F scene_transform, R2F viewport) {
+fn_internal void cfdr_scene_draw_surface(CFDR_Render *render, CFDR_CMap_Table *cmap_table, Str cmap_key, CFDR_Object_Node *object, V3F eye_position, M4F view_projection, M4F scene_transform, R2F viewport) {
   if (object->flags & CFDR_Object_Flag_Draw_Surface) {
     cfdr_resource_surface_update(&object->surface);
     if (object->surface.valid && object->visible) {
 
       // if (object->material == CFDR_Material_Sample && Last_Volume && object->bind_group_sample == R_Resource_None) {
 
+      V2F vis_range = v2f(0, 1);
       if (object->material == CFDR_Material_Sample && Last_Volume) {
         if (object->bind_group_sample != R_Resource_None) {
           r_bind_group_destroy(&object->bind_group_sample);
         }
 
+        CFDR_CMap *cmap = cfdr_cmap_table_get(cmap_table, cmap_key);
+        if (cmap->map_mode == CFDR_CMap_Map_Min_Max) {
+          vis_range = Last_Volume->data_range;
+        } else if (cmap->map_mode == CFDR_CMap_Map_Clamp_To_Unit) {
+          vis_range = v2f(0, 1);
+        } else {
+          vis_range = cmap->map_custom;
+        }
+
         object->bind_group_sample = r_bind_group_create(&Flat_2D_Layout, &(R_Bind_Group_Entry_List) {
           .count      = 4,
           .entry_list = {
-            { .binding = 0, .type = R_Binding_Type_Texture_2D, .resource = Last_Volume->color_map        },
-            { .binding = 1, .type = R_Binding_Type_Sampler,    .resource = R_Sampler_Linear_Clamp        },
+            { .binding = 0, .type = R_Binding_Type_Texture_2D, .resource = cmap->texture                 },
+            { .binding = 1, .type = R_Binding_Type_Sampler,    .resource = R_Sampler_Nearest_Clamp       },
             { .binding = 2, .type = R_Binding_Type_Uniform,    .resource = object->world_state           },
             { .binding = 3, .type = R_Binding_Type_Texture_3D, .resource = Last_Volume->volume           },
           }
@@ -81,6 +93,7 @@ fn_internal void cfdr_scene_draw_surface(CFDR_Render *render, CFDR_Object_Node *
         .resource                = &object->surface,
         .sample_volume           = Last_Volume,
         .sample_volume_transform = Last_Volume_Transform,
+        .sample_vis_range        = vis_range,
         .state_buffer            = object->world_state,
         .bind_group              = object->bind_group,
         .bind_group_sample       = object->bind_group_sample,
@@ -96,15 +109,43 @@ fn_internal void cfdr_scene_draw_surface(CFDR_Render *render, CFDR_Object_Node *
   }
 }
 
-fn_internal void cfdr_scene_draw_volume(CFDR_Render *render, U32 step_at, CFDR_Object_Node *object, V3F eye_position, M4F view_projection, M4F scene_transform, R2F viewport) {
+fn_internal void cfdr_scene_draw_volume(CFDR_Render *render, CFDR_CMap_Table *cmap_table, Str cmap_key, U32 step_at, CFDR_Object_Node *object, V3F eye_position, M4F view_projection, M4F scene_transform, R2F viewport) {
   if (object->flags & CFDR_Object_Flag_Draw_Volume) {
     cfdr_resource_volume_update(&object->volume.vol_array[step_at]);
     if (object->volume.vol_array[step_at].valid) {
+
+      if (object->bind_group != R_Resource_None) {
+        r_bind_group_destroy(&object->bind_group);
+      }
+
+      CFDR_CMap *cmap = cfdr_cmap_table_get(cmap_table, cmap_key);
+      V2F vis_range = v2f(0, 1);
+      if (cmap->map_mode == CFDR_CMap_Map_Min_Max) {
+        vis_range = Last_Volume->data_range;
+      } else if (cmap->map_mode == CFDR_CMap_Map_Clamp_To_Unit) {
+        vis_range = v2f(0, 1);
+      } else {
+        vis_range = cmap->map_custom;
+      }
+
+      object->bind_group = r_bind_group_create(&Flat_2D_Layout, &(R_Bind_Group_Entry_List) {
+        .count      = 4,
+        .entry_list = {
+          { .binding = 0, .type = R_Binding_Type_Texture_2D, .resource = cmap->texture                    },
+          { .binding = 1, .type = R_Binding_Type_Sampler,    .resource = R_Sampler_Linear_Clamp          },
+          { .binding = 2, .type = R_Binding_Type_Uniform,    .resource = object->volume.vol_array[step_at].constant_buffer  },
+          { .binding = 3, .type = R_Binding_Type_Texture_3D, .resource = object->volume.vol_array[step_at].volume           },
+        }
+      });
+
       
       CFDR_Render_Volume render_volume = {
         .resource     = &object->volume.vol_array[step_at],
         .transform    = m4f_mul(cfdr_object_node_transform(object), scene_transform),
-        .volume_density = object->volume_density
+        .volume_density = object->volume_density,
+        .volume_saturate = object->volume_saturate,
+        .bind_group = object->bind_group,
+        .vis_range  = vis_range,
       };
 
       // TODO(cmat): Temporary.
@@ -167,7 +208,13 @@ fn_internal R3F cfdr_scene_bounds(CFDR_Scene *scene) {
   return bounds;
 }
 
-fn_internal void cfdr_scene_draw(CFDR_Render *render, UI_Response *response, CFDR_Scene *scene, R2F draw_region) {
+fn_internal void cfdr_scene_draw(CFDR_Render *render, CFDR_CMap_Table *cmap_table, UI_Response *response, CFDR_Scene *scene, R2F draw_region) {
+
+  if (!cfdr_cmap_table_get(cmap_table, scene->cmap)) {
+    // TODO(cmat): Better way to fallback to default.
+    scene->cmap = str_lit("Rainbow");
+  }
+
   if (response->drag) {
     B32 move_position = pl_input()->keyboard.state[PL_KB_Shift_Left].down;
     cfdr_camera_control(&scene->view.camera, draw_region, move_position, pl_input()->mouse.position_dt);
@@ -197,7 +244,7 @@ fn_internal void cfdr_scene_draw(CFDR_Render *render, UI_Response *response, CFD
 
   // NOTE(cmat): Draw opaque objects first.
   for (CFDR_Object_Node *it = scene->first; it; it = it->next) {
-    cfdr_scene_draw_surface (render, it, eye_position, view_projection, scene_transform, draw_region);
+    cfdr_scene_draw_surface (render, cmap_table, scene->cmap, it, eye_position, view_projection, scene_transform, draw_region);
   }
 
   // NOTE(cmat): Draw opaque transparent objects last.
@@ -207,7 +254,6 @@ fn_internal void cfdr_scene_draw(CFDR_Render *render, UI_Response *response, CFD
       scene->step.step_value = it->volume.step_array[scene->step.step_at];
     }
 
-
-    cfdr_scene_draw_volume  (render, scene->step.step_at, it, eye_position, view_projection, scene_transform, draw_region);
+    cfdr_scene_draw_volume  (render, cmap_table, scene->cmap, scene->step.step_at, it, eye_position, view_projection, scene_transform, draw_region);
   }
 }
