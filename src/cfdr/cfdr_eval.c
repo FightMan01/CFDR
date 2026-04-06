@@ -384,12 +384,14 @@ fn_internal void cfdr_eval_directive_object(CFDR_State *state, Arena *arena, TK_
       CFDR_Object_Node *obj = cfdr_scene_push(&state->scene);
       obj->tag = key;
       for (CFDR_Table_Node *it = table.table->first; it; it = it->next) {
-             if (str_equals(it->label, str_lit("visible")))       { obj->visible           = cfdr_eval_get_bool    (it->value);                       }
-        else if (str_equals(it->label, str_lit("color")))         { obj->color.hsv         = cfdr_eval_get_color   (it->value);                       }
-        else if (str_equals(it->label, str_lit("opacity")))       { obj->color.a           = cfdr_eval_get_i32     (it->value) / 100.f;               }
-        else if (str_equals(it->label, str_lit("scale")))         { obj->scale             = cfdr_eval_get_v3f     (it->value);                       }
-        else if (str_equals(it->label, str_lit("translate")))     { obj->translate         = cfdr_eval_get_v3f     (it->value);                       }
-        // else if (str_equals(it->label, str_lit("colormap")))      { obj->cmap              = cfdr_eval_get_str     (it->value);                       }
+             if (str_equals(it->label, str_lit("visible")))             { obj->visible           = cfdr_eval_get_bool    (it->value);                       }
+        else if (str_equals(it->label, str_lit("color")))               { obj->color.hsv         = cfdr_eval_get_color   (it->value);                       }
+        else if (str_equals(it->label, str_lit("opacity")))             { obj->color.a           = cfdr_eval_get_i32     (it->value) / 100.f;               }
+        else if (str_equals(it->label, str_lit("scale")))               { obj->scale             = cfdr_eval_get_v3f     (it->value);                       }
+        else if (str_equals(it->label, str_lit("translate")))           { obj->translate         = cfdr_eval_get_v3f     (it->value);                       }
+        else if (str_equals(it->label, str_lit("volume_density")))      { obj->volume_density    = cfdr_eval_get_i32     (it->value) / 100.f;               }
+        else if (str_equals(it->label, str_lit("volume_saturation")))   { obj->volume_saturate   = cfdr_eval_get_i32     (it->value) / 100.f;               }
+        else if (str_equals(it->label, str_lit("volume_xyz")))          { obj->volume_xyz        = cfdr_eval_get_i32     (it->value);                       }
         else if (str_equals(it->label, str_lit("material"))) {
           // obj->translate         = cfdr_eval_get_v3f     (it->value);
           Str material = cfdr_eval_get_str(it->value);

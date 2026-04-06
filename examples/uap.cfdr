@@ -102,7 +102,6 @@
   visible:          true,
   color:            @hsv [0, 70, 80],
   material:         "sample",
-  colormap:         "hsv-pastel",
   surface:          "examples/uap/slice.stl",
   scale:            [1, 1, 1],
   translate:        [0, 0, 3],

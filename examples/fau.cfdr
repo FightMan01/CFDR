@@ -1,0 +1,100 @@
+// NOTE(cmat): Specify CFDR version
+#version 100
+
+// NOTE(cmat): Project title.
+#project "FAU"
+
+// NOTE(cmat): Setup viewport.
+#viewport {
+  background:       @hsv [ 0, 0, 0 ],
+  orthographic:     false,
+  grid_enabled:     true,
+  grid_color:       @hsv [ 0, 0, 20 ],
+  grid_level:       1,
+  colormap:         "Windfield",
+}
+
+// NOTE(cmat): We create a basic text overlay
+#overlay "Title" {
+  visible:          true,
+  content:          "FAU - Lattice Boltzman $/step",
+  scale:            100,
+  color:            @hsv [94, 16, 90],
+  shadow_color:     @hsv [252, 57, 0],
+  position_x:       @align "left",
+  position_y:       @align "top",
+  border:           [15, 5],
+  background:       true,
+  shadow:           true,
+  shadow_offset:    1,
+}
+
+// NOTE(cmat): We can even create a watermark user the text overlay
+#overlay "Watermark" {
+  visible:          true,
+  content:          "HiDALGO 2",
+  scale:            70,
+  color:            @hsv [200, 31, 22],
+  opacity:          47,
+  shadow_color:     @hsv [100, 20, 0],
+  position_x:       @align "right",
+  position_y:       @align "bottom",
+  border:           [10, 0],
+  background:       false,
+  shadow:           false,
+  shadow_offset:    1,
+}
+
+#object "Domain Frame" {
+  visible:          true,
+  material:         "flat",
+  surface:          "examples/fau/domain_frame.stl",
+  scale:            [1, 1, 1],
+  translate:        [250, 50, 50],
+}
+
+// NOTE(cmat): Simulation volume.
+#object "Simulation" {
+  visible:          true,
+  volume:           [
+                      [ 0,  "examples/fau/velocity_0.vol"  ],
+                      [ 1,  "examples/fau/velocity_1.vol"  ],
+                      [ 2,  "examples/fau/velocity_2.vol"  ],
+                      [ 3,  "examples/fau/velocity_3.vol"  ],
+                      [ 4,  "examples/fau/velocity_4.vol"  ],
+                      [ 5,  "examples/fau/velocity_5.vol"  ],
+                      [ 6,  "examples/fau/velocity_6.vol"  ],
+                      [ 7,  "examples/fau/velocity_7.vol"  ],
+                      [ 8,  "examples/fau/velocity_8.vol"  ],
+                      [ 9,  "examples/fau/velocity_9.vol"  ],
+                      [ 10,  "examples/fau/velocity_10.vol"  ],
+                      [ 11,  "examples/fau/velocity_11.vol"  ],
+                      [ 12,  "examples/fau/velocity_12.vol"  ],
+                      [ 13,  "examples/fau/velocity_13.vol"  ],
+                      [ 14,  "examples/fau/velocity_14.vol"  ],
+                      [ 15,  "examples/fau/velocity_15.vol"  ],
+                      [ 16,  "examples/fau/velocity_16.vol"  ],
+                      [ 17,  "examples/fau/velocity_17.vol"  ],
+                      [ 18,  "examples/fau/velocity_18.vol"  ],
+                      [ 19,  "examples/fau/velocity_19.vol"  ],
+                      [ 20,  "examples/fau/velocity_20.vol"  ],
+                      [ 21,  "examples/fau/velocity_21.vol"  ],
+                      [ 22,  "examples/fau/velocity_22.vol"  ],
+                      [ 23,  "examples/fau/velocity_23.vol"  ],
+                      [ 24,  "examples/fau/velocity_24.vol"  ],
+                    ],
+  volume_density:     1000,
+  volume_saturation:  125,
+  volume_xyz:         1,
+  scale:            [500, 100, 100],
+  translate:        [ 0, 0, 0 ],
+}
+
+// NOTE(cmat): Sample into the simulation volume.
+#object "Slice Z" {
+  visible:          true,
+  material:         "sample",
+  surface:          "examples/fau/slice_z.stl",
+  scale:            [1, 1, 1],
+  translate:        [250, 50, 1],
+}
