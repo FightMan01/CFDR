@@ -1791,6 +1791,40 @@ fn_internal void u64_sort_radix(U64 array_len, U64 array_stride, U64 *array_dat)
 
 
 // ------------------------------------------------------------
+// #-- Scan String
+
+typedef struct Scan_Error {
+  struct Scan_Error  *next;
+  U08                     line_at;
+  U08                     char_at;
+  Str                     message;
+} Scan_Error;
+
+typedef struct Scan {
+  Arena          *arena;
+  Str             stream;
+  U32             at;
+  U32             line_at;
+  U32             char_at;
+  Scan_Error     *error_first;
+  Scan_Error     *error_last;
+} Scan;
+
+
+fn_internal void        scan_init            (Scan *scan, Arena *arena, Str stream);
+fn_internal void        scan_error_push      (Scan *scan, Str message);
+fn_internal Scan_Error *scan_error           (Scan *scan);
+fn_internal U08         scan_char            (Scan *scan);
+fn_internal void        scan_move            (Scan *scan, U32 offset);
+fn_internal void        scan_skip_whitespace (Scan *scan);
+fn_internal void        scan_skip_line       (Scan *scan);
+fn_internal B32         scan_end             (Scan *scan);
+fn_internal Str         scan_identifier      (Scan *scan);
+fn_internal U64         scan_u64             (Scan *scan);
+fn_internal F64         scan_f64             (Scan *scan);
+fn_internal B32         scan_require         (Scan *scan, Str match);
+
+// ------------------------------------------------------------
 // #-- Entry Point
 
 fn_internal void base_entry_point(Array_Str command_line);

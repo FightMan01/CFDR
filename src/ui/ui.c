@@ -726,10 +726,12 @@ fn_internal void ui_draw(UI_Node *node, UI_Draw_Context *context) {
         text_at = v2f_add(text_at, v2f(node->layout.gap_border[Axis2_X], node->layout.gap_border[Axis2_Y]));
       }
 
+      V3F text_color = rgb_from_hsv(node->palette.label);
+
       // TODO(cmat): Only floor if there is no active animation.
       text_at = v2f(f32_floor(text_at.x), f32_floor(text_at.y));
       g2_draw_text(node->solved.text, node->draw.font, v2f_add(text_at, v2f(+1, -1)), .color = v4f(0, 0, 0, opacity * .6f), .flip = node->draw.flip_label);
-      g2_draw_text(node->solved.text, node->draw.font, text_at, .color = v4f(1, 1, 1, opacity), .flip = node->draw.flip_label);
+      g2_draw_text(node->solved.text, node->draw.font, text_at, .color = v4f(text_color.r, text_color.g, text_color.b, opacity), .flip = node->draw.flip_label);
     }
 
     UI_Draw_Context child_context = {
@@ -919,6 +921,7 @@ fn_internal UI_Response ui_label(Str label) {
   node->layout.size[Axis2_Y] = UI_Size_Text;
   node->layout.gap_border[Axis2_X] = fo_em(&node->draw.font->font, .1f);
   node->layout.gap_border[Axis2_Y] = fo_em(&node->draw.font->font, .1f);
+  node->palette = UI_Theme_Active.label;
 
   return node->response;
 }
