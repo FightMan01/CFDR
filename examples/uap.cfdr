@@ -15,6 +15,15 @@
   data_range:           [ 0, 5 ],
 }
 
+#colormap "Lawson" {
+  color_0:              @hsv [ 0,   60, 100 ],
+  color_1:              @hsv [ 360, 60, 100 ],
+  opacity_map:          "smoothstep",
+  color_map:            "hsv",
+  data_map:             "custom",
+  data_range:           [ 0, 5 ],
+}
+
 // NOTE(cmat): Setup viewport.
 #viewport {
   background:       @hsv [ 255, 25, 40 ],

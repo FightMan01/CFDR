@@ -98,6 +98,7 @@ typedef struct UI_Color_Palette {
   HSV hover;
   HSV down;
   HSV border;
+  HSV label;
 
   HSV inner_fill;
 } UI_Color_Palette;
