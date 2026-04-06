@@ -200,6 +200,7 @@ fn_internal void cfdr_ui_menu_bar(CFDR_UI_State *ui) {
 
 
     UI_Font_Scope(&ui->font_icon) {
+#if 0
       {
         F32 icon_1_width = fo_text_width(&ui->font_icon.font, Icon_FA_MOON);
         F32 icon_2_width = fo_text_width(&ui->font_icon.font, Icon_FA_SUN);
@@ -218,6 +219,7 @@ fn_internal void cfdr_ui_menu_bar(CFDR_UI_State *ui) {
           ui->dark_mode = !ui->dark_mode;
         }
       }
+#endif
 
       {
         F32 icon_1_width = fo_text_width(&ui->font_icon.font, Icon_FA_BUG);
