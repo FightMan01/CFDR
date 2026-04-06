@@ -215,6 +215,7 @@ typedef struct CFDR_Render_Surface {
   CFDR_Resource_Surface *resource;
   CFDR_Resource_Volume  *sample_volume;
   M4F                    sample_volume_transform;
+  V2F                    sample_vis_range;
 
   R_Buffer               state_buffer;
   R_Bind_Group           bind_group;
@@ -260,6 +261,8 @@ fn_internal void cfdr_render_surface_draw(CFDR_Render *render, CFDR_Render_Surfa
         .Color                   = color,
         .Volume_Min              = volume_min,
         .Volume_Max              = volume_max,
+        .Volume_Data_Bounds      = surface->sample_volume->data_range,
+        .Visualize_Range         = surface->sample_vis_range,
       };
 
       r_buffer_download(surface->state_buffer, 0, sizeof(world_data), &world_data);

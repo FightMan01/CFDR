@@ -1,15 +1,3 @@
-fn_internal CFDR_Value cfdr_eval_expr(Arena *arena, TK_Scan *scan);
-
-#if 0
-fn_internal void cfdr_list_extract_i64(CFDR_List *list, I64 count, I64 *values) {
-  I64 at = 0;
-  for (CFDR_List_Node *it = list->first; it; it = it->next) {
-    if (at >= count) { break; }
-    values[at++] = it->value;
-  }
-}
-#endif
-
 fn_internal CFDR_Value cfdr_eval_list(Arena *arena, TK_Scan *scan) {
   CFDR_Value value = { };
   value.type       = CFDR_Value_Type_List;
@@ -294,6 +282,7 @@ fn_internal void cfdr_eval_directive_viewport(CFDR_State *state, Arena *arena, T
       else if (str_equals(it->label, str_lit("grid_enabled"))) { vp->grid.visible           = cfdr_eval_get_bool   (it->value); }
       else if (str_equals(it->label, str_lit("grid_color")))   { vp->grid.color.hsv         = cfdr_eval_get_color  (it->value); }
       else if (str_equals(it->label, str_lit("grid_level")))   { vp->grid.subdiv            = cfdr_eval_get_i32    (it->value); }
+      else if (str_equals(it->label, str_lit("colormap")))     { state->scene.cmap          = cfdr_eval_get_str    (it->value); }
     }
 
   } else {
@@ -301,103 +290,169 @@ fn_internal void cfdr_eval_directive_viewport(CFDR_State *state, Arena *arena, T
   }
 }
 
-fn_internal void cfdr_eval_directive_overlay(CFDR_State *state, Arena *arena, TK_Scan *scan) {
-  CFDR_Value table = cfdr_eval_expr(arena, scan);
-  if (table.type == CFDR_Value_Type_Table) {
-    CFDR_Overlay_Node *ov = cfdr_overlay_push(&state->overlay);
-    for (CFDR_Table_Node *it = table.table->first; it; it = it->next) {
-      if      (str_equals(it->label, str_lit("tag")))           { ov->tag               = cfdr_eval_get_str     (it->value);                       }
-      else if (str_equals(it->label, str_lit("visible")))       { ov->visible           = cfdr_eval_get_bool    (it->value);                       }
-      else if (str_equals(it->label, str_lit("content")))       { ov->content           = cfdr_eval_get_str     (it->value);                       }
-      else if (str_equals(it->label, str_lit("scale")))         { ov->scale             = cfdr_eval_get_i32     (it->value);                       }
-      else if (str_equals(it->label, str_lit("color")))         { ov->color.hsv         = cfdr_eval_get_color   (it->value);                       }
-      else if (str_equals(it->label, str_lit("opacity")))       { ov->color.a           = cfdr_eval_get_i32     (it->value) / 100.f;               }
-      else if (str_equals(it->label, str_lit("shadow_color")))  { ov->color_shadow.hsv  = cfdr_eval_get_color   (it->value);                       }
-      else if (str_equals(it->label, str_lit("position_x")))    { ov->position_x        = cfdr_eval_get_align2  (it->value);                       }
-      else if (str_equals(it->label, str_lit("position_y")))    { ov->position_y        = cfdr_eval_get_align2  (it->value);                       }
-      else if (str_equals(it->label, str_lit("border")))        { ov->border            = cfdr_eval_get_v2f     (it->value);                       }
-      else if (str_equals(it->label, str_lit("shadow_offset"))) { ov->shadow_offset     = cfdr_eval_get_i32     (it->value);                       }
+fn_internal void cfdr_eval_directive_colormap(CFDR_State *state, Arena *arena, TK_Scan *scan) {
+  CFDR_Value key_value = cfdr_eval_expr(arena, scan);
+  if (key_value.type == CFDR_Value_Type_String) {
+    Str  key = cfdr_eval_get_str(key_value);
 
-      else if (str_equals(it->label, str_lit("background")))    { if  (cfdr_eval_get_bool(it->value)) { ov->flags |= CFDR_Overlay_Flag_Background; }  }
-      else if (str_equals(it->label, str_lit("shadow")))        { if  (cfdr_eval_get_bool(it->value)) { ov->flags |= CFDR_Overlay_Flag_Shadow;     }  }
+    CFDR_Value table = cfdr_eval_expr(arena, scan);
+    if (table.type == CFDR_Value_Type_Table) {
+
+      HSVA                        color_0         = v4f(0, 1, 1, 1);
+      HSVA                        color_1         = v4f(1, 1, 1, 1);
+      V2F                         map_custom      = v2f(0, 1);
+      CFDR_CMap_Opacity_Mode      opacity_map     = CFDR_CMap_Opacity_Solid;
+      CFDR_CMap_Interpolate_Mode  color_map       = CFDR_CMap_Interpolate_HSV;
+      CFDR_CMap_Map_Mode          data_map        = CFDR_CMap_Map_Min_Max;
+
+      for (CFDR_Table_Node *it = table.table->first; it; it = it->next) {
+        if      (str_equals(it->label, str_lit("color_0")))    { color_0.hsv = cfdr_eval_get_color   (it->value); }
+        else if (str_equals(it->label, str_lit("color_1")))    { color_1.hsv = cfdr_eval_get_color   (it->value); }
+        else if (str_equals(it->label, str_lit("data_range"))) { map_custom  = cfdr_eval_get_v2f     (it->value); }
+        else if (str_equals(it->label, str_lit("color_map")))  {
+          Str mode = cfdr_eval_get_str(it->value);
+          if      (str_equals(mode, str_lit("hsv")))  { color_map = CFDR_CMap_Interpolate_HSV; }
+          else if (str_equals(mode, str_lit("rgb")))  { color_map = CFDR_CMap_Interpolate_RGB; }
+          else if (str_equals(mode, str_lit("step"))) { color_map = CFDR_CMap_Interpolate_Step; }
+        } else if (str_equals(it->label, str_lit("opacity_map")))   {
+          Str mode = cfdr_eval_get_str(it->value);
+          if      (str_equals(mode, str_lit("solid")))        { opacity_map = CFDR_CMap_Opacity_Solid; }
+          else if (str_equals(mode, str_lit("smoothstep")))   { opacity_map = CFDR_CMap_Opacity_Smoothstep; }
+        } else if (str_equals(it->label, str_lit("data_map"))) {
+          Str mode = cfdr_eval_get_str(it->value);
+          if      (str_equals(mode, str_lit("min_max"))) { data_map = CFDR_CMap_Map_Min_Max;        }
+          else if (str_equals(mode, str_lit("unit")))    { data_map = CFDR_CMap_Map_Clamp_To_Unit;  }
+          else if (str_equals(mode, str_lit("custom")))  { data_map = CFDR_CMap_Map_Custom;         }
+        }
+      }
+
+      CFDR_CMap *cmap = cfdr_cmap_table_push(&state->cmap_table, key);
+      if (cmap) {
+        cfdr_cmap_init(cmap, color_map, opacity_map, color_0, color_1);
+        cmap->map_mode = data_map;
+        cmap->map_custom = map_custom;
+      } else {
+        log_fatal("colormap \"%.*s\" already exists! Ignoring #colormap directive");
+      }
+
+    } else {
+      log_fatal("expected table after #colormap [tag] directive");
     }
-
   } else {
-    log_fatal("expected table after #overlay directive");
+      log_fatal("expected string after #colormap directive");
+  }
+}
+
+fn_internal void cfdr_eval_directive_overlay(CFDR_State *state, Arena *arena, TK_Scan *scan) {
+  CFDR_Value key_value = cfdr_eval_expr(arena, scan);
+  if (key_value.type == CFDR_Value_Type_String) {
+    Str  key = cfdr_eval_get_str(key_value);
+    CFDR_Value table = cfdr_eval_expr(arena, scan);
+    if (table.type == CFDR_Value_Type_Table) {
+      CFDR_Overlay_Node *ov = cfdr_overlay_push(&state->overlay);
+      ov->tag = key;
+      for (CFDR_Table_Node *it = table.table->first; it; it = it->next) {
+             if (str_equals(it->label, str_lit("visible")))       { ov->visible           = cfdr_eval_get_bool    (it->value);                       }
+        else if (str_equals(it->label, str_lit("content")))       { ov->content           = cfdr_eval_get_str     (it->value);                       }
+        else if (str_equals(it->label, str_lit("scale")))         { ov->scale             = cfdr_eval_get_i32     (it->value);                       }
+        else if (str_equals(it->label, str_lit("color")))         { ov->color.hsv         = cfdr_eval_get_color   (it->value);                       }
+        else if (str_equals(it->label, str_lit("opacity")))       { ov->color.a           = cfdr_eval_get_i32     (it->value) / 100.f;               }
+        else if (str_equals(it->label, str_lit("shadow_color")))  { ov->color_shadow.hsv  = cfdr_eval_get_color   (it->value);                       }
+        else if (str_equals(it->label, str_lit("position_x")))    { ov->position_x        = cfdr_eval_get_align2  (it->value);                       }
+        else if (str_equals(it->label, str_lit("position_y")))    { ov->position_y        = cfdr_eval_get_align2  (it->value);                       }
+        else if (str_equals(it->label, str_lit("border")))        { ov->border            = cfdr_eval_get_v2f     (it->value);                       }
+        else if (str_equals(it->label, str_lit("shadow_offset"))) { ov->shadow_offset     = cfdr_eval_get_i32     (it->value);                       }
+
+        else if (str_equals(it->label, str_lit("background")))    { if  (cfdr_eval_get_bool(it->value)) { ov->flags |= CFDR_Overlay_Flag_Background; }  }
+        else if (str_equals(it->label, str_lit("shadow")))        { if  (cfdr_eval_get_bool(it->value)) { ov->flags |= CFDR_Overlay_Flag_Shadow;     }  }
+      }
+
+    } else {
+      log_fatal("expected table after #overlay [tag] directive");
+    }
+  } else {
+      log_fatal("expected string after #overlay directive");
   }
 }
 
 fn_internal void cfdr_eval_directive_object(CFDR_State *state, Arena *arena, TK_Scan *scan) {
-  CFDR_Value table = cfdr_eval_expr(arena, scan);
-  if (table.type == CFDR_Value_Type_Table) {
-    CFDR_Object_Node *obj = cfdr_scene_push(&state->scene);
-    for (CFDR_Table_Node *it = table.table->first; it; it = it->next) {
-      if      (str_equals(it->label, str_lit("tag")))           { obj->tag               = cfdr_eval_get_str     (it->value);                       }
-      else if (str_equals(it->label, str_lit("visible")))       { obj->visible           = cfdr_eval_get_bool    (it->value);                       }
-      else if (str_equals(it->label, str_lit("color")))         { obj->color.hsv         = cfdr_eval_get_color   (it->value);                       }
-      else if (str_equals(it->label, str_lit("opacity")))       { obj->color.a           = cfdr_eval_get_i32     (it->value) / 100.f;               }
-      else if (str_equals(it->label, str_lit("scale")))         { obj->scale             = cfdr_eval_get_v3f     (it->value);                       }
-      else if (str_equals(it->label, str_lit("translate")))     { obj->translate         = cfdr_eval_get_v3f     (it->value);                       }
-      else if (str_equals(it->label, str_lit("material"))) {
-        // obj->translate         = cfdr_eval_get_v3f     (it->value);
-        Str material = cfdr_eval_get_str(it->value);
-        if (str_equals_any_case(material, str_lit("flat"))) {
-          obj->material = CFDR_Material_Flat;
-        } else if (str_equals_any_case(material, str_lit("matcap"))) {
-          obj->material = CFDR_Material_Matcap;
-        } else if (str_equals_any_case(material, str_lit("sample"))) {
-          obj->material = CFDR_Material_Sample;
-        } else {
-          log_warning("unrecognized material %.*s", str_expand(material));
-        }
-      }
-
-      else if (str_equals(it->label, str_lit("surface")))       {
-        obj->flags |= CFDR_Object_Flag_Draw_Surface;
-        Str surface_path = cfdr_eval_get_str(it->value);
-        cfdr_resource_surface_init(&obj->surface, surface_path);
-        log_info("Added surface resource [%.*s]", str_expand(surface_path));
-      }
-
-      else if (str_equals(it->label, str_lit("volume")))        {
-        obj->flags |= CFDR_Object_Flag_Draw_Volume;
-        if (it->value.type == CFDR_Value_Type_String) {
-          obj->volume.step_count       = 1;
-          obj->volume.step_array       = arena_push_type(&state->scene.arena, I32);
-          obj->volume.vol_array        = arena_push_type(&state->scene.arena, CFDR_Resource_Volume);
-          obj->volume.step_array[0]    = 0;
-          Str volume_path              = cfdr_eval_get_str(it->value);
-
-          cfdr_resource_volume_init(&obj->volume.vol_array[0], volume_path);
-          log_info("Added volume resource [%.*s]", str_expand(volume_path));
-
-        } else if (it->value.type == CFDR_Value_Type_List) {
-          CFDR_List *list        = it->value.list;
-          obj->volume.step_count = list->count;
-          obj->volume.step_array = arena_push_count(&state->scene.arena, I32, list->count);
-          obj->volume.vol_array  = arena_push_count(&state->scene.arena, CFDR_Resource_Volume, list->count);
-          U64 step_at            = 0;
-
-          for (CFDR_List_Node *it = list->first; it; it = it->next) {
-            if (it->value.type != CFDR_Value_Type_List || it->value.list->count != 2) {
-              log_fatal("invalid value type in list for volume entry (expected list of form: [step, path])");
-            } else {
-              I32 step        = cfdr_eval_get_i32(it->value.list->first->value);
-              Str volume_path = cfdr_eval_get_str(it->value.list->last->value);
-              obj->volume.step_array[step_at] = step;
-              cfdr_resource_volume_init(&obj->volume.vol_array[step_at], volume_path);
-              ++step_at;
-              log_info("Added volume resource (step = %d) [%.*s]", step, str_expand(volume_path));
-            }
+  CFDR_Value key_value = cfdr_eval_expr(arena, scan);
+  if (key_value.type == CFDR_Value_Type_String) {
+    Str  key = cfdr_eval_get_str(key_value);
+    CFDR_Value table = cfdr_eval_expr(arena, scan);
+    if (table.type == CFDR_Value_Type_Table) {
+      CFDR_Object_Node *obj = cfdr_scene_push(&state->scene);
+      obj->tag = key;
+      for (CFDR_Table_Node *it = table.table->first; it; it = it->next) {
+             if (str_equals(it->label, str_lit("visible")))       { obj->visible           = cfdr_eval_get_bool    (it->value);                       }
+        else if (str_equals(it->label, str_lit("color")))         { obj->color.hsv         = cfdr_eval_get_color   (it->value);                       }
+        else if (str_equals(it->label, str_lit("opacity")))       { obj->color.a           = cfdr_eval_get_i32     (it->value) / 100.f;               }
+        else if (str_equals(it->label, str_lit("scale")))         { obj->scale             = cfdr_eval_get_v3f     (it->value);                       }
+        else if (str_equals(it->label, str_lit("translate")))     { obj->translate         = cfdr_eval_get_v3f     (it->value);                       }
+        // else if (str_equals(it->label, str_lit("colormap")))      { obj->cmap              = cfdr_eval_get_str     (it->value);                       }
+        else if (str_equals(it->label, str_lit("material"))) {
+          // obj->translate         = cfdr_eval_get_v3f     (it->value);
+          Str material = cfdr_eval_get_str(it->value);
+          if (str_equals_any_case(material, str_lit("flat"))) {
+            obj->material = CFDR_Material_Flat;
+          } else if (str_equals_any_case(material, str_lit("matcap"))) {
+            obj->material = CFDR_Material_Matcap;
+          } else if (str_equals_any_case(material, str_lit("sample"))) {
+            obj->material = CFDR_Material_Sample;
+          } else {
+            log_warning("unrecognized material %.*s", str_expand(material));
           }
-        } else {
-          log_fatal("invalid value type for volume entry");
         }
-      }
 
+        else if (str_equals(it->label, str_lit("surface")))       {
+          obj->flags |= CFDR_Object_Flag_Draw_Surface;
+          Str surface_path = cfdr_eval_get_str(it->value);
+          cfdr_resource_surface_init(&obj->surface, surface_path);
+          log_info("Added surface resource [%.*s]", str_expand(surface_path));
+        }
+
+        else if (str_equals(it->label, str_lit("volume")))        {
+          obj->flags |= CFDR_Object_Flag_Draw_Volume;
+          if (it->value.type == CFDR_Value_Type_String) {
+            obj->volume.step_count       = 1;
+            obj->volume.step_array       = arena_push_type(&state->scene.arena, I32);
+            obj->volume.vol_array        = arena_push_type(&state->scene.arena, CFDR_Resource_Volume);
+            obj->volume.step_array[0]    = 0;
+            Str volume_path              = cfdr_eval_get_str(it->value);
+
+            cfdr_resource_volume_init(&obj->volume.vol_array[0], volume_path);
+            log_info("Added volume resource [%.*s]", str_expand(volume_path));
+
+          } else if (it->value.type == CFDR_Value_Type_List) {
+            CFDR_List *list        = it->value.list;
+            obj->volume.step_count = list->count;
+            obj->volume.step_array = arena_push_count(&state->scene.arena, I32, list->count);
+            obj->volume.vol_array  = arena_push_count(&state->scene.arena, CFDR_Resource_Volume, list->count);
+            U64 step_at            = 0;
+
+            for (CFDR_List_Node *it = list->first; it; it = it->next) {
+              if (it->value.type != CFDR_Value_Type_List || it->value.list->count != 2) {
+                log_fatal("invalid value type in list for volume entry (expected list of form: [step, path])");
+              } else {
+                I32 step        = cfdr_eval_get_i32(it->value.list->first->value);
+                Str volume_path = cfdr_eval_get_str(it->value.list->last->value);
+                obj->volume.step_array[step_at] = step;
+                cfdr_resource_volume_init(&obj->volume.vol_array[step_at], volume_path);
+                ++step_at;
+                log_info("Added volume resource (step = %d) [%.*s]", step, str_expand(volume_path));
+              }
+            }
+          } else {
+            log_fatal("invalid value type for volume entry");
+          }
+        }
+
+      }
+    } else {
+      log_fatal("expected table after #object [tag] directive");
     }
   } else {
-    log_fatal("expected table after #overlay directive");
+    log_fatal("expected string after #object directive");
   }
 }
 
@@ -429,6 +484,8 @@ fn_internal void cfdr_eval_directive(CFDR_State *state, Arena *arena, TK_Scan *s
       }
     } else if (str_equals(token.text, str_lit("viewport"))) {
       cfdr_eval_directive_viewport(state, arena, scan);
+    } else if (str_equals(token.text, str_lit("colormap"))) {
+      cfdr_eval_directive_colormap(state, arena, scan);
     } else if (str_equals(token.text, str_lit("overlay"))) {
       cfdr_eval_directive_overlay(state, arena, scan);
     } else if (str_equals(token.text, str_lit("object"))) {

@@ -101,6 +101,7 @@ typedef struct CFDR_Resource_Volume {
   CFDR_Resource resource;
   B32           valid;
   R_Texture_3D  volume;
+  V2F           data_range;
   R_Texture_2D  color_map;
   R_Buffer      constant_buffer;
   R_Bind_Group  bind_group;
@@ -139,6 +140,8 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
       log_info("Compression Flags: %d", flags);
       log_info("Voxel Dimensions: %u %u %u", X, Y, Z);
       log_info("Dataset Bounds: %f %f", min_range, max_range);
+
+      volume->data_range = v2f(min_range, max_range);
 
       U08 *data = arena_push_size(scratch.arena, decompressed_size);
       LZ4_decompress_safe((char *)data_compressed, (char *)data, compressed_size, decompressed_size);

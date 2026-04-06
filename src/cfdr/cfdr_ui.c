@@ -31,7 +31,8 @@ Icon_X(FA_FLOPPY_DISK,                           "\xef\x83\x87") \
 Icon_X(FA_TABLE_CELLS_LARGE,                     "\xef\x80\x89") \
 Icon_X(FA_SUN,                                   "\xef\x86\x85") \
 Icon_X(FA_MOON,                                  "\xef\x86\x86") \
-Icon_X(FA_OBJECT_GROUP,                          "\xef\x89\x87")
+Icon_X(FA_OBJECT_GROUP,                          "\xef\x89\x87") \
+Icon_X(FA_BARS,                                  "\xef\x83\x89")
 
 #undef  Icon_X
 #define Icon_X(name_, value_) var_global Str Icon_##name_ = str_lit(value_);
@@ -81,7 +82,7 @@ typedef struct CFDR_UI_State {
 fn_internal void cfdr_ui_viewport_draw_hook(UI_Response *response, R2F draw_region, void *user_data) {
   CFDR_State *state = (CFDR_State *)user_data;
 
-  cfdr_scene_draw(&state->render, response, &state->scene, draw_region);
+  cfdr_scene_draw(&state->render, &state->cmap_table, response, &state->scene, draw_region);
   cfdr_overlay_draw(&state->overlay, &state->scene, draw_region);
 }
 
@@ -150,7 +151,6 @@ fn_internal void cfdr_ui_menu_bar(CFDR_UI_State *ui) {
         Str load_url = str_cat(scratch.arena, url, str_cat(scratch.arena, str_lit("/?project=examples/"), demo_paths[demo_index]));
         js_web_load_page(load_url.len, load_url.txt);
       }
-
     }
 
     ui_container(str_lit("##padding"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit);
@@ -258,9 +258,26 @@ fn_internal void cfdr_ui_viewport_menu_bar(CFDR_UI_State *ui, I32 viewport_index
           ui->state->scene.step.step_at = ui->state->scene.step.step_count ? ui->state->scene.step.step_count - 1 : 0;
         }
       }
-    }
 
-    UI_Parent_Scope(ui_container(str_lit("##right"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
+      ui_container(str_lit("##spacing_1"), Axis2_X, UI_Container_None, UI_Size_Fixed(10), UI_Size_Fit);
+
+      var_local_persist I32 var_idx    = 0;
+      var_local_persist Str var_list[] = { str_lit("velocity") };
+      // ui_list_fixed(str_lit("Variable"), &var_idx, sarray_len(var_list), var_list); 
+
+      ui_container(str_lit("##spacing_2"), Axis2_X, UI_Container_None, UI_Size_Fixed(10), UI_Size_Fit);
+
+      Str cmap = ui->state->scene.cmap;
+      I32 colormap_index = 0;
+      For_U64(it, ui->state->cmap_table.key_count) {
+        if (str_equals(cmap, ui->state->cmap_table.key_list[it])) {
+          colormap_index = it;
+          break;
+        }
+      }
+
+      ui_list_fixed(str_lit("Color Map"), &colormap_index, ui->state->cmap_table.key_count, ui->state->cmap_table.key_list); 
+      ui->state->scene.cmap = ui->state->cmap_table.key_list[colormap_index];
     }
   }
 }
@@ -447,12 +464,13 @@ fn_internal void cfdr_ui_property_object(CFDR_UI_State *ui) {
       ui_label(str_lit("Base"));
       ui_separator(str_lit("##separator_1"));
 
-      ui_color_hsv  (str_lit("Color"),    &object->color.hsv);
-      ui_f32_edit   (str_lit("Opacity"),  &object->color.a, 0.0f, 1.0f, 0.01f);
-
-
       var_local_persist Str material_list[] = { str_lit("Flat"), str_lit("Matcap"), str_lit("Sample"), };
       ui_list(str_lit("Material"), &object->material, sarray_len(CFDR_Material_String_List), CFDR_Material_String_List); 
+
+      if (object->material != CFDR_Material_Sample) {
+        ui_color_hsv  (str_lit("Color"),    &object->color.hsv);
+        ui_f32_edit   (str_lit("Opacity"),  &object->color.a, 0.0f, 1.0f, 0.01f);
+      }
 
       UI_Parent_Scope(ui_container(str_lit("##scale"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
         ui_label(str_lit("Scale"));
@@ -601,10 +619,88 @@ fn_internal void cfdr_ui_property_panel(CFDR_UI_State *ui) {
   }
 }
 
+fn_internal void cfdr_ui_cmap_draw_hook(UI_Response *response, R2F draw_region, void *user_data) {
+  CFDR_CMap *cmap = (CFDR_CMap *)user_data;
+  if (cmap) {
+
+    V2F region_size = r2f_size(draw_region);
+
+    F32 cell_size = 12.f;
+    U32 cells_x   = (U32)(region_size.x / cell_size) + 1;
+    U32 cells_y   = (U32)(region_size.y / cell_size) + 1;
+
+    For_U32(h, cells_y) {
+      For_U32(w, cells_x) {
+        g2_draw_rect(v2f(draw_region.min.x + cell_size * w, draw_region.min.y + cell_size * h), v2f(cell_size, cell_size), .color = (w + h) % 2 ? v4f(.1f, .1f, .1f, 1.f) : v4f(.5f, .5f, .5f, 1.f));
+      }
+    }
+
+    g2_draw_rect(draw_region.min, r2f_size(draw_region), .mat = cmap->material);
+    g2_submit_draw();
+  }
+}
+
+fn_internal void cfdr_ui_cmap_panel(CFDR_UI_State *ui) {
+  UI_Node *box = ui_container(str_lit("##colormap_panel"), UI_Container_Box, Axis2_Y, UI_Size_Fill, UI_Size_Fill);
+  UI_Parent_Scope(box) {
+    UI_Parent_Scope(ui_container(str_lit("##colormap_tab"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
+      UI_Font_Scope(&ui->font_icon) {
+        ui_label(Icon_FA_BARS);
+      }
+
+      ui_label(str_lit("Color Map"));
+    }
+
+    ui_separator(str_lit("##sep_title"));
+    ui_container(str_lit("##padding_1"), UI_Container_None, Axis2_X, UI_Size_Fit, UI_Size_Fixed(5));
+
+    CFDR_CMap *cmap = cfdr_cmap_table_get(&ui->state->cmap_table, ui->state->scene.cmap);
+
+    ui_container(str_lit("##force_size"), UI_Container_None, Axis2_X, UI_Size_Fixed(350), UI_Size_Fit);
+
+    UI_Node *cmap_view = ui_container(str_lit("##colormap_preview"), UI_Container_Box, Axis2_X, UI_Size_Fill, UI_Size_Fixed(40));
+    cmap_view->flags |= UI_Flag_Draw_Content_Hook | UI_Flag_Draw_Clip_Content;
+    cmap_view->draw.content_hook      = cfdr_ui_cmap_draw_hook;
+    cmap_view->draw.content_user_data = cmap;
+
+    if (cmap) {
+      HSV c0 = cmap->c0.hsv;
+      HSV c1 = cmap->c0.hsv;
+
+      ui_color_hsv(str_lit("Color 0"), &cmap->c0.hsv);
+      ui_color_hsv(str_lit("Color 1"), &cmap->c1.hsv);
+
+      I32 interpolate_mode = cmap->interpolate;
+      I32 opacity_mode     = cmap->opacity;
+      ui_list(str_lit("Color Mapping"),   &cmap->interpolate, sarray_len(CFDR_CMap_Interpolate_String), CFDR_CMap_Interpolate_String); 
+      ui_list(str_lit("Opacity Mapping"), &cmap->opacity,     sarray_len(CFDR_CMap_Opacity_String),     CFDR_CMap_Opacity_String); 
+      ui_list(str_lit("Data Mapping"), &cmap->map_mode, sarray_len(CFDR_CMap_Map_String), CFDR_CMap_Map_String); 
+      if (cmap->map_mode == CFDR_CMap_Map_Custom) {
+        UI_Node *box = ui_container(str_lit("##custom_range"), UI_Container_Box, Axis2_X, UI_Size_Fill, UI_Size_Fit);
+        box->palette.idle  = hsv_u32(200, 10, 10);
+        box->palette.hover = hsv_u32(210, 10, 15);
+        box->palette.down  = hsv_u32(220, 10, 15);
+        UI_Parent_Scope(box) {
+          ui_f32_edit(str_lit("Map Range##MIN"), &cmap->map_custom.x, -5000.f, +5000.f, 0.01f);
+          ui_f32_edit_static(str_lit("##MAX"), &cmap->map_custom.y, -5000.f, +5000.f, 0.01f);
+        }
+      }
+      
+      if (interpolate_mode != cmap->interpolate ||
+          opacity_mode     != cmap->opacity ||
+          !memory_compare(&c0, &cmap->c0.hsv, sizeof(V3F)) ||
+          !memory_compare(&c1, &cmap->c1.hsv, sizeof(V3F))) {
+        cfdr_cmap_edit_colors(cmap, cmap->interpolate, cmap->opacity, cmap->c0, cmap->c1);
+      }
+    }
+  }
+}
+
 fn_internal void cfdr_ui_side_panel(CFDR_UI_State *ui) {
   UI_Parent_Scope(ui_container(str_lit("##side_panel"), UI_Container_None, Axis2_Y, UI_Size_Fit, UI_Size_Fill)) {
     cfdr_ui_layer_panel     (ui);
     cfdr_ui_property_panel  (ui);
+    cfdr_ui_cmap_panel      (ui);
   }
 }
 
@@ -654,11 +750,17 @@ fn_internal void cfdr_ui_log_panel(CFDR_UI_State *ui) {
   }
 }
 
+
+
 fn_internal void cfdr_ui_workspace(CFDR_UI_State *ui) {
   UI_Parent_Scope(ui_container(str_lit("##workspace"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fill)) {
     cfdr_ui_side_panel(ui);
     UI_Parent_Scope(ui_container(str_lit("##container_1"), UI_Container_None, Axis2_Y, UI_Size_Fill, UI_Size_Fill)) {
-      cfdr_ui_viewport_all(ui);
+
+      UI_Parent_Scope(ui_container(str_lit("##container_1.5"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fill)) {
+        // cfdr_ui_cmap_panel(ui);
+        cfdr_ui_viewport_all(ui);
+      }
 
       UI_Parent_Scope(ui_container(str_lit("##container_2"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit)) {
         cfdr_ui_resource_panel(ui);
