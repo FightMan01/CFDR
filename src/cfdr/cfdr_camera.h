@@ -24,9 +24,9 @@ fn_internal void cfdr_camera_init(CFDR_Camera *camera) {
   zero_fill(camera);
 
   camera->look_at        = v3f(0, 0, 0);
-  camera->radius_m       = 40.f;
-  camera->theta_deg      = 45.f;
-  camera->phi_deg        = 45.f;
+  camera->radius_m       = 10.f;
+  camera->theta_deg      = 0.f;
+  camera->phi_deg        = 0.f;
   camera->near_m         = 0.1f;
   camera->far_m          = 1000.f;
   camera->fov_deg        = 60.f;
