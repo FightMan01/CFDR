@@ -49,5 +49,6 @@ typedef struct CFDR_Table {
   CFDR_Table_Node *last;
 } CFDR_Table;
 
-fn_internal void cfdr_eval(CFDR_State *state, Str expr);
+fn_internal CFDR_Value  cfdr_eval_expr  (Arena *arena, TK_Scan *scan);
+fn_internal void        cfdr_eval       (CFDR_State *state, Str expr);
 

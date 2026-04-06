@@ -16,6 +16,8 @@ typedef struct CFDR_Object_Node {
   CFDR_Object_Flag          flags;
   B32                       visible;
   Str                       tag;
+
+  // TODO(cmat): Merge all three of these into just a material!
   HSVA                      color;
   CFDR_Material             material;
 
@@ -51,9 +53,10 @@ typedef struct CFDR_Scene {
   CFDR_Object_Node  *last;
   CFDR_Scene_View    view;
   CFDR_Scene_Step    step;
+  Str                cmap;
 } CFDR_Scene;
 
 fn_internal void              cfdr_scene_init(CFDR_Scene *object);
 fn_internal CFDR_Object_Node *cfdr_scene_push(CFDR_Scene *object);
-fn_internal void              cfdr_scene_draw(CFDR_Render *render, UI_Response *response, CFDR_Scene *object, R2F draw_region);
+fn_internal void              cfdr_scene_draw(CFDR_Render *render, CFDR_CMap_Table *cmap_table, UI_Response *response, CFDR_Scene *object, R2F draw_region);
 

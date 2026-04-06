@@ -119,8 +119,7 @@ fn_internal UI_Node *ui_cache(UI_ID id) {
         list->last             = list->last->hash_next;
         result                 = list->last;
         result->id             = id;
-
-        // log_debug("(Hash-Collision) Created UI element with id # %u", result->id);
+        break;
       }
 
       entry = entry->hash_next;
@@ -619,7 +618,7 @@ fn_internal void ui_draw(UI_Node *node, UI_Draw_Context *context) {
 
     F32 rounding = 0.f;
     if (node->flags & UI_Flag_Draw_Rounded) {
-      rounding = 6;
+      rounding = 0;
     }
 
     R2F region = node->solved.region_absolute;
@@ -1524,6 +1523,12 @@ fn_internal void ui_color_hsv(Str label, HSV *color_hsv) {
 
     if (node->response.press) {
       V2F spawn_at = v2f(node->solved.region_absolute.x0, pl_display()->resolution.y - node->solved.region_absolute.y0 + 5);
+
+      // TODO(cmat): Use actual size, or better yet, handle directly in spawn.
+      if (spawn_at.x + 255 > pl_display()->resolution.x) {
+        spawn_at.x -= 400;
+      }
+
       ui_context_spawn(node, spawn_at);
     }
 
