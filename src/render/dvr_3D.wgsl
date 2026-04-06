@@ -130,7 +130,8 @@ fn fs_main(@location(0) X : vec3<f32>,
     let sample_remap = (sample_clamp - vis_min) / (vis_max - vis_min);
 
 
-    let color           = World_3D.Volume_Saturate * transfer_function(sample_remap);
+    let color           = World_3D.Volume_Saturate
+* transfer_function(sample_remap);
     accum_color        += mask * (1.0 - accum_color.a) * vec4<f32>(color.rgb * color.a, color.a);
     ray_t              += ray_step_size;
   }

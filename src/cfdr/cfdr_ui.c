@@ -32,7 +32,9 @@ Icon_X(FA_TABLE_CELLS_LARGE,                     "\xef\x80\x89") \
 Icon_X(FA_SUN,                                   "\xef\x86\x85") \
 Icon_X(FA_MOON,                                  "\xef\x86\x86") \
 Icon_X(FA_OBJECT_GROUP,                          "\xef\x89\x87") \
-Icon_X(FA_BARS,                                  "\xef\x83\x89")
+Icon_X(FA_BARS,                                  "\xef\x83\x89") \
+Icon_X(FA_BUG,                                   "\xef\x86\x88") \
+Icon_X(FA_BUG_SLASH,                             "\xee\x92\x90")
 
 #undef  Icon_X
 #define Icon_X(name_, value_) var_global Str Icon_##name_ = str_lit(value_);
@@ -75,15 +77,52 @@ typedef struct CFDR_UI_State {
   CFDR_UI_Split_Mode split_mode;
   B32                fullscreen;
   B32                dark_mode;
-
   B32                overlay_tab;
+
+  B32 profile_view;
+  F32 frame_rate_avg;
+  U32 frame_rate_at;
+  F32 frame_rate_buffer[256];
 } CFDR_UI_State;
 
 fn_internal void cfdr_ui_viewport_draw_hook(UI_Response *response, R2F draw_region, void *user_data) {
-  CFDR_State *state = (CFDR_State *)user_data;
+  CFDR_UI_State *ui     = (CFDR_UI_State *)user_data;
+  CFDR_State    *state  = ui->state;
 
   cfdr_scene_draw(&state->render, &state->cmap_table, response, &state->scene, draw_region);
   cfdr_overlay_draw(&state->overlay, &state->scene, draw_region);
+
+  if (ui->profile_view) {
+    g2_draw_rect(draw_region.min, r2f_size(draw_region), .color = v4f(.0f, .0f, .0f, .6f));
+
+    F32 max_value = f32_largest_negative;
+    F32 min_value = f32_largest_positive;
+    For_U32(it, sarray_len(ui->frame_rate_buffer)) {
+      max_value = f32_max(ui->frame_rate_buffer[it], max_value);
+      min_value = f32_min(ui->frame_rate_buffer[it], min_value);
+    }
+
+    V2F draw_at     = v2f_add(draw_region.min, v2f(10, 10));
+    F32 max_height  = .25f * r2f_size(draw_region).y;
+    For_U32(it, sarray_len(ui->frame_rate_buffer)) {
+      F32 h = (ui->frame_rate_buffer[it] / max_value) * max_height;
+
+      V4F c = rgba_from_hsva(v4f(h / max_height, .8f, 1.f, 1.f));
+
+      g2_draw_rect(draw_at, v2f(2.f, h), .color = c);
+      draw_at.x += 3.f;
+    }
+
+    F32 avg_h = draw_at.y + ((1.f / ui->frame_rate_avg) / max_value) * max_height;
+    g2_draw_rect(v2f(0, avg_h), v2f(draw_at.x + 100, 2), .color = v4f(1, 1, 1, 1));
+
+    char buffer[512] = { };
+    stbsp_snprintf(buffer, 512, "Average: %.2f, Highest: %.2f, Lowest: %.2f", ui->frame_rate_avg, 1.f / min_value, 1.f / max_value);
+    g2_draw_text(str_from_cstr(buffer), &ui->font_mono, v2f(draw_region.min.x + 10, draw_region.min.y + max_height + 50), .color = v4f(1, 1, 1, 1));
+    
+
+    // g2_draw_text(str_lit("Framerate: %.*s"), ui->font_mono);
+  }
 }
 
 fn_internal void cfdr_ui_update_fonts(CFDR_UI_State *ui) {
@@ -122,6 +161,10 @@ fn_internal void cfdr_ui_init(CFDR_UI_State *ui, CFDR_State *state) {
   ui->font_size = 0;
   ui->font_init = 0;
   cfdr_ui_update_fonts(ui);
+
+  For_U32(it, sarray_len(ui->frame_rate_buffer)) {
+    ui->frame_rate_buffer[it] = f32_smallest_positive;
+  }
 }
 
 fn_internal void cfdr_ui_menu_bar(CFDR_UI_State *ui) {
@@ -157,25 +200,47 @@ fn_internal void cfdr_ui_menu_bar(CFDR_UI_State *ui) {
 
 
     UI_Font_Scope(&ui->font_icon) {
-      F32 icon_1_width = fo_text_width(&ui->font_icon.font, Icon_FA_MOON);
-      F32 icon_2_width = fo_text_width(&ui->font_icon.font, Icon_FA_SUN);
-      F32 icon_width   = f32_max(icon_1_width, icon_2_width);
 
-      UI_Node *theme_button = ui_container(ui->dark_mode ? Icon_FA_MOON : Icon_FA_SUN, UI_Container_Box, Axis2_X, UI_Size_Fixed(icon_width), UI_Size_Fill);
-      theme_button->flags  |= UI_Flag_Draw_Label;
-      theme_button->flags  |= UI_Flag_Draw_Label_Centered;
-      theme_button->flags  |= UI_Flag_Draw_Rounded;
+      {
+        F32 icon_1_width = fo_text_width(&ui->font_icon.font, Icon_FA_BUG);
+        F32 icon_2_width = fo_text_width(&ui->font_icon.font, Icon_FA_BUG_SLASH);
+        F32 icon_width   = f32_max(icon_1_width, icon_2_width);
 
-      theme_button->palette.idle  = hsv_u32(235, 27, 25);
-      theme_button->palette.hover = hsv_u32(235, 24, 44);
-      theme_button->palette.down  = hsv_u32(235, 10, 15);
+        UI_Node *theme_button = ui_container(ui->profile_view ? Icon_FA_BUG : Icon_FA_BUG_SLASH, UI_Container_Box, Axis2_X, UI_Size_Fixed(icon_width), UI_Size_Fill);
+        theme_button->flags  |= UI_Flag_Draw_Label;
+        theme_button->flags  |= UI_Flag_Draw_Label_Centered;
+        theme_button->flags  |= UI_Flag_Draw_Rounded;
 
-      if (theme_button->response.press) {
-        ui->dark_mode = !ui->dark_mode;
-        if (ui->dark_mode) {
-          UI_Theme_Active = UI_Theme_Dark;
-        } else {
-          UI_Theme_Active = UI_Theme_Light;
+        theme_button->palette.idle  = hsv_u32(235, 27, 25);
+        theme_button->palette.hover = hsv_u32(235, 24, 44);
+        theme_button->palette.down  = hsv_u32(235, 10, 15);
+
+        if (theme_button->response.press) {
+          ui->profile_view = !ui->profile_view;
+        }
+      }
+
+      {
+        F32 icon_1_width = fo_text_width(&ui->font_icon.font, Icon_FA_MOON);
+        F32 icon_2_width = fo_text_width(&ui->font_icon.font, Icon_FA_SUN);
+        F32 icon_width   = f32_max(icon_1_width, icon_2_width);
+
+        UI_Node *theme_button = ui_container(ui->dark_mode ? Icon_FA_MOON : Icon_FA_SUN, UI_Container_Box, Axis2_X, UI_Size_Fixed(icon_width), UI_Size_Fill);
+        theme_button->flags  |= UI_Flag_Draw_Label;
+        theme_button->flags  |= UI_Flag_Draw_Label_Centered;
+        theme_button->flags  |= UI_Flag_Draw_Rounded;
+
+        theme_button->palette.idle  = hsv_u32(235, 27, 25);
+        theme_button->palette.hover = hsv_u32(235, 24, 44);
+        theme_button->palette.down  = hsv_u32(235, 10, 15);
+
+        if (theme_button->response.press) {
+          ui->dark_mode = !ui->dark_mode;
+          if (ui->dark_mode) {
+            UI_Theme_Active = UI_Theme_Dark;
+          } else {
+            UI_Theme_Active = UI_Theme_Light;
+          }
         }
       }
     }
@@ -198,6 +263,11 @@ fn_internal void cfdr_ui_status_bar(CFDR_UI_State *ui) {
     ui_container(str_lit("##pad_left"), UI_Container_None, Axis2_X, UI_Size_Fill, UI_Size_Fit);
 
     UI_Font_Scope(&ui->font_mono) {
+      char buffer[512];
+      stbsp_snprintf(buffer, 512, "%.2f FPS###FRAMERATE", ui->frame_rate_avg);
+
+      ui_label(str_from_cstr(buffer));
+      ui_container(str_lit("##spacing"), UI_Container_None, Axis2_X, UI_Size_Fixed(10), UI_Size_Fit);
       ui_label(str_lit(CFDR_VERSION_STRING));
     }
   }
@@ -293,7 +363,7 @@ fn_internal void cfdr_ui_viewport(CFDR_UI_State *ui, I32 viewport_index) {
     UI_Node *content = ui_container(str_lit("##content"), UI_Container_Box, Axis2_X, UI_Size_Fill, UI_Size_Fill);
     content->flags |= UI_Flag_Draw_Content_Hook | UI_Flag_Draw_Clip_Content;
     content->draw.content_hook      = cfdr_ui_viewport_draw_hook;
-    content->draw.content_user_data = ui->state;
+    content->draw.content_user_data = ui;
 
     if (content->response.press_secondary) {
       V2F spawn_at = v2f(pl_input()->mouse.position.x, pl_display()->resolution.y - pl_input()->mouse.position.y);
@@ -774,9 +844,23 @@ fn_internal void cfdr_ui_workspace(CFDR_UI_State *ui) {
 fn_internal void cfdr_ui(CFDR_UI_State *ui) {
   cfdr_ui_update_fonts(ui);
 
+  ui->frame_rate_buffer[ui->frame_rate_at] = pl_display()->frame_delta;
+  ui->frame_rate_at = (ui->frame_rate_at + 1) % sarray_len(ui->frame_rate_buffer);
+  ui->frame_rate_avg = 0;
+  For_U32(it, sarray_len(ui->frame_rate_buffer)) {
+    ui->frame_rate_avg += ui->frame_rate_buffer[it];
+  }
+
+  ui->frame_rate_avg /= sarray_len(ui->frame_rate_buffer);
+  ui->frame_rate_avg = 1.f / ui->frame_rate_avg;
+
   UI_Font_Scope(&ui->font_text) {
     if (pl_input()->keyboard.state[PL_KB_F].press) {
       ui->fullscreen = !ui->fullscreen;
+    }
+
+    if (pl_input()->keyboard.state[PL_KB_D].press && pl_input()->keyboard.state[PL_KB_Shift_Left].down) {
+      ui->profile_view = !ui->profile_view;
     }
 
     if (ui->fullscreen) {
