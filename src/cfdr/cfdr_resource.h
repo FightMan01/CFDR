@@ -126,8 +126,8 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
       U64 compressed_size   = *(U64 *)(data_view); data_view += sizeof(U64);
       U64 decompressed_size = *(U64 *)(data_view); data_view += sizeof(U64);
       U32 flags             = *(U32 *)(data_view); data_view += sizeof(U32);
-      U32 X                 = *(U32 *)(data_view); data_view += sizeof(U32);
       U32 Y                 = *(U32 *)(data_view); data_view += sizeof(U32);
+      U32 X                 = *(U32 *)(data_view); data_view += sizeof(U32);
       U32 Z                 = *(U32 *)(data_view); data_view += sizeof(U32);
       F32 min_range         = *(F32 *)(data_view); data_view += sizeof(F32);
       F32 max_range         = *(F32 *)(data_view); data_view += sizeof(F32);
