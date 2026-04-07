@@ -89,7 +89,6 @@
 #object "Simulation" {
   visible:          false,
   volume:           [
-                      [ 0,  "examples/uap/velocity_0.vol"  ],
                       [ 1,  "examples/uap/velocity_1.vol"  ],
                       [ 2,  "examples/uap/velocity_2.vol"  ],
                       [ 3,  "examples/uap/velocity_3.vol"  ],
