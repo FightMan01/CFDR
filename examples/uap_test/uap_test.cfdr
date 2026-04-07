@@ -89,8 +89,8 @@
 #object "Simulation" {
   visible:          true,
   volume:           [
-                      [ 1,  "examples/uap_test/velocity_30.vol"  ],
+                      [ 1,  "examples/uap_test/velocity_23.vol"  ],
                     ],
-  scale:            [202, 180, 100],
+  scale:            [328, 288, 100],
 }
 
