@@ -12,7 +12,7 @@
   opacity_map:          "smoothstep",
   color_map:            "hsv",
   data_map:             "custom",
-  data_range:           [ 0, 5 ],
+  data_range:           [ 0, 4 ],
 }
 
 #colormap "Lawson" {
@@ -90,11 +90,18 @@
   visible:          false,
   volume:           [
                       [ 1,  "examples/uap/velocity_1.vol"  ],
-                      [ 11, "examples/uap/velocity_11.vol" ],
-                      [ 21, "examples/uap/velocity_21.vol" ],
+                      [ 2,  "examples/uap/velocity_2.vol"  ],
+                      [ 3,  "examples/uap/velocity_3.vol"  ],
+                      [ 4,  "examples/uap/velocity_4.vol"  ],
+                      [ 5,  "examples/uap/velocity_5.vol"  ],
+                      [ 6,  "examples/uap/velocity_6.vol"  ],
+                      [ 7,  "examples/uap/velocity_7.vol"  ],
+                      [ 8,  "examples/uap/velocity_8.vol"  ],
+                      [ 9,  "examples/uap/velocity_9.vol"  ],
+                      [ 10,  "examples/uap/velocity_10.vol"  ],
                     ],
-  scale:            [1000, 1000, 100],
-  translate:        [ -1000, 0, 0 ],
+  scale:            [1358, 1236, 100],
+  translate:        [ 0, 0, 0 ],
 }
 
 // NOTE(cmat): Sample into the simulation volume.
@@ -107,12 +114,3 @@
   translate:        [0, 0, 3],
 }
 
-// NOTE(cmat): Sample into the simulation volume.
-#object "Vertical Slice" {
-  visible:          false,
-  color:            @hsv [0, 70, 80],
-  material:         "sample",
-  surface:          "examples/uap/vertical_slice.stl",
-  scale:            [1, 1, 1],
-  translate:        [0, 0, 0],
-}
