@@ -87,10 +87,21 @@
 
 // NOTE(cmat): Simulation volume.
 #object "Simulation" {
-  visible:          true,
+  visible:          false,
   volume:           [
                       [ 1,  "examples/uap_test/velocity_30.vol"  ],
                     ],
-  scale:            [202, 180, 100],
+  scale:            [286, 243, 100],
+  translate:        [ 0, 0, 0 ],
 }
 
+// NOTE(cmat): Sample into the simulation volume.
+#object "Terrain Slice" {
+  visible:          true,
+  color:            @hsv [0, 70, 80],
+  material:         "sample",
+  colormap:         "hsv-pastel",
+  surface:          "examples/uap_test/domain_surface.stl",
+  scale:            [1, 1, 1],
+  translate:        [0, 0, 3],
+}
