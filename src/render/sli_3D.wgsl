@@ -72,7 +72,8 @@ fn fs_main(@location(0) X : vec3<f32>,
   // TODO(cmat): This is very much temporary.
   var sample_uv       = vec3<f32>(0, 0, 0);
   if (World_3D.Volume_XYZ == 0) {
-    sample_uv       = vec3<f32>(sample_position.z, 1.0 - sample_position.x, sample_position.y);
+    // sample_uv       = vec3<f32>(sample_position.z, 1.0 - sample_position.x, sample_position.y);
+    sample_uv       = vec3<f32>(sample_position.x, sample_position.z, sample_position.y);
   } else {
     sample_uv       = vec3<f32>(sample_position.x, sample_position.y, sample_position.z);
   }
