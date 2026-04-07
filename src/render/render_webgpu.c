@@ -233,16 +233,16 @@ fn_internal void webgpu_create_default_textures(void) {
   r_texture_2D_download(R_Texture_2D_White, R_Texture_Format_RGBA_U08_Normalized, r2i(0, 0, 2, 2), (U08 *)white_texture_data);
 
 
-  U16 white_texture_volume_data[] = {
-    0x3C00, 0x3C00,
-    0x3C00, 0x3C00,
+  U08 white_texture_volume_data[] = {
+    0xFF, 0xFF,
+    0xFF, 0xFF,
 
-    0x3C00, 0x3C00,
-    0x3C00, 0x3C00,
+    0xFF, 0xFF,
+    0xFF, 0xFF,
   };
 
-  R_Texture_3D_White = r_texture_3D_allocate(R_Texture_Format_F16, 2, 2, 2);
-  r_texture_3D_download(R_Texture_3D_White, R_Texture_Format_F16, r3i(0, 0, 0, 2, 2, 2), (U08 *)white_texture_volume_data);
+  R_Texture_3D_White = r_texture_3D_allocate(R_Texture_Format_R_U08_Normalized, 2, 2, 2);
+  r_texture_3D_download(R_Texture_3D_White, R_Texture_Format_R_U08_Normalized, r3i(0, 0, 0, 2, 2, 2), (U08 *)white_texture_volume_data);
 }
 
 fn_internal void webgpu_create_default_samplers(void) {
