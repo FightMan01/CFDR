@@ -224,6 +224,8 @@ function js_http_request_send(request_ptr, arena_ptr, url_len, url_txt) {
     if (xhr.status == 200) {
       const data      = xhr.response;
       const bytes     = data.byteLength;
+
+      console.log("Download complete for " + url + ": " + bytes);
       const dst_ptr   = wasm_context.export_table.wasm_arena_push_size(arena_ptr, bytes);
       const src_wasm  = new Uint8Array(data);
       const dst_wasm  = new Uint8Array(wasm_context.memory.buffer, dst_ptr, bytes);
@@ -459,7 +461,7 @@ function binding_list_from_shader_layout(shader_layout) {
         binding.texture = { sampleType: 'float', viewDimension: '2d' };
         break;
       case 3:
-        binding.texture = { sampleType: 'unfilterable-float', viewDimension: '3d' };
+        binding.texture = { sampleType: 'float', viewDimension: '3d' };
         break;
       case 4:
         binding.sampler = { type: 'filtering' };
@@ -495,15 +497,19 @@ const WebGPU_Texture_Format_Lookup_Name = [
   'rgba8snorm',
   'r8unorm',
   'r8snorm',
+  
+  'r16float',
   'r32float',
 ];
 
 const WebGPU_Texture_Format_Lookup_Bytes = [
-  4,
-  4,
-  1,
-  1,
-  4
+  4, // rgba8unorm
+  4, // rgba8snorm
+  1, // r8unorm
+  1, // r8snorm
+
+  2, // r16float
+  4, // r32float
 ];
 
 function js_webgpu_texture_3D_allocate(format, width, height, depth) {
@@ -691,7 +697,7 @@ function js_webgpu_pipeline_create(pipeline_layout) {
     
 
     depthStencil: depth_stencil,
-    multisample: { count: MSAA_Sample_Count, },
+    multisample: { count: MSAA_Sample_Count, /* alphaToCoverageEnabled: true, */ },
   });
 
   return wasm_context.webgpu.handle_map.store(render_pipeline);
@@ -933,7 +939,7 @@ function wasm_module_load(wasm_bytecode) {
       js_web_download:                js_web_download,
 
       // NOTE(cmat): Platform API.
-      js_pl_set_shared_memory:  js_pl_set_shared_memory,
+      js_pl_set_shared_memory:        js_pl_set_shared_memory,
 
       // NOTE(cmat): WebGPU API.
       js_webgpu_buffer_allocate:      js_webgpu_buffer_allocate,
@@ -1055,3 +1061,4 @@ function wasm_module_load(wasm_bytecode) {
 fetch("alice_canvas.wasm")
   .then(response => response.arrayBuffer())
   .then(bytes    => wasm_module_load(bytes));
+
