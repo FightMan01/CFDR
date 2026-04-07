@@ -284,6 +284,22 @@ function js_web_load_page(url_len, url_txt) {
   window.location.href = url_string;
 }
 
+function js_web_download(filename, data_len, data_ptr) {
+  const view = new Uint8Array(wasm_context.memory.buffer, data_ptr, data_len);
+  const blob = new Blob([data], { type: "application/octet-stream" });
+  const url  = URL.createObjectURL(blob);
+
+  const downloader = document.createElement("downloader");
+  downloader.href = url;
+  downloader.download = filename;
+
+  document.body.appendChild(downloader);
+  downloader.click();
+
+  document.body.removeChild(downloader);
+  URL.revokeObjectURL(url);
+}
+
 // ------------------------------------------------------------
 // #-- NOTE(cmat): JS - WASM platform API.
 
@@ -907,6 +923,7 @@ function wasm_module_load(wasm_bytecode) {
       js_web_current_url_base:        js_web_current_url_base,
       js_web_load_page:               js_web_load_page,
       js_web_device_pixel_ratio:      js_web_device_pixel_ratio,
+      js_web_download:                js_web_download,
 
       // NOTE(cmat): Platform API.
       js_pl_set_shared_memory:        js_pl_set_shared_memory,
