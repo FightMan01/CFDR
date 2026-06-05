@@ -1,0 +1,35 @@
+// (C) Copyright 2025 Matyas Constans
+// Licensed under the MIT License (https://opensource.org/license/mit/)
+
+__attribute__((export_name("wasm_arena_push_size")))
+fn_entry UAddr wasm_arena_push_size(Arena *arena, U32 bytes) {
+  U08 *ptr = arena_push_size(arena, bytes);
+  return (UAddr)ptr;
+}
+
+enum {
+  HTTP_Status_Failed        = 0,
+  HTTP_Status_Done          = 1,
+  HTTP_Status_In_Progress   = 2,
+};
+
+#pragma pack(push, 1)
+typedef struct HTTP_Request {
+  U32  status;
+  U32  bytes_downloaded;
+  U32  bytes_total;
+  U08 *bytes_data;
+} HTTP_Request;
+#pragma pack(pop)
+
+
+fn_external void js_http_request_send       (HTTP_Request *request, Arena *arena, U32 url_len, char *url_txt);
+fn_external void js_web_current_url         (U32 url_cap, U08 *url);
+fn_external void js_web_current_url_base    (U32 url_cap, U08 *url);
+fn_external F32  js_web_device_pixel_ratio  (void);
+fn_external B32  js_web_load_page           (U32 url_len, U08 *url_txt);
+fn_external void js_web_download            (U32 filename_len, U08 *filename_ptr, U32 data_len, U08 *data_ptr);
+
+fn_internal void http_request_send(HTTP_Request *request, Arena *arena, Str url) {
+  js_http_request_send(request, arena, (U32)url.len, (char *)url.txt);
+}
