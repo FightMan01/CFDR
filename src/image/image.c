@@ -24,13 +24,17 @@ typedef struct IM_TGA_Header {
 
 #pragma pack(pop)
 
-fn_internal inline void im_bitmap_write_file_tga(IM_Bitmap *bitmap, CO_File *file) {
-  if (bitmap->channels != 3) Not_Implemented;
+fn_internal inline U64 im_bitmap_size_tga(IM_Bitmap *bitmap) {
+  U64 header_size = sizeof(IM_TGA_Header);
+  U64 data_size   = bitmap->channels * bitmap->width * bitmap->height;
+  return header_size + data_size;
+}
 
+fn_internal inline void im_bitmap_write_memory_tga(IM_Bitmap *bitmap, U08 *buffer) {
   IM_TGA_Header header = {
     .id_length           = 0,
     .color_map_type      = 0,
-    .data_type_code      = 2, // NOTE(cmat): Uncompressed RGB
+    .data_type_code      = 2, // NOTE(cmat): Uncompressed true-color image
     .color_map_origin    = 0,
     .color_map_length    = 0,
     .color_map_depth     = 0,
@@ -38,12 +42,37 @@ fn_internal inline void im_bitmap_write_file_tga(IM_Bitmap *bitmap, CO_File *fil
     .y_origin            = 0,
     .width               = (U16)bitmap->width,
     .height              = (U16)bitmap->height,
-    .bits_per_pixel      = 24,
+    .bits_per_pixel      = 8 * bitmap->channels,
     .image_descriptor    = 0,
   };
 
   U64  header_bytes = sizeof(header);
-  U64  image_bytes  = 3 * sizeof(U08) * bitmap->width * bitmap->height;
+  U64  image_bytes  = bitmap->channels * bitmap->width * bitmap->height;
+
+  memory_copy(buffer, &header, header_bytes);
+  memory_copy(buffer + header_bytes, bitmap->dat, image_bytes);
+}
+
+
+
+fn_internal inline void im_bitmap_write_file_tga(IM_Bitmap *bitmap, CO_File *file) {
+  IM_TGA_Header header = {
+    .id_length           = 0,
+    .color_map_type      = 0,
+    .data_type_code      = 2, // NOTE(cmat): Uncompressed true-color image
+    .color_map_origin    = 0,
+    .color_map_length    = 0,
+    .color_map_depth     = 0,
+    .x_origin            = 0,
+    .y_origin            = 0,
+    .width               = (U16)bitmap->width,
+    .height              = (U16)bitmap->height,
+    .bits_per_pixel      = 8 * bitmap->channels,
+    .image_descriptor    = 0,
+  };
+
+  U64  header_bytes = sizeof(header);
+  U64  image_bytes  = bitmap->channels * bitmap->width * bitmap->height;
 
   co_file_write(file, 0,            header_bytes, &header);
   co_file_write(file, header_bytes, image_bytes,  bitmap->dat);

@@ -13,57 +13,57 @@ typedef struct UI_Theme {
 
 var_global UI_Theme UI_Theme_Dark = {
   .box = {
-    .border = hsv_u32(36, 30, 20),
-    .idle   = hsv_u32(232, 65, 5),
-    .hover  = hsv_u32(232, 30, 10),
-    .down   = hsv_u32(232, 30, 10),
-    .label  = hsv_u32(255, 0, 100),
+    .border = hsv_u32(220, 14, 24),
+    .idle   = hsv_u32(220, 18, 13),
+    .hover  = hsv_u32(220, 18, 15),
+    .down   = hsv_u32(220, 18, 15),
+    .label  = hsv_u32(220, 10, 90),
   },
 
   .separator = {
-    .border = hsv_u32(36,  86, 88),
-    .idle   = hsv_u32(36,  86, 88),
-    .label  = hsv_u32(255, 0, 100),
+    .border = hsv_u32(220, 10, 28),
+    .idle   = hsv_u32(220, 10, 28),
+    .label  = hsv_u32(220, 8, 88),
   },
 
   .button = {
-    .border = hsv_u32(36,  70, 88),
-    .idle   = hsv_u32(36,  60, 60),
-    .hover  = hsv_u32(46,  50, 80),
-    .down   = hsv_u32(36,  70, 5),
-    .label  = hsv_u32(255, 0, 100),
+    .border = hsv_u32(215, 55, 58),
+    .idle   = hsv_u32(215, 32, 24),
+    .hover  = hsv_u32(215, 42, 34),
+    .down   = hsv_u32(215, 48, 18),
+    .inner_fill = hsv_u32(40, 50, 86),
+    .label  = hsv_u32(215, 8, 96),
   },
 
   .checkbox = {
-    .border = hsv_u32(36,  70, 88),
-    .idle   = hsv_u32(36,  60, 11),
-    .hover  = hsv_u32(46,  80, 20),
-    .down   = hsv_u32(36,  70, 5),
-    .inner_fill   = hsv_u32(200,  50, 80),
-    .label  = hsv_u32(255, 0, 100),
+    .border     = hsv_u32(205, 50, 56),
+    .idle       = hsv_u32(220, 18, 18),
+    .hover      = hsv_u32(215, 30, 26),
+    .down       = hsv_u32(215, 40, 12),
+    .inner_fill = hsv_u32(195, 72, 86),
+    .label      = hsv_u32(220, 8, 96),
   },
 
   .edit_value = {
-    .border = hsv_u32(50,  70, 88),
-    .idle   = hsv_u32(36,  60, 60),
-    .hover  = hsv_u32(46,  80, 20),
-    .down   = hsv_u32(36,  70, 5),
-    .label  = hsv_u32(255, 0, 100),
+    .border = hsv_u32(190, 50, 62),
+    .idle   = hsv_u32(220, 16, 16),
+    .hover  = hsv_u32(220, 24, 22),
+    .down   = hsv_u32(220, 30, 10),
+    .label  = hsv_u32(220, 8, 96),
   },
 
   .list = {
-    .border = hsv_u32(70,  70, 88),
-    .idle   = hsv_u32(36,  60, 80),
-    .hover  = hsv_u32(46,  80, 20),
-    .down   = hsv_u32(36,  70, 5),
-    .label  = hsv_u32(255, 0, 100),
+    .border = hsv_u32(200, 35, 50),
+    .idle   = hsv_u32(220, 16, 15),
+    .hover  = hsv_u32(220, 22, 21),
+    .down   = hsv_u32(220, 28, 9),
+    .label  = hsv_u32(220, 8, 96),
   },
 
   .label = {
-    .label  = hsv_u32(255, 0, 100),
+    .label = hsv_u32(220, 8, 92),
   },
 };
-
 var_global UI_Theme UI_Theme_Light = {
   .box = {
     .border = hsv_u32(232, 0, 90),

@@ -1,44 +1,8 @@
-#define CFDR_CMap_Resolution 512
-
-typedef I32 CFDR_CMap_Interpolate_Mode;
-enum {
-  CFDR_CMap_Interpolate_HSV,
-  CFDR_CMap_Interpolate_RGB,
-  CFDR_CMap_Interpolate_Step
-};
-
-var_global Str CFDR_CMap_Interpolate_String[] = {
-  str_lit("HSV"),
-  str_lit("RGB"),
-  str_lit("Step"),
-};
-
-typedef I32 CFDR_CMap_Opacity_Mode;
-enum {
-  CFDR_CMap_Opacity_Solid,
-  CFDR_CMap_Opacity_Smoothstep,
-};
-
-var_global Str CFDR_CMap_Opacity_String[] = {
-  str_lit("Solid"),
-  str_lit("Smoothstep"),
-};
-
-typedef I32 CFDR_CMap_Map_Mode;
-enum {
-  CFDR_CMap_Map_Min_Max,
-  CFDR_CMap_Map_Clamp_To_Unit,
-  CFDR_CMap_Map_Custom,
-};
-
-var_global Str CFDR_CMap_Map_String[] = {
-  str_lit("Min-Max"),
-  str_lit("Unit"),
-  str_lit("Custom"),
-};
+#define CFDR_CMap_Resolution  512
+#define CFDR_CMap_Node_Cap    32
 
 typedef struct CFDR_CMap_Node {
-  F32  t;
+  F32  step_t;
   HSVA color;
 } CFDR_CMap_Node;
 
@@ -49,90 +13,90 @@ typedef struct CFDR_CMap {
   R_Texture_2D                texture;
   G2_Material                 material;
 
-  CFDR_CMap_Opacity_Mode      opacity;
-  CFDR_CMap_Interpolate_Mode  interpolate;
-  HSVA                        c0;
-  HSVA                        c1;
 
-  CFDR_CMap_Map_Mode          map_mode;
-  V2F                         map_custom;
+  B32                         contour_visible;
+  F32                         contour_value;
+  HSV                         contour_color;
+  F32                         contour_thickness;
+
+  U32                         node_cap;
+  U32                         node_len;
+  CFDR_CMap_Node              node_dat[CFDR_CMap_Node_Cap];
+
+  B32                         interpolate;
+  B32                         map_opacity;
+  F32                         data_scale;
+  F32                         data_shift;
 } CFDR_CMap;
 
-fn_internal void cfdr_cmap_init(CFDR_CMap *cm, CFDR_CMap_Interpolate_Mode mode, CFDR_CMap_Opacity_Mode opacity, HSVA c0, HSVA c1) {
-  cm->interpolate = mode;
-  cm->c0          = c0;
-  cm->c1          = c1;
-  cm->map_mode    = CFDR_CMap_Map_Min_Max;
-  cm->map_custom  = v2f(0, 1);
-  cm->opacity    = opacity;
-
-  cm->texture = r_texture_2D_allocate(R_Texture_Format_RGBA_U08_Normalized, CFDR_CMap_Resolution, 1);
-
-  Scratch scratch = { };
-  Scratch_Scope(&scratch, 0) {
-    U08 *texture_data = arena_push_size(scratch.arena, CFDR_CMap_Resolution * sizeof(U32));
-
-    For_U32 (it, CFDR_CMap_Resolution) {
-      F32 t  = (F32)it / (CFDR_CMap_Resolution - 1);
-      RGBA c = { };
-      if (mode == CFDR_CMap_Interpolate_HSV) {
-        c = rgba_from_hsva(v4f_lerp(t, c0, c1));
-      } else if (mode == CFDR_CMap_Interpolate_RGB) {
-        c = v4f_lerp(t, rgba_from_hsva(c0), rgba_from_hsva(c1));
-      } else {
-        c = t <= 0.5f ? c0 : c1;
-      }
-
-      if (opacity == CFDR_CMap_Opacity_Solid) {
-        c.a = 1;
-      } else if (opacity == CFDR_CMap_Opacity_Smoothstep) {
-        c.a = f32_smoothstep(t, 1.0f, 0.0f);
-      } else {
-        c.a = 1;
-      }
-
-      U32 base = 4 * it;
-      texture_data[base + 0] = (U08)(255 * (c.r * c.a));
-      texture_data[base + 1] = (U08)(255 * (c.g * c.a));
-      texture_data[base + 2] = (U08)(255 * (c.b * c.a));
-      texture_data[base + 3] = (U08)(255 * c.a);
-    }
-
-    r_texture_2D_download(cm->texture, R_Texture_Format_RGBA_U08_Normalized, r2i(0, 0, CFDR_CMap_Resolution, 1), texture_data);
-    cm->material = g2_material_create(cm->texture, R_Sampler_Linear_Clamp);
-  }
+fn_internal void cfdr_cmap_init(CFDR_CMap *cm) {
+  cm->texture     = r_texture_2D_allocate(R_Texture_Format_RGBA_U08_Normalized, CFDR_CMap_Resolution, 1, 1);
+  cm->material    = g2_material_create(cm->texture, R_Sampler_Linear_Clamp);
+  cm->node_cap    = CFDR_CMap_Node_Cap;
+  cm->node_len    = 0;
+  cm->interpolate = 1;
+  cm->map_opacity = 0;
+  cm->data_scale  = 1;
+  cm->data_shift  = 0;
+  cm->contour_thickness = 1;
+  sarray_zero(cm->node_dat);
 }
 
-fn_internal void cfdr_cmap_edit_colors(CFDR_CMap *cm, CFDR_CMap_Interpolate_Mode mode, CFDR_CMap_Opacity_Mode opacity, HSVA c0, HSVA c1) {
-  Scratch scratch = { };
-  Scratch_Scope(&scratch, 0) {
-    U08 *texture_data = arena_push_size(scratch.arena, CFDR_CMap_Resolution * sizeof(U32));
-    For_U32 (it, CFDR_CMap_Resolution) {
-      F32 t  = (F32)it / (CFDR_CMap_Resolution - 1);
-      RGBA c = { };
-      if (mode == CFDR_CMap_Interpolate_HSV) {
-        c = rgba_from_hsva(v4f_lerp(t, c0, c1));
-      } else if (mode == CFDR_CMap_Interpolate_RGB) {
-        c = v4f_lerp(t, rgba_from_hsva(c0), rgba_from_hsva(c1));
-      } else {
-        c = t <= 0.5f ? c0 : c1;
-      }
-      if (opacity == CFDR_CMap_Opacity_Solid) {
-        c.a = 1;
-      } else if (opacity == CFDR_CMap_Opacity_Smoothstep) {
-        c.a = f32_smoothstep(t, 1.0f, 0.0f);
-      } else {
-        c.a = 1;
+fn_internal F32 cfdr_cmap_step_transform(F32 step, CFDR_CMap *cm) {
+  return cm->data_shift + (cm->data_scale * step);
+}
+
+fn_internal V2F cfdr_cmap_range(CFDR_CMap *cm) {
+  return v2f(cfdr_cmap_step_transform(cm->node_dat[0].step_t, cm),
+             cfdr_cmap_step_transform(cm->node_dat[cm->node_len - 1].step_t, cm));
+}
+
+fn_internal void cfdr_cmap_update(CFDR_CMap *cm) {
+  if (cm->node_len > 0) {
+    F32 step_min = cfdr_cmap_step_transform(cm->node_dat[0].step_t, cm); 
+    F32 step_max = cfdr_cmap_step_transform(cm->node_dat[cm->node_len - 1].step_t, cm);
+
+    Scratch scratch = { };
+    Scratch_Scope(&scratch, 0) {
+      U08 *texture_data = arena_push_size(scratch.arena, CFDR_CMap_Resolution * sizeof(U32));
+
+      F32 fill_t = 0;
+      For_U32(it, cm->node_len - 1) {
+        F32 step_t1 = f32_div_safe(cfdr_cmap_step_transform(cm->node_dat[it + 0].step_t, cm) - step_min, step_max - step_min);
+        F32 step_t2 = f32_div_safe(cfdr_cmap_step_transform(cm->node_dat[it + 1].step_t, cm) - step_min, step_max - step_min);
+        V4F c1      = cm->node_dat[it + 0].color;
+        V4F c2      = cm->node_dat[it + 1].color;
+
+        // NOTE(cmat): Fill color-map until next step.
+        while (fill_t <= step_t2) {
+          U32 fill_it = u32_clamp(fill_t * CFDR_CMap_Resolution, 0, CFDR_CMap_Resolution - 1);
+
+          F32 t = (fill_t - step_t1) / (step_t2 - step_t1);
+          V4F c = { };
+          if (cm->interpolate) {
+            c = v4f_lerp(t, c1, c2);
+          } else {
+            c = c1;
+          }
+
+          c = rgba_from_hsva(c);
+
+          if (cm->map_opacity) {
+            c.a = f32_smoothstep(fill_t, 1, 0);
+          }
+
+          U32 base = 4 * fill_it;
+          texture_data[base + 0] = (U08)(255 * (c.r * c.a));
+          texture_data[base + 1] = (U08)(255 * (c.g * c.a));
+          texture_data[base + 2] = (U08)(255 * (c.b * c.a));
+          texture_data[base + 3] = (U08)(255 *        c.a);
+
+          fill_t += 1.f / CFDR_CMap_Resolution;
+        }
       }
 
-      U32 base = 4 * it;
-      texture_data[base + 0] = (U08)(255 * (c.r * c.a));
-      texture_data[base + 1] = (U08)(255 * (c.g * c.a));
-      texture_data[base + 2] = (U08)(255 * (c.b * c.a));
-      texture_data[base + 3] = (U08)(255 * c.a);
+      r_texture_2D_download(cm->texture, R_Texture_Format_RGBA_U08_Normalized, r2i(0, 0, CFDR_CMap_Resolution, 1), texture_data);
     }
-
-    r_texture_2D_download(cm->texture, R_Texture_Format_RGBA_U08_Normalized, r2i(0, 0, CFDR_CMap_Resolution, 1), texture_data);
   }
 }
 
@@ -143,7 +107,6 @@ typedef struct CFDR_CMap_List {
 
 typedef struct CFDR_CMap_Table {
   Arena            arena;
-  CFDR_CMap        fallback;
   U64              bucket_count;
   CFDR_CMap_List  *bucket_array;
 
@@ -214,20 +177,34 @@ fn_internal void cfdr_cmap_table_init(CFDR_CMap_Table *cm) {
   cm->bucket_count = 256;
   cm->bucket_array = arena_push_count(&cm->arena, CFDR_CMap_List, cm->bucket_count);
 
+  {
+    CFDR_CMap *cmap = cfdr_cmap_table_push(cm, str_lit("Rainbow"));
+    if (cmap) {
+      cfdr_cmap_init(cmap);
+      cmap->node_len = 2;
+      cmap->node_dat[0] = (CFDR_CMap_Node) { .step_t = 0,   .color = v4f(0.7, 1, 1, 1) };
+      cmap->node_dat[1] = (CFDR_CMap_Node) { .step_t = 1.0, .color = v4f(0.0, 1, 1, 1) };
+      cfdr_cmap_update(cmap);
+    }
+  }
+
+
+#if 0
+
   // NOTE(cmat): Create default color-maps.
-  cfdr_cmap_init(&cm->fallback, CFDR_CMap_Interpolate_HSV, CFDR_CMap_Opacity_Solid, v4f(0, 1.f, 1.f, 1.f), v4f(1.f, 1.f, 1.f, 1.f));
+  cfdr_cmap_init(&cm->fallback, CFDR_CMap_Interpolate_HSV, CFDR_CMap_Opacity_Solid, v4f(0.7f, 1.f, 1.f, 1.f), v4f(0.0f, 1.f, 1.f, 1.f));
 
   {
     CFDR_CMap *cmap = cfdr_cmap_table_push(cm, str_lit("Rainbow"));
     if (cmap) {
-      cfdr_cmap_init(cmap, CFDR_CMap_Interpolate_HSV, CFDR_CMap_Opacity_Solid, v4f(0, 1.f, 1.f, 1.f), v4f(1.f, .8f, 1.f, 1.f));
+      cfdr_cmap_init(cmap, CFDR_CMap_Interpolate_HSV, CFDR_CMap_Opacity_Solid, v4f(0.7f, 1.f, 1.f, 1.f), v4f(0.0f, 1.f, 1.f, 1.f));
     }
   }
 
   {
     CFDR_CMap *cmap = cfdr_cmap_table_push(cm, str_lit("Rainbow-Pastel"));
     if (cmap) {
-      cfdr_cmap_init(cmap, CFDR_CMap_Interpolate_HSV, CFDR_CMap_Opacity_Solid, v4f(0, .6f, 1.f, 1.f), v4f(1.f, .8f, 1.f, 1.f));
+      cfdr_cmap_init(cmap, CFDR_CMap_Interpolate_HSV, CFDR_CMap_Opacity_Solid, v4f(0.7f, .6f, 1.f, 1.f), v4f(0.0f, 0.8f, 1.f, 1.f));
     }
   }
 
@@ -237,4 +214,6 @@ fn_internal void cfdr_cmap_table_init(CFDR_CMap_Table *cm) {
       cfdr_cmap_init(cmap, CFDR_CMap_Interpolate_HSV, CFDR_CMap_Opacity_Solid, v4f(0, .0f, 0.f, 1.f), v4f(0.f, .0f, 1.f, 1.f));
     }
   }
+#endif
+
 }

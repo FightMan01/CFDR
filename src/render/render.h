@@ -15,13 +15,12 @@ typedef R_Resource R_Bind_Group;
 
 // ------------------------------------------------------------
 // #-- Buffers
-
 typedef U32 R_Buffer_Mode;
 enum {
   R_Buffer_Mode_Static,
   R_Buffer_Mode_Dynamic,
 };
-
+ 
 typedef struct R_Buffer_Info {
   U64            capacity;
   R_Buffer_Mode  mode;
@@ -44,6 +43,11 @@ enum {
 
   R_Texture_Format_F16,
   R_Texture_Format_F32,
+
+  R_Texture_Format_Depth_F24,
+
+  // NOTE(cmat): Platform dependent, format used by the OS's backbuffer.
+  R_Texture_Format_Backbuffer,
 };
 
 typedef struct {
@@ -52,13 +56,15 @@ typedef struct {
   U32              height;
 } R_Texture_Config;
 
-fn_internal R_Texture_2D  r_texture_2D_allocate (R_Texture_Format format, U32 width, U32 height);
+fn_internal R_Texture_2D  r_texture_2D_allocate (R_Texture_Format format, U32 width, U32 height, U32 sample_count);
 fn_internal void          r_texture_2D_download (R_Texture_2D texture, R_Texture_Format download_format, R2I region, void *data);
 fn_internal void          r_texture_2D_destroy  (R_Texture_2D *texture);
 
 fn_internal R_Texture_3D  r_texture_3D_allocate (R_Texture_Format format, U32 width, U32 height, U32 depth);
 fn_internal void          r_texture_3D_download (R_Texture_3D texture, R_Texture_Format download_format, R3I region, void *data);
 fn_internal void          r_texture_3D_destroy  (R_Texture_3D *texture);
+
+fn_internal void          r_texture_2D_read     (R_Texture_2D texture, R2I region, U08 *data, U32 *status);
 
 // ------------------------------------------------------------
 // #-- Samplers
@@ -122,87 +128,18 @@ fn_internal void     r_shader_destroy(R_Shader *shader);
 // ------------------------------------------------------------
 // #-- Pipeline
 
-#define R_Vertex_Max_Attribute_Count 16
-#define R_Declare_Vertex_Attribute(type_, x_) alignas(16) type_ x_
-
-typedef U16 R_Vertex_Attribute_Format;
-enum {
-  R_Vertex_Attribute_Format_F32,
-  R_Vertex_Attribute_Format_V2_F32,
-  R_Vertex_Attribute_Format_V3_F32,
-  R_Vertex_Attribute_Format_V4_F32,
-
-  R_Vertex_Attribute_Format_U16,
-  R_Vertex_Attribute_Format_V2_U16,
-  R_Vertex_Attribute_Format_V3_U16,
-  R_Vertex_Attribute_Format_V4_U16,
-
-  R_Vertex_Attribute_Format_U32,
-  R_Vertex_Attribute_Format_V2_U32,
-  R_Vertex_Attribute_Format_V3_U32,
-  R_Vertex_Attribute_Format_V4_U32,
-  
-  R_Vertex_Attribute_Format_V4_U08_Normalized
-};
-
 #pragma pack(push, 1)
-typedef struct {
-  U16                       offset;
-  R_Vertex_Attribute_Format format;
-} R_Vertex_Attribute;
-
-typedef struct {
-  U16                 stride;
-  U16                 entry_count;
-  R_Vertex_Attribute  entry_array[R_Vertex_Max_Attribute_Count];
-} R_Vertex_Format;
-
 typedef struct R_Pipeline_Layout {
   R_Shader         shader;
-  R_Vertex_Format *format;
-
   B32              depth_test;
   B32              depth_write;
   B32              depth_bias;
+  B32              cull_face;
 } R_Pipeline_Layout;
 #pragma pack(pop)
 
 fn_internal R_Pipeline r_pipeline_create  (R_Pipeline_Layout *layout);
 fn_internal void       r_pipeline_destroy (R_Pipeline *pipeline);
-
-typedef struct {
-  R_Declare_Vertex_Attribute(V2F, X);
-  R_Declare_Vertex_Attribute(V2F, U);
-  R_Declare_Vertex_Attribute(U32, C);
-} R_Vertex_XUC_2D;
-
-var_global R_Vertex_Format R_Vertex_Format_XUC_2D = {
-  .stride       = sizeof(R_Vertex_XUC_2D),
-  .entry_count  = 3,
-  .entry_array  = {
-    { .offset   = offsetof(R_Vertex_XUC_2D, X), .format = R_Vertex_Attribute_Format_V2_F32            },
-    { .offset   = offsetof(R_Vertex_XUC_2D, U), .format = R_Vertex_Attribute_Format_V2_F32            },
-    { .offset   = offsetof(R_Vertex_XUC_2D, C), .format = R_Vertex_Attribute_Format_V4_U08_Normalized },
-  },
-};
-
-typedef struct {
-  R_Declare_Vertex_Attribute(V3F, X);
-  R_Declare_Vertex_Attribute(V3F, N);
-  R_Declare_Vertex_Attribute(V2F, U);
-  R_Declare_Vertex_Attribute(U32, C);
-} R_Vertex_XNUC_3D;
-
-var_global R_Vertex_Format R_Vertex_Format_XNUC_3D = {
-  .stride       = sizeof(R_Vertex_XNUC_3D),
-  .entry_count  = 4,
-  .entry_array  = {
-    { .offset   = offsetof(R_Vertex_XNUC_3D, X), .format = R_Vertex_Attribute_Format_V3_F32            },
-    { .offset   = offsetof(R_Vertex_XNUC_3D, N), .format = R_Vertex_Attribute_Format_V3_F32            },
-    { .offset   = offsetof(R_Vertex_XNUC_3D, U), .format = R_Vertex_Attribute_Format_V2_F32            },
-    { .offset   = offsetof(R_Vertex_XNUC_3D, C), .format = R_Vertex_Attribute_Format_V4_U08_Normalized },
-  },
-};
 
 // ------------------------------------------------------------
 // #-- Bind Group
@@ -251,11 +188,11 @@ typedef struct R_Command_Draw {
   R_Pipeline    pipeline;
   R_Bind_Group  bind_group;
 
-  R_Buffer      vertex_buffer;
   R_Buffer      index_buffer;
 
   U32           draw_index_count;
   U32           draw_index_offset;
+  U32           draw_instance_count;
 
   B32           depth_test;
   R2I           draw_region;
@@ -270,6 +207,8 @@ fn_internal void r_command_reset      (void);
 fn_internal void r_command_push_draw  (R_Command_Draw *draw);
 
 fn_internal void r_init               (PL_Render_Context *render_context);
+fn_internal void r_target_begin       (R_Texture_2D color, R_Texture_2D color_resolve, R_Texture_2D depth);
+fn_internal void r_target_end         (void);
 fn_internal void r_frame_flush        (void);
 
 // ------------------------------------------------------------
@@ -278,10 +217,42 @@ fn_internal void r_frame_flush        (void);
 var_global R_Shader_Layout Flat_2D_Layout = {
   .binding_count = 4,
   .binding_array = {
-    { .slot_index = 0, .type = R_Binding_Type_Texture_2D, .stages = R_Binding_Stage_Pixel },
-    { .slot_index = 1, .type = R_Binding_Type_Sampler,    .stages = R_Binding_Stage_Pixel },
+    { .slot_index = 0, .type = R_Binding_Type_Storage,    .stages = R_Binding_Stage_Vertex },
+    { .slot_index = 1, .type = R_Binding_Type_Texture_2D, .stages = R_Binding_Stage_Pixel },
+    { .slot_index = 2, .type = R_Binding_Type_Sampler,    .stages = R_Binding_Stage_Pixel },
+    { .slot_index = 3, .type = R_Binding_Type_Uniform,    .stages = R_Binding_Stage_Pixel | R_Binding_Stage_Vertex },
+  },
+};
+
+var_global R_Shader_Layout Grid_3D_Layout = {
+  .binding_count = 3,
+  .binding_array = {
+    { .slot_index = 0, .type = R_Binding_Type_Storage,    .stages = R_Binding_Stage_Vertex },
+    { .slot_index = 1, .type = R_Binding_Type_Storage,    .stages = R_Binding_Stage_Vertex },
     { .slot_index = 2, .type = R_Binding_Type_Uniform,    .stages = R_Binding_Stage_Pixel | R_Binding_Stage_Vertex },
-    { .slot_index = 3, .type = R_Binding_Type_Texture_3D, .stages = R_Binding_Stage_Pixel },
+  },
+};
+
+var_global R_Shader_Layout Flat_3D_Layout = {
+  .binding_count = 6,
+  .binding_array = {
+    { .slot_index = 0, .type = R_Binding_Type_Storage,    .stages = R_Binding_Stage_Vertex },
+    { .slot_index = 1, .type = R_Binding_Type_Storage,    .stages = R_Binding_Stage_Vertex },
+    { .slot_index = 2, .type = R_Binding_Type_Storage,    .stages = R_Binding_Stage_Vertex },
+    { .slot_index = 3, .type = R_Binding_Type_Texture_2D, .stages = R_Binding_Stage_Pixel },
+    { .slot_index = 4, .type = R_Binding_Type_Sampler,    .stages = R_Binding_Stage_Pixel },
+    { .slot_index = 5, .type = R_Binding_Type_Uniform,    .stages = R_Binding_Stage_Pixel | R_Binding_Stage_Vertex },
+  },
+};
+
+var_global R_Shader_Layout Vol_3D_Layout = {
+  .binding_count = 5,
+  .binding_array = {
+    { .slot_index = 0, .type = R_Binding_Type_Storage,    .stages = R_Binding_Stage_Vertex },
+    { .slot_index = 1, .type = R_Binding_Type_Texture_2D, .stages = R_Binding_Stage_Pixel },
+    { .slot_index = 2, .type = R_Binding_Type_Sampler,    .stages = R_Binding_Stage_Pixel },
+    { .slot_index = 3, .type = R_Binding_Type_Uniform,    .stages = R_Binding_Stage_Pixel | R_Binding_Stage_Vertex },
+    { .slot_index = 4, .type = R_Binding_Type_Texture_3D, .stages = R_Binding_Stage_Pixel },
   },
 };
 
@@ -302,7 +273,22 @@ var_external R_Sampler R_Sampler_Nearest_Clamp;
 
 typedef struct {
   alignas(16) M4F NDC_From_Screen;
+  alignas(16) V2F Viewport_Size;
 } R_Constant_Buffer_Viewport_2D;
+
+typedef struct {
+  alignas(16) M4F World_View_Projection;
+  alignas(16) F32 Grid_Scale;
+  alignas(16) V4F Color;
+} R_Constant_Buffer_Grid_3D;
+
+typedef struct {
+  alignas(16) M4F World_View_Projection;
+  alignas(16) M4F World_Inverse_Transpose;
+  alignas(16) M4F World;
+  alignas(16) V3F Eye_Position;
+  alignas(16) V4F Color;
+} R_Constant_Buffer_World_3D;
 
 typedef struct {
   alignas(16) M4F World_View_Projection;
@@ -310,13 +296,15 @@ typedef struct {
   alignas(16) M4F World;
   alignas(16) V3F Eye_Position;
   alignas(16) F32 Volume_Density;
-  alignas(16) F32 Grid_Scale;
-  alignas(16) V4F Color;
   alignas(16) V3F Volume_Min;
   alignas(16) V3F Volume_Max;
   alignas(16) V2F Volume_Data_Bounds;
   alignas(16) V2F Visualize_Range;
   alignas(16) F32 Volume_Saturate;
   alignas(16) I32 Volume_XYZ;
-} R_Constant_Buffer_World_3D;
+  alignas(16) V3F Contour_Color;
+  alignas(16) I32 Contour_Visible;
+  alignas(16) F32 Contour_Value;
+  alignas(16) F32 Contour_Thickness;
+} R_Constant_Buffer_Vol_3D;
 

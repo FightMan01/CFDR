@@ -15,6 +15,13 @@ typedef struct STL_Binary_Triangle {
   U16 attribute_byte_count;
 } STL_Binary_Triangle;
 
+typedef struct {
+  V3F X;
+  V3F N;
+  V2F U;
+  U32 C;
+} R_Vertex_XNUC_3D;
+
 #pragma pack(pop)
 
 fn_internal R_Vertex_XNUC_3D *stl_parse_binary(Arena *arena, U64 bytes, U08 *data, U32 *tri_count) {

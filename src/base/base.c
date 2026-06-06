@@ -979,6 +979,38 @@ fn_internal Str scan_identifier(Scan *scan) {
   return result;
 }
 
+fn_internal Str scan_str(Scan *scan) {
+  Str result = { .len = 0 };
+  scan_require(scan, str_lit("\""));
+
+  U64 start = scan->at;
+  B32 str_closed  = 0;
+  if (!scan_error(scan)) {
+    for (;;) {
+      U08 c = scan_char(scan);
+
+      if (c == 0) {
+        break;
+      } else if (c == '"') {
+        scan_move(scan, 1);
+        str_closed = 1;
+        break;
+      }
+
+      scan_move(scan, 1);
+    }
+  }
+
+
+  if (!str_closed) {
+    scan_error_push(scan, str_lit("unclosed string"));
+  } else {
+    result = str_slice(scan->stream, start, scan->at - start - 1);
+  }
+
+  return result;
+}
+
 fn_internal U64 scan_u64(Scan *scan) {
   U64 result = 0;
   scan_skip_whitespace(scan);
@@ -1051,6 +1083,7 @@ fn_internal F64 scan_f64(Scan *scan) {
 
 fn_internal B32 scan_require(Scan *scan, Str match) {
   scan_skip_whitespace(scan);
+
   B32 result = str_equals(match, str_slice(scan->stream, scan->at, match.len));
   if (!result) {
     char buffer[512];

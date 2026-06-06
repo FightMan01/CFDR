@@ -188,6 +188,8 @@ fn_internal TK_Token tk_next(TK_Tokenizer *tk) {
 
       tk_move(tk, 1);
     }
+
+  // NOTE(cmat): Integers, Floats
   }  else if (char_is_digit(c)) {
     tk_move(tk, 1);
     token.type = TK_Type_Literal_Integer;
@@ -200,6 +202,38 @@ fn_internal TK_Token tk_next(TK_Tokenizer *tk) {
 
       tk_move(tk, 1);
     }
+
+    c = tk_peek(tk, 0);
+    if (c == '.') {
+      tk_move(tk, 1);
+      token.type = TK_Type_Literal_Float;
+      for (;;) {
+        c = tk_peek(tk, 0);
+        if (!(char_is_digit(c) || c == '_')) {
+          break;
+        }
+
+        tk_move(tk, 1);
+      }
+
+      if (c == 'e' || c == 'E') {
+        tk_move(tk, 1);
+
+        if (c == '+' || c == '-') {
+          tk_move(tk, 1);
+        }
+
+        for (;;) {
+          c = tk_peek(tk, 0);
+          if (!(char_is_digit(c) || c == '_')) {
+            break;
+          }
+
+          tk_move(tk, 1);
+        }
+      }
+    }
+
   // NOTE(cmat): Fixed-length tokens.
   } else {
     switch (c) {
@@ -398,6 +432,9 @@ fn_internal TK_Token tk_next(TK_Tokenizer *tk) {
   switch (token.type) {
     case TK_Type_Literal_Integer: {
       token.value.i64 = (I64)u64_from_str(token.text);
+    } break;
+    case TK_Type_Literal_Float: {
+      token.value.f64 = f64_from_str(token.text);
     } break;
     case TK_Type_Literal_String: {
       token.value.str = str_slice(token.text, 1, token.text.len - 2);

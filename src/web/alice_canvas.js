@@ -139,6 +139,9 @@ const wasm_context = {
 
   // TODO(cmat): Temporary.
   webgpu_pass_encoder: null,
+  webgpu_command_encoder: null,
+
+  stat_draw_calls: 0,
 };
 
 function js_string_from_c_string(string_len, string_txt) {
@@ -187,9 +190,12 @@ const HTTP_Status_In_Progress = 2;
 
 function js_http_request_send(request_ptr, arena_ptr, url_len, url_txt) {
   
-  const url = js_string_from_c_string(url_len, url_txt);
-  const xhr = new XMLHttpRequest();
-  xhr.open("GET", url, true);
+  const url         = js_string_from_c_string(url_len, url_txt);
+  const request_url = typeof auth_resolve_request_url === 'function'
+    ? auth_resolve_request_url(url)
+    : url;
+  const xhr        = new XMLHttpRequest();
+  xhr.open("GET", request_url, true);
   xhr.responseType = "arraybuffer";
 
   xhr.setRequestHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -247,7 +253,17 @@ function js_http_request_send(request_ptr, arena_ptr, url_len, url_txt) {
     }
   };
 
-  xhr.send();
+  if (typeof auth_set_xhr_header === 'function') {
+    Promise.resolve(auth_set_xhr_header(xhr, request_url))
+      .catch(function(error) {
+        console.error('failed to prepare authenticated request:', error);
+      })
+      .finally(function() {
+        xhr.send();
+      });
+  } else {
+    xhr.send();
+  }
 }
 
 function js_web_current_url(url_cap, url_ptr) {
@@ -284,13 +300,13 @@ function js_web_load_page(url_len, url_txt) {
   window.location.href = url_string;
 }
 
-function js_web_download(filename, data_len, data_ptr) {
-  const view = new Uint8Array(wasm_context.memory.buffer, data_ptr, data_len);
-  const blob = new Blob([data], { type: "application/octet-stream" });
-  const url  = URL.createObjectURL(blob);
-
-  const downloader = document.createElement("downloader");
-  downloader.href = url;
+function js_web_download(filename_len, filename_ptr, data_len, data_ptr) {
+  const filename      = js_string_from_c_string(filename_len, filename_ptr);
+  const data          = new Uint8Array(wasm_context.memory.buffer, data_ptr, data_len);
+  const blob          = new Blob([data], { type: "application/octet-stream" });
+  const url           = URL.createObjectURL(blob);
+  const downloader    = document.createElement("a");
+  downloader.href     = url;
   downloader.download = filename;
 
   document.body.appendChild(downloader);
@@ -329,9 +345,6 @@ function webgpu_update_buffers(width, height) {
     format: wasm_context.webgpu.backbuffer_format,
     usage: GPUTextureUsage.RENDER_ATTACHMENT,
   });
-
-  wasm_context.webgpu.color_texture_view = wasm_context.webgpu.color_texture.createView();
-  wasm_context.webgpu.depth_texture_view = wasm_context.webgpu.depth_texture.createView();
 }
 
 async function webgpu_init(canvas) {
@@ -379,18 +392,14 @@ async function webgpu_init(canvas) {
     backbuffer_format:  webgpu_format,
 
     color_texture:      null,
-    color_texture_view: null,
-
     depth_texture:      null,
-    depth_texture_view: null,
   };
 }
 
 function js_webgpu_buffer_allocate(bytes, mode) {
   const buffer = wasm_context.webgpu.device.createBuffer({
     size:   bytes,
-    usage:  GPUBufferUsage.VERTEX   |
-            GPUBufferUsage.INDEX    | 
+    usage:  GPUBufferUsage.INDEX    | 
             GPUBufferUsage.STORAGE  |
             GPUBufferUsage.UNIFORM  |
             GPUBufferUsage.COPY_DST,
@@ -442,7 +451,7 @@ function binding_list_from_shader_layout(shader_layout) {
         binding.buffer = { type: 'uniform' };
         break;
       case 1:
-        binding.buffer = { type: 'storage' };
+        binding.buffer = { type: 'read-only-storage' };
         break;
       case 2:
         binding.texture = { sampleType: 'float', viewDimension: '2d' };
@@ -487,6 +496,9 @@ const WebGPU_Texture_Format_Lookup_Name = [
   
   'r16float',
   'r32float',
+
+  'depth24plus',
+  'backbuffer_format',
 ];
 
 const WebGPU_Texture_Format_Lookup_Bytes = [
@@ -497,6 +509,9 @@ const WebGPU_Texture_Format_Lookup_Bytes = [
 
   2, // r16float
   4, // r32float
+
+  0, // TODO(cmat): For render target only. Determine how many bytes this is.
+  0, // TODO(cmat): For render target only. Determine how many bytes this is.
 ];
 
 function js_webgpu_texture_3D_allocate(format, width, height, depth) {
@@ -504,7 +519,7 @@ function js_webgpu_texture_3D_allocate(format, width, height, depth) {
     dimension: "3d",
     size:     { width, height, depthOrArrayLayers: depth },
     format:   WebGPU_Texture_Format_Lookup_Name[format],
-    usage:    GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+    usage:    GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.COPY_SRC | GPUTextureUsage.RENDER_ATTACHMENT,
   });
 
   return wasm_context.webgpu.handle_map.store(texture);
@@ -535,11 +550,17 @@ function js_webgpu_texture_3D_destroy(texture_handle) {
   texture.destroy();
 }
 
-function js_webgpu_texture_2D_allocate(format, width, height) {
+function js_webgpu_texture_2D_allocate(format, width, height, sample_count) {
+  format = WebGPU_Texture_Format_Lookup_Name[format];
+  if (format === "backbuffer_format") {
+    format = navigator.gpu.getPreferredCanvasFormat();
+  }
+
   const texture = wasm_context.webgpu.device.createTexture({
     size:     [ width, height ],
-    format:   WebGPU_Texture_Format_Lookup_Name[format],
-    usage:    GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST,
+    sampleCount: sample_count,
+    format:   format, // WebGPU_Texture_Format_Lookup_Name[format],
+    usage:    GPUTextureUsage.TEXTURE_BINDING | GPUTextureUsage.COPY_DST | GPUTextureUsage.COPY_SRC | GPUTextureUsage.RENDER_ATTACHMENT,
   });
 
   return wasm_context.webgpu.handle_map.store(texture);
@@ -560,6 +581,116 @@ function js_webgpu_texture_2D_download(texture_handle, download_format, region_x
     { bytesPerRow: region_width * pixel_bytes, rowsPerImage: region_height, },
     { width: region_width, height: region_height, depthOrArrayLayers: 1, }
   );
+}
+
+async function js_webgpu_texture_2D_read(texture_handle, region_x0, region_y0, region_x1, region_y1, buffer_ptr, status_ptr) {
+  const texture = wasm_context.webgpu.handle_map.get(texture_handle);
+
+  const bytes_per_pixel       = 4; // TODO(cmat): Hardcoded for BGRA.
+  const width                 = region_x1 - region_x0;
+  const height                = region_y1 - region_y0;
+  const bytes_per_row         = width * bytes_per_pixel;
+  const align                 = 256;
+  const bytes_per_row_aligned = Math.ceil(bytes_per_row / align) * align;
+  const buffer_size           = bytes_per_row_aligned * height;
+
+  const buffer = wasm_context.webgpu.device.createBuffer({
+    size: buffer_size,
+    usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+  });
+
+  const encoder = wasm_context.webgpu.device.createCommandEncoder();
+ 
+  encoder.copyTextureToBuffer(
+    {
+      texture,
+      mipLevel: 0,
+      origin: { x: region_x0, y: region_y0, z: 0 },
+    },
+    {
+      buffer,
+      bytesPerRow: bytes_per_row_aligned,
+    },
+    {
+      width,
+      height,
+      depthOrArrayLayers: 1,
+    }
+  );
+
+  wasm_context.webgpu.device.queue.submit([encoder.finish()]);
+
+  await buffer.mapAsync(GPUMapMode.READ).then(() => {
+    const data = new Uint8Array(buffer.getMappedRange());
+
+    const dst = new Uint8Array(
+      wasm_context.memory.buffer,
+      buffer_ptr,
+      width * height * bytes_per_pixel
+    );
+
+    console.log(navigator.gpu.getPreferredCanvasFormat());
+
+    const canvas_format  = navigator.gpu.getPreferredCanvasFormat();
+    console.log(canvas_format);
+    if (canvas_format.includes("rgba")) {
+      for (let y = 0; y < height; y++) {
+        // Flip Y during copy
+        const flipped_y = height - 1 - y;
+
+        const src_row = y * bytes_per_row_aligned;
+        const dst_row = flipped_y * width * bytes_per_pixel;
+
+        for (let x = 0; x < width; x++) {
+          const src_idx = src_row + x * 4;
+          const dst_idx = dst_row + x * 4;
+
+          const r = data[src_idx + 0];
+          const g = data[src_idx + 1];
+          const b = data[src_idx + 2];
+          const a = data[src_idx + 3];
+
+          // Destination layout: RGBA
+          dst[dst_idx + 0] = r;
+          dst[dst_idx + 1] = g;
+          dst[dst_idx + 2] = b;
+          dst[dst_idx + 3] = a;
+        }
+      }
+    } else if (canvas_format.includes("bgra")) {
+      for (let y = 0; y < height; y++) {
+        // Flip Y during copy
+        const flipped_y = height - 1 - y;
+
+        const src_row = y * bytes_per_row_aligned;
+        const dst_row = flipped_y * width * bytes_per_pixel;
+
+        for (let x = 0; x < width; x++) {
+          const src_idx = src_row + x * 4;
+          const dst_idx = dst_row + x * 4;
+
+          const b = data[src_idx + 0];
+          const g = data[src_idx + 1];
+          const r = data[src_idx + 2];
+          const a = data[src_idx + 3];
+
+          // Destination layout: RGBA
+          dst[dst_idx + 0] = r;
+          dst[dst_idx + 1] = g;
+          dst[dst_idx + 2] = b;
+          dst[dst_idx + 3] = a;
+        }
+      }
+    } else {
+      console.error("Unrecognized pixel format");
+    }
+
+    const status_view = new Uint32Array(wasm_context.memory.buffer, status_ptr, 1);
+    status_view[0] = 1;
+
+    buffer.unmap();
+    buffer.destroy();
+  });
 }
 
 function js_webgpu_texture_2D_destroy(texture_handle) {
@@ -608,36 +739,16 @@ const WebGPU_Vertex_Attribute_Format_Lookup_Name = [
 ]
 
 function js_webgpu_pipeline_create(pipeline_layout) {
-
   let   layout_offset = 0;
-  const layout_view   = new DataView(wasm_context.memory.buffer, pipeline_layout, 4 + 4 + 4 + 4 + 4);
+  const layout_view   = new DataView(wasm_context.memory.buffer, pipeline_layout, 4 + 4 + 4 + 4 + 4 + 4);
   const shader_id     = layout_view.getUint32(layout_offset, true); layout_offset += 4;
-  const format_ptr    = layout_view.getUint32(layout_offset, true); layout_offset += 4;
   const depth_test    = layout_view.getUint32(layout_offset, true); layout_offset += 4;
   const depth_write   = layout_view.getUint32(layout_offset, true); layout_offset += 4;
   const depth_bias    = layout_view.getUint32(layout_offset, true); layout_offset += 4;
-
+  const cull_face     = layout_view.getUint32(layout_offset, true); layout_offset += 4;
   const shader        = wasm_context.webgpu.handle_map.get(shader_id);
+  const webgpu_layout = wasm_context.webgpu.device.createPipelineLayout({ bindGroupLayouts: [ wasm_context.webgpu.device.createBindGroupLayout({ entries: shader.binding_list }) ] });
 
-  const webgpu_layout = wasm_context.webgpu.device.createPipelineLayout({
-    bindGroupLayouts: [
-      wasm_context.webgpu.device.createBindGroupLayout({ entries: shader.binding_list })
-    ]
-  });
-
-  let   format_offset       = 0;
-  const vertex_format_view  = new DataView(wasm_context.memory.buffer, format_ptr, 2 * 2 + 2 * 2 * 8);
-  const stride              = vertex_format_view.getUint16(format_offset, true); format_offset += 2;
-  const entry_count         = vertex_format_view.getUint16(format_offset, true); format_offset += 2;
-
-  let attribute_list = [ ]
-  for (let it = 0; it < entry_count; it++) {
-    const attribute_format_offset = vertex_format_view.getUint16(format_offset, true); format_offset += 2;
-    const attribute_format        = vertex_format_view.getUint16(format_offset, true); format_offset += 2;
-
-    attribute_list.push({ shaderLocation: it, offset: attribute_format_offset, format: WebGPU_Vertex_Attribute_Format_Lookup_Name[attribute_format] });
-  }
- 
   let depth_stencil = {
     format:             'depth24plus',
     depthWriteEnabled:  depth_write != 0,
@@ -654,12 +765,6 @@ function js_webgpu_pipeline_create(pipeline_layout) {
     vertex: {
       module: shader.module,
       entryPoint: 'vs_main',
-      buffers: [
-        {
-          arrayStride: stride,
-          attributes: attribute_list,
-        }
-      ]
     },
 
     fragment: {
@@ -679,7 +784,7 @@ function js_webgpu_pipeline_create(pipeline_layout) {
     
     primitive: { 
       topology: 'triangle-list',
-      cullMode: 'back',
+      cullMode: cull_face ? 'back' : 'none',
     },
     
 
@@ -705,18 +810,6 @@ function js_webgpu_bind_group_create(shader_layout, entry_count, entry_list) {
     const type      = entry_list_view.getUint8(offset,  true); offset += 1;
     const resource  = entry_list_view.getUint32(offset, true); offset += 4;
     let entry       = { binding: binding };
-
-    /*
-    const bind_group = wasm_context.webgpu.device.createBindGroup({
-      layout: pipeline.getBindGroupLayout(0),
-      entries: [ 
-        { binding: 0, resource: texture.createView(), },
-        { binding: 1, resource: sampler, },
-        { binding: 2, resource: { buffer: constant_buffer } },
-        { binding: 3, resource: texture_volume.createView(), },
-      ]
-    });
-    */
 
     switch (type) {
       case 0: // NOTE(cmat): Uniform
@@ -756,14 +849,13 @@ function js_webgpu_bind_group_destroy(bind_group_handle) {
 }
 
 function js_webgpu_frame_flush(draw_command_ptr) {
-  const draw_command_view = new DataView(wasm_context.memory.buffer, draw_command_ptr, 18 * 4);
+  const draw_command_view = new DataView(wasm_context.memory.buffer, draw_command_ptr, 19 * 4);
   
   let offset = 0;
   // const constant_buffer_handle = draw_command_view.getUint32 (offset, true); offset += 4;
   const pipeline_handle        = draw_command_view.getUint32 (offset, true); offset += 4;
   const bind_group_handle      = draw_command_view.getUint32 (offset, true); offset += 4;
 
-  const vertex_buffer_handle   = draw_command_view.getUint32 (offset, true); offset += 4;
   const index_buffer_handle    = draw_command_view.getUint32 (offset, true); offset += 4;
 
   // const texture_handle         = draw_command_view.getUint32 (offset, true); offset += 4;
@@ -772,6 +864,7 @@ function js_webgpu_frame_flush(draw_command_ptr) {
 
   const draw_index_count       = draw_command_view.getUint32 (offset, true); offset += 4;
   const draw_index_offset      = draw_command_view.getUint32 (offset, true); offset += 4;
+  const draw_instance_count    = draw_command_view.getUint32 (offset, true); offset += 4;
 
   const depth_test             = draw_command_view.getUint32 (offset, true); offset += 4;
   
@@ -786,22 +879,24 @@ function js_webgpu_frame_flush(draw_command_ptr) {
   const clip_region_y1         = draw_command_view.getUint32 (offset, true); offset += 4;
 
   // NOTE(cmat): Retrieve handles.
-  const vertex_buffer   = wasm_context.webgpu.handle_map.get(vertex_buffer_handle);
   const index_buffer    = wasm_context.webgpu.handle_map.get(index_buffer_handle);
   const pipeline        = wasm_context.webgpu.handle_map.get(pipeline_handle);
   const bind_group      = wasm_context.webgpu.handle_map.get(bind_group_handle);
 
+  const target_width  = wasm_context.canvas.width;
+  const target_height = wasm_context.canvas.height;
+
   // NOTE(cmat): Set viewport.
   let draw_x = draw_region_x0;
-  let draw_y = wasm_context.canvas.height - draw_region_y1;
+  let draw_y = target_height - draw_region_y1;
   let draw_w = draw_region_x1 - draw_region_x0;
   let draw_h = draw_region_y1 - draw_region_y0;
   
-  draw_x = Math.max(Math.min(draw_x, wasm_context.canvas.width),  0);
-  draw_y = Math.max(Math.min(draw_y, wasm_context.canvas.height), 0);
+  draw_x = Math.max(Math.min(draw_x, target_width),  0);
+  draw_y = Math.max(Math.min(draw_y, target_height), 0);
 
-  draw_w = Math.max(Math.min(draw_w, wasm_context.canvas.width - draw_x),  0);
-  draw_h = Math.max(Math.min(draw_h, wasm_context.canvas.height - draw_y), 0);
+  draw_w = Math.max(Math.min(draw_w, target_width - draw_x),  0);
+  draw_h = Math.max(Math.min(draw_h, target_height - draw_y), 0);
 
   wasm_context.webgpu_pass_encoder.setViewport(draw_x, draw_y, draw_w, draw_h, 0.0, 1.0);
 
@@ -821,9 +916,9 @@ function js_webgpu_frame_flush(draw_command_ptr) {
 
   wasm_context.webgpu_pass_encoder.setPipeline(pipeline);
   wasm_context.webgpu_pass_encoder.setBindGroup(0, bind_group);
-  wasm_context.webgpu_pass_encoder.setVertexBuffer(0, vertex_buffer);
   wasm_context.webgpu_pass_encoder.setIndexBuffer(index_buffer, "uint32");
-  wasm_context.webgpu_pass_encoder.drawIndexed(draw_index_count, 1, draw_index_offset, 0, 0);
+  wasm_context.webgpu_pass_encoder.drawIndexed(draw_index_count, draw_instance_count, draw_index_offset, 0, 0);
+  wasm_context.stat_draw_calls += 1;
 }
 
 function wasm_pack_frame_state(frame_state) {
@@ -848,6 +943,59 @@ function wasm_pack_frame_state(frame_state) {
   return buffer_view;
 }
 
+function js_webgpu_target_begin(color_texture, color_resolve_texture, depth_texture) {
+  wasm_context.webgpu_command_encoder = wasm_context.webgpu.device.createCommandEncoder();
+
+  var color_view         = null;
+  var depth_view         = null;
+  var color_resolve_view = null; // wasm_context.webgpu.context.getCurrentTexture().createView();
+
+  if (color_texture == 0) {
+    color_view = wasm_context.webgpu.color_texture.createView();
+  } else {
+    let texture = wasm_context.webgpu.handle_map.get(color_texture);
+    color_view  = texture.createView();
+  }
+
+  if (color_resolve_texture == 0) {
+    color_resolve_view = wasm_context.webgpu.context.getCurrentTexture().createView();
+  } else {
+    let texture = wasm_context.webgpu.handle_map.get(color_resolve_texture);
+    color_resolve_view = texture.createView();
+  }
+
+  if (depth_texture == 0) {
+    depth_view = wasm_context.webgpu.depth_texture.createView();
+  } else {
+    let texture = wasm_context.webgpu.handle_map.get(depth_texture);
+    depth_view  = texture.createView();
+  }
+ 
+  const render_pass_descriptor = {
+    colorAttachments: [{
+      view: color_view,
+      resolveTarget: color_resolve_view,
+      clearValue: { r:0, g:0, b:0, a:0 },
+      loadOp: 'clear',
+      storeOp: 'store',
+    }],
+
+    depthStencilAttachment: {
+      view: depth_view,
+      depthClearValue: 1.0,
+      depthLoadOp: 'clear',
+      depthStoreOp: 'store',
+    },
+  };
+
+  wasm_context.webgpu_pass_encoder = wasm_context.webgpu_command_encoder.beginRenderPass(render_pass_descriptor);
+}
+
+function js_webgpu_target_end() {
+  wasm_context.webgpu_pass_encoder.end();
+  wasm_context.webgpu.device.queue.submit([wasm_context.webgpu_command_encoder.finish()]);
+}
+
 function canvas_next_frame(timestamp) {
 
   const frametime_now                           = timestamp;
@@ -858,30 +1006,10 @@ function canvas_next_frame(timestamp) {
   // we get the display refresh-rate from the browser though?
   wasm_context.frame_state.display.frame_delta = Math.min(wasm_context.frame_state.display.frame_delta, 1 / 60);
 
-  wasm_pack_frame_state(wasm_context.frame_state)
-  const command_encoder = wasm_context.webgpu.device.createCommandEncoder();
-  const backbuffer_texture_view = wasm_context.webgpu.context.getCurrentTexture().createView();
-  const render_pass_descriptor = {
-    colorAttachments: [{
-      view: wasm_context.webgpu.color_texture_view,
-      resolveTarget: backbuffer_texture_view,
-      clearValue: { r:0, g:0, b:0, a:1 },
-      loadOp: 'clear',
-      storeOp: 'store',
-    }],
-
-    depthStencilAttachment: {
-      view: wasm_context.webgpu.depth_texture_view,
-      depthClearValue: 1.0,
-      depthLoadOp: 'clear',
-      depthStoreOp: 'store',
-    },
-  };
-
-  wasm_context.webgpu_pass_encoder = command_encoder.beginRenderPass(render_pass_descriptor);
+  wasm_pack_frame_state(wasm_context.frame_state);
   wasm_context.export_table.wasm_next_frame();
-  wasm_context.webgpu_pass_encoder.end();
-  wasm_context.webgpu.device.queue.submit([command_encoder.finish()]);
+
+  wasm_context.stat_draw_calls = 0;
 
   // NOTE(cmat): Reset scroll delta.
   wasm_context.frame_state.input.mouse.scroll_dt.x = 0;
@@ -941,6 +1069,8 @@ function wasm_module_load(wasm_bytecode) {
       js_webgpu_texture_2D_download:  js_webgpu_texture_2D_download,
       js_webgpu_texture_2D_destroy:   js_webgpu_texture_2D_destroy,
 
+      js_webgpu_texture_2D_read:      js_webgpu_texture_2D_read,
+
       js_webgpu_sampler_create:       js_webgpu_sampler_create,
       js_webgpu_sampler_destroy:      js_webgpu_sampler_destroy,
 
@@ -954,6 +1084,8 @@ function wasm_module_load(wasm_bytecode) {
       js_webgpu_pipeline_destroy:     js_webgpu_pipeline_destroy,
 
       js_webgpu_frame_flush:          js_webgpu_frame_flush,
+      js_webgpu_target_begin:         js_webgpu_target_begin,
+      js_webgpu_target_end:           js_webgpu_target_end,
     }
   };
 

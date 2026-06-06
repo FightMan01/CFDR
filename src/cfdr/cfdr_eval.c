@@ -3,49 +3,33 @@ fn_internal CFDR_Value cfdr_eval_list(Arena *arena, TK_Scan *scan) {
   value.type       = CFDR_Value_Type_List;
   value.list       = arena_push_type(arena, CFDR_List);
 
-  TK_Token token = tk_scan_next(scan);
   B32 separated = 1;
   for (;;) {
-    I32 sign = 1;
-
-    if (token.type == TK_Type_Op_Plus) {
-      token = tk_scan_next(scan);
-    } else if (token.type == TK_Type_Op_Minus) {
-      sign = -1;
-      token = tk_scan_next(scan);
-    }
-
-    if (token.type == TK_Type_Literal_Integer || token.type == TK_Type_Literal_String || token.type == TK_Type_Block_Open_Bracket) {
-      if (separated) {
-        CFDR_List_Node *node  = arena_push_type(arena, CFDR_List_Node);
-        if (token.type == TK_Type_Literal_Integer) {
-          node->value.type      = CFDR_Value_Type_Integer;
-          node->value.i32       = (I32)(sign * token.value.i64);
-        } else if (token.type == TK_Type_Literal_String) {
-          node->value.type      = CFDR_Value_Type_String;
-          node->value.str       = token.value.str;
-        } else if (token.type == TK_Type_Block_Open_Bracket) {
-          node->value = cfdr_eval_list(arena, scan);
-        }
-
-        queue_push(value.list->first, value.list->last, node);
-        value.list->count += 1;
-      } else {
-        log_fatal("invalid syntax for list, missing ','");
+    TK_Token token = tk_scan_look(scan);
+    if (token.type == TK_Type_Block_Close_Bracket) {
+      tk_scan_next(scan);
+      break;
+    } else if (!separated) {
+      token = tk_scan_look(scan);
+      if (token.type != TK_Type_Op_Comma) {
+        log_fatal("expected command after element in list");
         break;
+      } else {
+        tk_scan_next(scan);
+        token = tk_scan_look(scan);
+        if (token.type == TK_Type_Block_Close_Bracket) {
+          tk_scan_next(scan);
+          break;
+        }
       }
-    } else if (token.type == TK_Type_Block_Close_Bracket) {
-      break;
-    } else {
-      log_fatal("Invalid syntax for list, expected entry or end of list");
-      break;
     }
 
-    token = tk_scan_next(scan);
-    if (token.type == TK_Type_Op_Comma) {
-      token     = tk_scan_next(scan);
-      separated = 1;
-    }
+    CFDR_List_Node *node  = arena_push_type(arena, CFDR_List_Node);
+    node->value           = cfdr_eval_expr(arena, scan);
+
+    value.list->count    += 1;
+    queue_push(value.list->first, value.list->last, node);
+    separated = 0;
   }
 
   return value;
@@ -125,15 +109,19 @@ fn_internal Str cfdr_eval_get_str(CFDR_Value value) {
   return result;
 }
 
-fn_internal I32 cfdr_eval_get_i32(CFDR_Value value) {
-  I32 result = 0;
-  if (value.type == CFDR_Value_Type_Integer) {
-    result = value.i32;
+fn_internal F32 cfdr_eval_get_f32(CFDR_Value value) {
+  F32 result = 0;
+  if (value.type == CFDR_Value_Type_Float) {
+    result = value.f32;
   } else {
-    log_fatal("type mismatch, expected an integer value");
+    log_fatal("type mismatch, expected an float value");
   }
 
   return result;
+}
+
+fn_internal I32 cfdr_eval_get_i32(CFDR_Value value) {
+  return (I32)cfdr_eval_get_f32(value);
 }
 
 fn_internal Align2 cfdr_eval_get_align2(CFDR_Value value) {
@@ -155,7 +143,7 @@ fn_internal V2I cfdr_eval_get_v2i(CFDR_Value value) {
       I64 at = 0;
       for (CFDR_List_Node *it = value.list->first; it; it = it->next) {
         if (at >= value.list->count) { break; }
-        list_values[at++] = it->value.i32;
+        list_values[at++] = (I32)it->value.f32;
       }
 
       result = v2i(list_values[0], list_values[1]);
@@ -178,7 +166,7 @@ fn_internal V3I cfdr_eval_get_v3i(CFDR_Value value) {
       I64 at = 0;
       for (CFDR_List_Node *it = value.list->first; it; it = it->next) {
         if (at >= value.list->count) { break; }
-        list_values[at++] = it->value.i32;
+        list_values[at++] = it->value.f32;
       }
 
       result = v3i(list_values[0], list_values[1], list_values[2]);
@@ -262,7 +250,22 @@ fn_internal CFDR_Value cfdr_eval_expr(Arena *arena, TK_Scan *scan) {
   else if (token.type == TK_Type_Block_Open_Brace)    { value = cfdr_eval_table       (arena, scan);                                            }
   else if (token.type == TK_Type_Op_At)               { value = cfdr_eval_literal_def (arena, scan);                                            }
   else if (token.type == TK_Type_Literal_String)      { value = (CFDR_Value) { .type = CFDR_Value_Type_String,  .str = token.value.str };       }
-  else if (token.type == TK_Type_Literal_Integer)     { value = (CFDR_Value) { .type = CFDR_Value_Type_Integer, .i32 = (I32)token.value.i64 };  }
+  else if (token.type == TK_Type_Literal_Integer)     { value = (CFDR_Value) { .type = CFDR_Value_Type_Float,   .f32 = (I32)token.value.i64 };  }
+  else if (token.type == TK_Type_Literal_Float)       { value = (CFDR_Value) { .type = CFDR_Value_Type_Float,   .f32 = (F32)token.value.f64 };  }
+  else if (token.type == TK_Type_Op_Plus) {
+    value = cfdr_eval_expr(arena, scan);
+    if (value.type != CFDR_Value_Type_Float) {
+      log_fatal("Expected float after '+'");
+    } 
+  } 
+  else if (token.type == TK_Type_Op_Minus) {
+    value = cfdr_eval_expr(arena, scan);
+    if (value.type == CFDR_Value_Type_Float) {
+      value.f32 *= -1;
+    } else {
+      log_fatal("Expected integer or float after '-'");
+    }
+  }
   else if (token.type == TK_Type_Identifier) {
     if      (str_equals(token.text, str_lit("true")))  { value = (CFDR_Value) { .type = CFDR_Value_Type_Bool, .b32 = 1 }; }
     else if (str_equals(token.text, str_lit("false"))) { value = (CFDR_Value) { .type = CFDR_Value_Type_Bool, .b32 = 0 }; }
@@ -277,12 +280,13 @@ fn_internal void cfdr_eval_directive_viewport(CFDR_State *state, Arena *arena, T
     CFDR_Scene_View *vp = &state->scene.view;
 
     for (CFDR_Table_Node *it = table.table->first; it; it = it->next) {
-      if      (str_equals(it->label, str_lit("background")))   { vp->background.hsv         = cfdr_eval_get_color  (it->value); }
-      else if (str_equals(it->label, str_lit("orthographic"))) { vp->camera.orthographic    = cfdr_eval_get_bool   (it->value); }
-      else if (str_equals(it->label, str_lit("grid_enabled"))) { vp->grid.visible           = cfdr_eval_get_bool   (it->value); }
-      else if (str_equals(it->label, str_lit("grid_color")))   { vp->grid.color.hsv         = cfdr_eval_get_color  (it->value); }
-      else if (str_equals(it->label, str_lit("grid_level")))   { vp->grid.subdiv            = cfdr_eval_get_i32    (it->value); }
-      else if (str_equals(it->label, str_lit("colormap")))     { state->scene.cmap          = cfdr_eval_get_str    (it->value); }
+      if      (str_equals(it->label, str_lit("background")))   { vp->background.hsv                 = cfdr_eval_get_color  (it->value); }
+      else if (str_equals(it->label, str_lit("orthographic"))) { vp->camera.orthographic            = cfdr_eval_get_bool   (it->value); }
+      else if (str_equals(it->label, str_lit("grid_enabled"))) { vp->grid.visible                   = cfdr_eval_get_bool   (it->value); }
+      else if (str_equals(it->label, str_lit("grid_color")))   { vp->grid.color.hsv                 = cfdr_eval_get_color  (it->value); }
+      else if (str_equals(it->label, str_lit("grid_level")))   { vp->grid.subdiv                    = cfdr_eval_get_i32    (it->value); }
+      else if (str_equals(it->label, str_lit("colormap")))     { state->scene.cmap                  = cfdr_eval_get_str    (it->value); }
+      else if (str_equals(it->label, str_lit("scene_bounds"))) { state->scene.scene_bounds_from_obj = cfdr_eval_get_str    (it->value); }
     }
 
   } else {
@@ -298,43 +302,60 @@ fn_internal void cfdr_eval_directive_colormap(CFDR_State *state, Arena *arena, T
     CFDR_Value table = cfdr_eval_expr(arena, scan);
     if (table.type == CFDR_Value_Type_Table) {
 
-      HSVA                        color_0         = v4f(0, 1, 1, 1);
-      HSVA                        color_1         = v4f(1, 1, 1, 1);
-      V2F                         map_custom      = v2f(0, 1);
-      CFDR_CMap_Opacity_Mode      opacity_map     = CFDR_CMap_Opacity_Solid;
-      CFDR_CMap_Interpolate_Mode  color_map       = CFDR_CMap_Interpolate_HSV;
-      CFDR_CMap_Map_Mode          data_map        = CFDR_CMap_Map_Min_Max;
+      U32            node_len = 0;
+      CFDR_CMap_Node node_dat[CFDR_CMap_Node_Cap] = { };
+      B32            interpolate = 1;
+      B32            map_opacity;
+      F32            data_scale = 1;
+      F32            data_shift = 0;
 
       for (CFDR_Table_Node *it = table.table->first; it; it = it->next) {
-        if      (str_equals(it->label, str_lit("color_0")))    { color_0.hsv = cfdr_eval_get_color   (it->value); }
-        else if (str_equals(it->label, str_lit("color_1")))    { color_1.hsv = cfdr_eval_get_color   (it->value); }
-        else if (str_equals(it->label, str_lit("data_range"))) { map_custom  = cfdr_eval_get_v2f     (it->value); }
-        else if (str_equals(it->label, str_lit("color_map")))  {
-          Str mode = cfdr_eval_get_str(it->value);
-          if      (str_equals(mode, str_lit("hsv")))  { color_map = CFDR_CMap_Interpolate_HSV; }
-          else if (str_equals(mode, str_lit("rgb")))  { color_map = CFDR_CMap_Interpolate_RGB; }
-          else if (str_equals(mode, str_lit("step"))) { color_map = CFDR_CMap_Interpolate_Step; }
-        } else if (str_equals(it->label, str_lit("opacity_map")))   {
-          Str mode = cfdr_eval_get_str(it->value);
-          if      (str_equals(mode, str_lit("solid")))        { opacity_map = CFDR_CMap_Opacity_Solid; }
-          else if (str_equals(mode, str_lit("smoothstep")))   { opacity_map = CFDR_CMap_Opacity_Smoothstep; }
-        } else if (str_equals(it->label, str_lit("data_map"))) {
-          Str mode = cfdr_eval_get_str(it->value);
-          if      (str_equals(mode, str_lit("min_max"))) { data_map = CFDR_CMap_Map_Min_Max;        }
-          else if (str_equals(mode, str_lit("unit")))    { data_map = CFDR_CMap_Map_Clamp_To_Unit;  }
-          else if (str_equals(mode, str_lit("custom")))  { data_map = CFDR_CMap_Map_Custom;         }
+        if (str_equals(it->label, str_lit("interpolate"))) {
+            interpolate = cfdr_eval_get_bool(it->value);
+        } else if (str_equals(it->label, str_lit("map_opacity"))) {
+            map_opacity = cfdr_eval_get_bool(it->value);
+        } else if (str_equals(it->label, str_lit("data_scale"))) {
+            data_scale = cfdr_eval_get_f32(it->value);
+        } else if (str_equals(it->label, str_lit("data_shift"))) {
+            data_shift = cfdr_eval_get_f32(it->value);
+        } else if (str_equals(it->label, str_lit("nodes"))) {
+
+          if (it->value.type == CFDR_Value_Type_List) {
+            CFDR_List *list = it->value.list;
+            for (CFDR_List_Node *it = list->first; it; it = it->next) {
+              if (it->value.type == CFDR_Value_Type_List) {
+                CFDR_List *pair = it->value.list;
+                F32 step  = cfdr_eval_get_f32   (it->value.list->first->value);
+                HSV color = cfdr_eval_get_color (it->value.list->last->value);
+
+                if (node_len < CFDR_CMap_Node_Cap) {
+                  node_dat[node_len++] = (CFDR_CMap_Node) { .step_t = step, .color = v4f(color.h, color.s, color.v, 1) };
+                } else {
+                  log_fatal("too many nodes given for colormap (max is %d)", CFDR_CMap_Node_Cap);
+                }
+              } else {
+                log_fatal("Expected float-color pair for list entry in nodes, in #colormap");
+              }
+            }
+          } else {
+            log_fatal("Expected list after nodes in #colormap");
+          }
         }
       }
 
       CFDR_CMap *cmap = cfdr_cmap_table_push(&state->cmap_table, key);
       if (cmap) {
-        cfdr_cmap_init(cmap, color_map, opacity_map, color_0, color_1);
-        cmap->map_mode = data_map;
-        cmap->map_custom = map_custom;
+        cfdr_cmap_init(cmap);
+        cmap->node_len = node_len;
+        memory_copy(cmap->node_dat, node_dat, cmap->node_len * sizeof(CFDR_CMap_Node));
+        cmap->interpolate = interpolate;
+        cmap->map_opacity = map_opacity;
+        cmap->data_scale  = data_scale;
+        cmap->data_shift  = data_shift;
+        cfdr_cmap_update(cmap);
       } else {
         log_fatal("colormap \"%.*s\" already exists! Ignoring #colormap directive");
       }
-
     } else {
       log_fatal("expected table after #colormap [tag] directive");
     }
@@ -365,6 +386,11 @@ fn_internal void cfdr_eval_directive_overlay(CFDR_State *state, Arena *arena, TK
 
         else if (str_equals(it->label, str_lit("background")))    { if  (cfdr_eval_get_bool(it->value)) { ov->flags |= CFDR_Overlay_Flag_Background; }  }
         else if (str_equals(it->label, str_lit("shadow")))        { if  (cfdr_eval_get_bool(it->value)) { ov->flags |= CFDR_Overlay_Flag_Shadow;     }  }
+
+        else if (str_equals(it->label, str_lit("table"))) {
+          cfdr_resource_table_init(&ov->table, cfdr_eval_get_str(it->value));
+          ov->flags |= CFDR_Overlay_Flag_Table;
+        }
       }
 
     } else {
@@ -384,13 +410,13 @@ fn_internal void cfdr_eval_directive_object(CFDR_State *state, Arena *arena, TK_
       CFDR_Object_Node *obj = cfdr_scene_push(&state->scene);
       obj->tag = key;
       for (CFDR_Table_Node *it = table.table->first; it; it = it->next) {
-             if (str_equals(it->label, str_lit("visible")))             { obj->visible           = cfdr_eval_get_bool    (it->value);                       }
+        if (str_equals(it->label, str_lit("visible")))                  { obj->visible           = cfdr_eval_get_bool    (it->value);                       }
         else if (str_equals(it->label, str_lit("color")))               { obj->color.hsv         = cfdr_eval_get_color   (it->value);                       }
         else if (str_equals(it->label, str_lit("opacity")))             { obj->color.a           = cfdr_eval_get_i32     (it->value) / 100.f;               }
         else if (str_equals(it->label, str_lit("scale")))               { obj->scale             = cfdr_eval_get_v3f     (it->value);                       }
         else if (str_equals(it->label, str_lit("translate")))           { obj->translate         = cfdr_eval_get_v3f     (it->value);                       }
-        else if (str_equals(it->label, str_lit("volume_density")))      { obj->volume_density    = cfdr_eval_get_i32     (it->value) / 100.f;               }
-        else if (str_equals(it->label, str_lit("volume_saturation")))   { obj->volume_saturate   = cfdr_eval_get_i32     (it->value) / 100.f;               }
+        else if (str_equals(it->label, str_lit("volume_density")))      { obj->volume_density    = cfdr_eval_get_f32     (it->value) / 100.f;               }
+        else if (str_equals(it->label, str_lit("volume_saturation")))   { obj->volume_saturate   = cfdr_eval_get_f32     (it->value) / 100.f;               }
         else if (str_equals(it->label, str_lit("volume_xyz")))          { obj->volume_xyz        = cfdr_eval_get_i32     (it->value);                       }
         else if (str_equals(it->label, str_lit("material"))) {
           // obj->translate         = cfdr_eval_get_v3f     (it->value);
@@ -413,6 +439,7 @@ fn_internal void cfdr_eval_directive_object(CFDR_State *state, Arena *arena, TK_
           log_info("Added surface resource [%.*s]", str_expand(surface_path));
         }
 
+#if 0
         else if (str_equals(it->label, str_lit("volume")))        {
           obj->flags |= CFDR_Object_Flag_Draw_Volume;
           if (it->value.type == CFDR_Value_Type_String) {
@@ -447,8 +474,83 @@ fn_internal void cfdr_eval_directive_object(CFDR_State *state, Arena *arena, TK_
           } else {
             log_fatal("invalid value type for volume entry");
           }
-        }
+#else
+      else if (str_equals(it->label, str_lit("volume"))) {
+        obj->flags |= CFDR_Object_Flag_Draw_Volume;
 
+        // obj->volume.step_count = list->count;
+        // obj->volume.step_array = arena_push_count(&state->scene.arena, I32, list->count);
+        // obj->volume.vol_array  = arena_push_count(&state->scene.arena, CFDR_Resource_Volume, list->count);
+        // U64 step_at            = 0;
+        
+        U64  step_count = 0;
+        F32 *step_array = 0;
+
+        U64  var_count = 0;
+        Str *var_array = 0;
+
+        CFDR_Value table = it->value;
+        if (table.type == CFDR_Value_Type_Table) {
+
+          Str path = str_lit("");
+          for (CFDR_Table_Node *table_it = table.table->first; table_it; table_it = table_it->next) {
+            if (str_equals(table_it->label, str_lit("step"))) {
+              CFDR_List *list = table_it->value.list;
+              step_count      = list->count;
+              step_array      = arena_push_count(&state->scene.arena, F32, list->count);
+
+              U64 step_at = 0;
+              for (CFDR_List_Node *it = list->first; it; it = it->next) {
+                F32 step = cfdr_eval_get_f32(it->value);
+                step_array[step_at++] = step;
+              }
+
+            } else if (str_equals(table_it->label, str_lit("variable"))) {
+              CFDR_List *list = table_it->value.list;
+              var_count      = list->count;
+              var_array      = arena_push_count(&state->scene.arena, Str, list->count);
+
+              U64 var_at = 0;
+              for (CFDR_List_Node *it = list->first; it; it = it->next) {
+                Str var = cfdr_eval_get_str(it->value);
+                var_array[var_at++] = arena_push_str(&state->scene.arena, var);
+              }
+
+            } else if (str_equals(table_it->label, str_lit("path"))) {
+              path = cfdr_eval_get_str(table_it->value);
+            }
+          }
+
+          obj->volume.step_count = step_count;
+          obj->volume.step_array = step_array;
+          obj->volume.var_count  = var_count;
+          obj->volume.var_array  = var_array;
+          obj->volume.vol_array  = arena_push_count(&state->scene.arena, CFDR_Resource_Volume, var_count * step_count);
+
+          U64 vol_at = 0;
+          Scratch scratch = { };
+          Scratch_Scope(&scratch, arena) {
+            For_U64 (it_var, var_count) {
+              For_U64 (it_step, step_count) {
+                  char buffer[1024] = { };
+                  stbsp_snprintf(buffer, 512, "%d", (I32)obj->volume.step_array[it_step]);
+
+                  Str sub_1 = str_replace(scratch.arena, path,  str_lit("$(var)"),  obj->volume.var_array[it_var]);
+                  Str sub_2 = str_replace(scratch.arena, sub_1, str_lit("$(step)"), str_from_cstr(buffer));
+
+                  log_info("STEP :: %.*s", str_expand(sub_2));
+                  cfdr_resource_volume_init(&obj->volume.vol_array[vol_at++], sub_2);
+              }
+            }
+          }
+
+          log_info("Added volume resources. %llu steps, %llu variables", step_count, var_count);
+
+        } else {
+          log_fatal("expected table after volume key in #object table");
+        }
+      }
+#endif
       }
     } else {
       log_fatal("expected table after #object [tag] directive");

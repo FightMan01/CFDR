@@ -1,0 +1,201 @@
+// NOTE(cmat): Specify CFDR version
+#version 100
+
+// NOTE(cmat): Project title.
+#project "UAP - Poznan"
+
+#colormap "Velocity" {
+  interpolate: true,
+  map_opacity: true,
+  nodes:  [
+    [ 0.0,   @hsv [ 252, 80.0, 100.0 ]  ],
+    [ 5.0,   @hsv [ 0,   80.0, 100.0 ]  ],
+    [ 10.0,  @hsv [ 0,   80.0, 100.0 ]  ],
+  ],
+}
+
+#colormap "Pressure" {
+  interpolate: true,
+  map_opacity: false,
+  nodes:  [
+    [ 99000.0,   @hsv [ 252, 80.0, 100.0 ]  ],
+    [ 100000.0,  @hsv [ 126, 0.0,  100.0 ]  ],
+    [ 101000.0,  @hsv [ 0,   80.0, 100.0 ]  ],
+  ],
+}
+
+#colormap "Density" {
+  interpolate: true,
+  map_opacity: false,
+  nodes:  [
+    [ 1.21,  @hsv [ 252, 80.0, 100.0 ]  ],
+    [ 1.22,  @hsv [ 126, 0.0,  100.0 ]  ],
+    [ 1.23,  @hsv [ 0,   80.0, 100.0 ]  ],
+  ],
+}
+
+#colormap "Lawson Wind Comfort" {
+  interpolate: false,
+  map_opacity: false,
+  nodes:  [
+    [ 0,    @hsv [ 237.86, 98.82, 100 ]  ],
+    [ 0.5,  @hsv [ 195.35, 99.61, 100 ]  ],
+    [ 2.0,  @hsv [ 183.07, 99.61, 100 ]  ],
+    [ 4.0,  @hsv [ 123.06, 100, 100   ]  ],
+    [ 6.0,  @hsv [ 82.91, 100, 99.61  ]  ],
+    [ 8.0,  @hsv [ 58.11, 100, 99.61  ]  ],
+    [ 10.0, @hsv [ 40, 100, 100       ]  ],
+    [ 12.0, @hsv [ 0, 99.21, 99.22    ]  ],
+    [ 14.0, @hsv [ 237.86, 98.82, 100 ]  ],
+  ],
+}
+
+#colormap "Amplification Factor" {
+  interpolate: true,
+  map_opacity: false,
+  data_scale:  5.0,
+  data_shift : 0.0,
+  nodes: [
+    [ 0.0,  @hsv [ 252, 70.0, 100.0 ]  ],
+    [ 1.2,  @hsv [ 0,   70.0, 100.0 ]  ],
+  ],
+}
+
+// NOTE(cmat): Setup viewport.
+#viewport {
+  background:       @hsv [ 255, 25, 40 ],
+  orthographic:     false,
+  grid_enabled:     true,
+  grid_color:       @hsv [ 0, 0, 100 ],
+  grid_level:       1,
+  colormap:         "Velocity",
+  scene_bounds:     "Ground",
+  /*
+  colormap_table: [
+    [ "velocity", "Velocity"  ],
+    [ "pressure", "Pressure"  ],
+    [ "density",  "Density"   ],
+  ],
+  */
+}
+
+// NOTE(cmat): We create a basic text overlay
+#overlay "Title" {
+  visible:          true,
+  content:          "Poznan: $(step)°",
+  scale:            100,
+  color:            @hsv [94, 16, 90],
+  shadow_color:     @hsv [252, 57, 0],
+  position_x:       @align "left",
+  position_y:       @align "top",
+  border:           [15, 5],
+  background:       true,
+  shadow:           true,
+  shadow_offset:    1,
+}
+
+// NOTE(cmat): We can even create a watermark using a text overlay
+#overlay "Watermark" {
+  visible:          true,
+  content:          "HiDALGO 2",
+  scale:            70,
+  color:            @hsv [200, 31, 22],
+  opacity:          47,
+  shadow_color:     @hsv [100, 20, 0],
+  position_x:       @align "right",
+  position_y:       @align "bottom",
+  border:           [10, 0],
+  background:       false,
+  shadow:           false,
+  shadow_offset:    1,
+}
+
+#overlay "Building Names" {
+  visible:          false,
+  table:            "examples/poznan_A/building_tags.csv"
+  scale:            100,
+  color:            @hsv [0, 0, 100],
+  shadow_color:     @hsv [0, 0, 0],
+  background:       true,
+  shadow:           true,
+  shadow_offset:    1,
+}
+
+// NOTE(cmat): Building geometry.
+#object "Buildings" {
+  visible:          true,
+  color:            @hsv [200, 0, 80],
+  opacity:          100,
+  material:         "matcap",
+  surface:          "examples/poznan_A/buildings.stl",
+  scale:            [1, 1, 1],
+}
+
+#object "Forests" {
+  visible:          true,
+  color:            @hsv [79, 40, 60],
+  opacity:          100,
+  material:         "matcap",
+  surface:          "examples/poznan_A/forests.stl",
+  scale:            [1, 1, 1],
+}
+
+#object "Roads" {
+  visible:          true,
+  color:            @hsv [79, 0, 50],
+  opacity:          100,
+  material:         "matcap",
+  surface:          "examples/poznan_A/roads.stl",
+  scale:            [1, 1, 1],
+}
+
+#object "Rails" {
+  visible:          true,
+  color:            @hsv [68, 67, 73],
+  opacity:          100,
+  material:         "matcap",
+  surface:          "examples/poznan_A/rails.stl",
+  scale:            [1, 1, 1],
+}
+
+#object "Ground" {
+  visible:          true,
+  color:            @hsv [360, 0, 25],
+  opacity:          100,
+  material:         "matcap",
+  surface:          "examples/poznan_A/ground_no_holes.stl",
+  scale:            [1, 1, 1],
+}
+
+/*
+#object "Simulation" {
+  visible:          false,
+
+  volume: {
+    step:       [ 0, 45, 90, 135, 180, 225, 270, 315 ],
+    variable:   [ "velocity", "pressure", "density" ],
+    path:       "examples/poznan_A/$(var)_deg$(step).vol",
+  },
+
+  scale:            [ 6616, 6180, 200 ],
+  translate:        [ 0, 0, 0 ],
+}
+
+// NOTE(cmat): Sample into the simulation volume.
+#object "Terrain Slice" {
+  visible:          true,
+  color:            @hsv [0, 70, 80],
+  material:         "sample",
+  surface:          "examples/poznan_A/ground_no_holes.stl",
+  scale:            [1, 1, 1],
+  translate:        [0, 0, 5],
+}
+
+#object "Vertical Slice" {
+  visible:          true,
+  color:            @hsv [0, 70, 80],
+  material:         "sample",
+  surface:          "examples/poznan_A/slice_vertical.stl",
+  scale:            [1, 1, 1],
+  translate:        [297, 0, 0],
+}*/

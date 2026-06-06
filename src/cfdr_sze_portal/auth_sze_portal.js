@@ -16,7 +16,7 @@ async function init_sze_portal_auth() {
     });
 
     if (authenticated) {
-      console.log('keycloak authentification successfull');
+      console.log('keycloak authentification successful');
     } else {
       console.error('keycloak authentification failed');
     }

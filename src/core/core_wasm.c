@@ -4,6 +4,7 @@
 // ------------------------------------------------------------
 // #-- NOTE(cmat): Unspported in WASM backend.
 
+
 #define WASM_Not_Supported(proc_) co_panic(str_lit(Macro_Stringize(proc_) ": not supported on WASM backend."));
 
 fn_internal B32       co_directory_create (Str folder_path)                                     { WASM_Not_Supported(co_directory_create); return 0;            }
@@ -22,32 +23,32 @@ fn_external void js_co_panic         (U32 string_len, char *string_txt);
 
 var_global CO_Context wasm_context = { };
 fn_internal CO_Context *co_context(void) {
-  return &wasm_context;
+    return &wasm_context;
 }
 
 fn_internal void co_stream_write(Str buffer, CO_Stream stream) {
-  U32 stream_mode = 1;
-  switch (stream) {
-    case CO_Stream_Standard_Output: { stream_mode = 1; } break;
-    case CO_Stream_Standard_Error:  { stream_mode = 2; } break;
-    Invalid_Default;
-  }
-  
-  js_co_stream_write(stream_mode, (U32)buffer.len, (char *)buffer.txt);
+    U32 stream_mode = 1;
+    switch (stream) {
+        case CO_Stream_Standard_Output: { stream_mode = 1; } break;
+        case CO_Stream_Standard_Error:  { stream_mode = 2; } break;
+        Invalid_Default;
+    }
+    
+    js_co_stream_write(stream_mode, (U32)buffer.len, (char *)buffer.txt);
 }
 
 fn_internal void co_panic(Str reason) {
-  js_co_panic((U32)reason.len, (char *)reason.txt);
+    js_co_panic((U32)reason.len, (char *)reason.txt);
 }
 
 fn_internal Local_Time co_local_time(void) {
-  Local_Time result     = { };
-  U64 time_since_epoch  = (U64)js_co_unix_time();
-  U64 unix_seconds      = time_since_epoch / 1000;
-  U64 unix_microseconds = (time_since_epoch % 1000) * 1000;
-  Local_Time local_time = local_time_from_unix_time(unix_seconds, unix_microseconds);
-
-  return local_time;
+    Local_Time result     = { };
+    U64 time_since_epoch  = (U64)js_co_unix_time();
+    U64 unix_seconds      = time_since_epoch / 1000;
+    U64 unix_microseconds = (time_since_epoch % 1000) * 1000;
+    Local_Time local_time = local_time_from_unix_time(unix_seconds, unix_microseconds);
+    
+    return local_time;
 }
 
 // TODO(cmat): Implement our custom WASM allocator, instead of relying on 'walloc.c'
@@ -64,16 +65,16 @@ void  free  (void *ptr);
 // - not holding my breath.
 
 fn_internal U08 *co_memory_reserve(U64 bytes) {
-  U08 *result = (U08 *)malloc(bytes);
-  return result;
+    U08 *result = (U08 *)malloc(bytes);
+    return result;
 }
 
 fn_internal void co_memory_unreserve  (void *virtual_base, U64 bytes) {
-  // TODO(cmat): This ignores bytes, which is technically fine for the current arena allocator,
-  // - but is definitely not fine otherwise.
-  // - Maybe the correct solution is to actually just store bytes in any allocation upfront in a header,
-  // - and only allow a chunk of virtual memory to be freed all at once.
-  free(virtual_base);
+    // TODO(cmat): This ignores bytes, which is technically fine for the current arena allocator,
+    // - but is definitely not fine otherwise.
+    // - Maybe the correct solution is to actually just store bytes in any allocation upfront in a header,
+    // - and only allow a chunk of virtual memory to be freed all at once.
+    free(virtual_base);
 }
 
 fn_internal void co_memory_commit   (void *virtual_base, U64 bytes, CO_Commit_Flag mode)  { }
@@ -84,12 +85,12 @@ fn_internal void co_memory_uncommit (void *virtual_base, U64 bytes)             
 
 __attribute__((export_name("wasm_entry_point")))
 fn_entry void wasm_entry_point(U32 cpu_logical_cores) {
-  wasm_context.cpu_name           = str_lit("WASM VM");
-  wasm_context.cpu_logical_cores  = cpu_logical_cores;
-  wasm_context.mmu_page_bytes     = u64_kilobytes(64);
-  wasm_context.ram_capacity_bytes = u64_gigabytes(4);
-
-  co_entry_point(0, 0);
+    wasm_context.cpu_name           = str_lit("WASM VM");
+    wasm_context.cpu_logical_cores  = cpu_logical_cores;
+    wasm_context.mmu_page_bytes     = u64_kilobytes(64);
+    wasm_context.ram_capacity_bytes = u64_gigabytes(4);
+    
+    co_entry_point(0, 0);
 }
 
 

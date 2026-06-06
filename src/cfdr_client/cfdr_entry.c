@@ -23,6 +23,9 @@
 #include "ui/ui_build.h"
 #include "ui/ui_build.c"
 
+#include "image/image.h"
+#include "image/image.c"
+
 #include "geometry/geometry_build.h"
 #include "geometry/geometry_build.c"
 
@@ -40,11 +43,11 @@ var_global Str Project_Path = { };
 #include "cfdr/cfdr_build.h"
 #include "cfdr/cfdr_build.c"
 
-var_global Arena          Permanent_Storage   = { };
-var_global G2_Font        UI_Font_Text        = { };
 var_global CFDR_UI_State  CFDR_UI             = { };
 var_global CFDR_Resource  Project_File        = { };
 var_global CFDR_State     State               = { };
+var_global G2_Font        UI_Font_Text        = { };
+var_global Arena          Permanent_Storage   = { };
 
 fn_internal void init_frame(PL_Render_Context *render_context) {
   arena_init(&Permanent_Storage);
@@ -56,14 +59,6 @@ fn_internal void init_frame(PL_Render_Context *render_context) {
 
   cfdr_state_init(&State);
   cfdr_ui_init(&CFDR_UI, &State);
-}
-
-fn_internal V2F place_point(UG_Mesh *mesh, F32 largest_axis, F32 scale, V2F offset, V2F p) {
-  p = v2f_sub(p, mesh->bounds.min);
-  p = v2f_div(p, largest_axis);
-  p = v2f_mul(scale, p);
-  p = v2f_add(p, offset);
-  return p;
 }
 
 fn_internal void next_frame(B32 first_frame, PL_Render_Context *render_context) {
@@ -92,12 +87,9 @@ fn_internal void next_frame(B32 first_frame, PL_Render_Context *render_context) 
   }
 
   cfdr_ui(&CFDR_UI);
-  ui_frame_flush();
- 
-  g2_frame_flush();
-  r_frame_flush();
-
-  Resource_Downloading = 0;
+  Resource_Downloading              = 0;
+  Resource_Downloading_Bytes_Done   = 0;
+  Resource_Downloading_Bytes_Total  = 0;
 }
 
 fn_internal void log_co_context(void) {
@@ -115,5 +107,5 @@ fn_internal void pl_entry_point(Array_Str command_line, PL_Bootstrap *boot) {
 
   logger_push_hook(logger_write_entry_standard_stream, logger_format_entry_minimal);
   log_co_context();
-} 
+}
 

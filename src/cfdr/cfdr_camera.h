@@ -24,11 +24,11 @@ fn_internal void cfdr_camera_init(CFDR_Camera *camera) {
   zero_fill(camera);
 
   camera->look_at        = v3f(0, 0, 0);
-  camera->radius_m       = 10.f;
-  camera->theta_deg      = 0.f;
+  camera->radius_m       = 30.f;
+  camera->theta_deg      = 90.f;
   camera->phi_deg        = 0.f;
-  camera->near_m         = 0.1f;
-  camera->far_m          = 1000.f;
+  camera->near_m         = 0.05f;
+  camera->far_m          = 250.f;
   camera->fov_deg        = 60.f;
   camera->orthographic   = 0;
 
@@ -44,7 +44,7 @@ fn_internal void cfdr_camera_init(CFDR_Camera *camera) {
 fn_internal void cfdr_camera_update(CFDR_Camera *camera, R2F draw_region) {
   F32 frame_delta               = pl_display()->frame_delta;
 
-  camera->radius_m              = f32_clamp(camera->radius_m, 3.f, 50.f);
+  camera->radius_m              = f32_clamp(camera->radius_m, 1.f, 50.f);
   camera->phi_deg               = f32_clamp(camera->phi_deg,  0.01f, 179.99f);
 
 #if 1

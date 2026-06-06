@@ -6,8 +6,10 @@ enum {
 };
 
 typedef struct CFDR_Volume {
-  U32                    step_count;
-  I32                   *step_array;
+  U64                    step_count;
+  F32                   *step_array;
+  U64                    var_count;
+  Str                   *var_array;
   CFDR_Resource_Volume  *vol_array;
 } CFDR_Volume;
 
@@ -23,6 +25,7 @@ typedef struct CFDR_Object_Node {
 
   V3F                       scale;
   V3F                       translate;
+  V3F                       rotate;
   F32                       volume_density;
   F32                       volume_saturate;
   I32                       volume_xyz;
@@ -31,20 +34,26 @@ typedef struct CFDR_Object_Node {
   CFDR_Volume               volume;
 
   R_Buffer                  world_state;
+  R_Buffer                  vol_state;
   R_Bind_Group              bind_group;
-  R_Bind_Group              bind_group_sample;
+  R_Bind_Group              bind_group_vol;
 } CFDR_Object_Node;
 
 typedef struct CFDR_Scene_View {
   HSVA              background;
   CFDR_Camera       camera;
+  CFDR_Camera       camera_xyz;
   CFDR_Render_Grid  grid;
 } CFDR_Scene_View;
 
 typedef struct CFDR_Scene_Step {
   I32 step_count;
   I32 step_at;
-  I32 step_value;
+  F32 step_value;
+
+  I32  var_count;
+  I32  var_at;
+  Str *var_names;
 } CFDR_Scene_Step;
 
 typedef struct CFDR_Scene {
@@ -56,9 +65,21 @@ typedef struct CFDR_Scene {
   CFDR_Scene_View    view;
   CFDR_Scene_Step    step;
   Str                cmap;
+  M4F                transform;
+  M4F                view_projection;
+
+  Str                scene_bounds_from_obj;
+
+  CFDR_Render_Arrow  widget_arrow_xyz[3];
+  CFDR_Render_Arrow  picker_arrow_xyz[3];
+  CFDR_Render_Arrow  picker_arrow_xyz_outline[3];
+
+  I32                picker_grabbed_axis;
+  V3F                picker_grabbed_base;
+  V3F                picker_translate_base;
 } CFDR_Scene;
 
-fn_internal void              cfdr_scene_init(CFDR_Scene *object);
+fn_internal void              cfdr_scene_init(CFDR_Render *render, CFDR_Scene *object);
 fn_internal CFDR_Object_Node *cfdr_scene_push(CFDR_Scene *object);
 fn_internal void              cfdr_scene_draw(CFDR_Render *render, CFDR_CMap_Table *cmap_table, UI_Response *response, CFDR_Scene *object, R2F draw_region);
 

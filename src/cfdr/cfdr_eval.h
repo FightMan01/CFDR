@@ -5,7 +5,7 @@ enum {
   CFDR_Value_Type_Table,
   CFDR_Value_Type_Color,
   CFDR_Value_Type_Bool,
-  CFDR_Value_Type_Integer,
+  CFDR_Value_Type_Float,
   CFDR_Value_Type_String,
   CFDR_Value_Type_Align,
 };
@@ -20,7 +20,7 @@ typedef struct CFDR_Value {
     struct CFDR_Table *table;
     V3F                color;
     B32                b32;
-    B32                i32;
+    F32                f32;
     Str                str;
     Align2             align;
   };

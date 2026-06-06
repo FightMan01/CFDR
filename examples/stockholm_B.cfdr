@@ -1,0 +1,175 @@
+// NOTE(cmat): Specify CFDR version
+#version 100
+
+// NOTE(cmat): Project title.
+#project "UAP - Stockholm"
+
+#colormap "Velocity" {
+  interpolate: true,
+  map_opacity: true,
+  nodes:  [
+    [ 0.0,  @hsv [ 252, 80.0, 100.0 ]  ],
+    [ 5.5,  @hsv [ 0,   80.0, 100.0 ]  ],
+  ],
+}
+
+#colormap "Lawson Wind Comfort" {
+  interpolate: false,
+  map_opacity: false,
+  nodes:  [
+    [ 0,    @hsv [ 237.86, 98.82, 100 ]  ],
+    [ 0.5,  @hsv [ 195.35, 99.61, 100 ]  ],
+    [ 2.0,  @hsv [ 183.07, 99.61, 100 ]  ],
+    [ 4.0,  @hsv [ 123.06, 100, 100   ]  ],
+    [ 6.0,  @hsv [ 82.91, 100, 99.61  ]  ],
+    [ 8.0,  @hsv [ 58.11, 100, 99.61  ]  ],
+    [ 10.0, @hsv [ 40, 100, 100       ]  ],
+    [ 12.0, @hsv [ 0, 99.21, 99.22    ]  ],
+    [ 14.0, @hsv [ 237.86, 98.82, 100 ]  ],
+  ],
+}
+
+#colormap "Amplification Factor" {
+  interpolate: true,
+  map_opacity: false,
+  data_scale:  5.0,
+  data_shift : 0.0,
+  nodes: [
+    [ 0.0,  @hsv [ 252, 70.0, 100.0 ]  ],
+    [ 1.2,  @hsv [ 0,   70.0, 100.0 ]  ],
+  ],
+}
+
+// NOTE(cmat): Setup viewport.
+#viewport {
+  background:       @hsv [ 255, 25, 40 ],
+  orthographic:     false,
+  grid_enabled:     true,
+  grid_color:       @hsv [ 0, 0, 100 ],
+  grid_level:       1,
+  colormap:         "Lawson Wind Comfort",
+  scene_bounds:     "Ground",
+}
+
+// NOTE(cmat): We create a basic text overlay
+#overlay "Title" {
+  visible:          true,
+  content:          "Stockholm (Large) - Air Flow",
+  scale:            100,
+  color:            @hsv [94, 16, 90],
+  shadow_color:     @hsv [252, 57, 0],
+  position_x:       @align "left",
+  position_y:       @align "top",
+  border:           [15, 5],
+  background:       true,
+  shadow:           true,
+  shadow_offset:    1,
+}
+
+// NOTE(cmat): We can even create a watermark using a text overlay
+#overlay "Watermark" {
+  visible:          true,
+  content:          "HiDALGO 2",
+  scale:            70,
+  color:            @hsv [200, 31, 22],
+  opacity:          47,
+  shadow_color:     @hsv [100, 20, 0],
+  position_x:       @align "right",
+  position_y:       @align "bottom",
+  border:           [10, 0],
+  background:       false,
+  shadow:           false,
+  shadow_offset:    1,
+}
+
+#overlay "Building Names" {
+  visible:          true,
+  table:            "examples/stockholm_B/building_tags.csv"
+  scale:            100,
+  color:            @hsv [0, 0, 100],
+  shadow_color:     @hsv [0, 0, 0],
+  background:       true,
+  shadow:           true,
+  shadow_offset:    1,
+}
+
+
+// NOTE(cmat): Building geometry.
+#object "Buildings" {
+  visible:          true,
+  color:            @hsv [200, 0, 80],
+  opacity:          100,
+  material:         "matcap",
+  surface:          "examples/stockholm_B/buildings.stl",
+  scale:            [1, 1, 1],
+}
+
+#object "Forests" {
+  visible:          true,
+  color:            @hsv [79, 40, 60],
+  opacity:          100,
+  material:         "matcap",
+  surface:          "examples/stockholm_B/forests.stl",
+  scale:            [1, 1, 1],
+}
+
+#object "Roads" {
+  visible:          true,
+  color:            @hsv [79, 0, 50],
+  opacity:          100,
+  material:         "matcap",
+  surface:          "examples/stockholm_B/roads.stl",
+  scale:            [1, 1, 1],
+}
+
+#object "Rails" {
+  visible:          true,
+  color:            @hsv [68, 67, 73],
+  opacity:          100,
+  material:         "matcap",
+  surface:          "examples/stockholm_B/rails.stl",
+  scale:            [1, 1, 1],
+}
+
+#object "Ground" {
+  visible:          true,
+  color:            @hsv [360, 0, 25],
+  opacity:          100,
+  material:         "matcap",
+  surface:          "examples/stockholm_B/ground.stl",
+  scale:            [1, 1, 1],
+}
+
+// NOTE(cmat): Simulation volume.
+#object "Simulation" {
+  visible:          false,
+
+  volume: {
+    step:       [ 0, 1, 2, 3, 4, 5 ],
+    variable:   [ "velocity" ],
+    path:       "examples/stockholm_B/$(var)_$(step).vol",
+  },
+
+  scale:            [4232, 6004, 200],
+  translate:        [ 0, 0, 0 ],
+}
+
+// NOTE(cmat): Sample into the simulation volume.
+#object "Terrain Slice" {
+  visible:          true,
+  color:            @hsv [0, 70, 80],
+  material:         "sample",
+  surface:          "examples/stockholm_B/slice.stl",
+  scale:            [1, 1, 1],
+  translate:        [0, 0, 5],
+}
+
+// NOTE(cmat): Sample into the simulation volume.
+#object "Veritcal Slice" {
+  visible:          false,
+  color:            @hsv [0, 70, 80],
+  material:         "sample",
+  surface:          "examples/stockholm_B/slice_vertical.stl",
+  scale:            [1, 1, 1],
+  translate:        [0, 0, 0],
+}

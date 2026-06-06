@@ -2,9 +2,6 @@
 // Licensed under the MIT License (https://opensource.org/license/mit/)
 
 // ------------------------------------------------------------
-// #-- 2D Rect Packing.
-
-// ------------------------------------------------------------
 // #-- 3D Geometry Construction.
 
 
@@ -155,3 +152,89 @@ fn_internal GEO3_Surface geo3_build_tube (Arena *arena, GEO3_Path geo_path, F32 
   return surface;
 }
 
+fn_internal GEO3_Surface geo3_build_arrow(Arena *arena, V3F dir, F32 cylinder_length, F32 cylinder_radius, F32 cone_length, F32 cone_radius, U32 resolution) {
+  resolution += 3;
+
+  U32 vertex_count = 0;
+  U32 index_count  = 0;
+  vertex_count += 2 * resolution; // NOTE(cmat): Cylinder base + top.
+  index_count  += 6 * resolution; // NOTE(cmat): Cylinder indices.
+
+  vertex_count += resolution + 2; // NOTE(cmat): Cone base + base-center + top.
+  index_count  += 2 * 3 * resolution; // NOTE(cmat): Cone indices.
+
+  GEO3_Surface result = { };
+  array_reserve(arena, &result.vertices, vertex_count);
+  array_reserve(arena, &result.indices,  index_count );
+
+  // NOTE(cmat): Cylinder vertices.
+  V3F forward = v3f_noz(dir);
+  V3F right = v3f_noz(v3f_cross(v3f(0, 1, 0), forward));
+  if (v3f_len(right) < NOZ_Epsilon) { right = v3f(1.f, 0, 0); }
+  V3F up  = v3f_noz(v3f_cross(forward, right));
+
+  For_U64(level, 2) {
+    V3F p = v3f_mul(level * cylinder_length, forward);
+    For_U64(it, resolution) {
+      F32 theta      = (F32)it / (F32)resolution * f32_2pi;
+      F32 ct         = f32_cos(theta);
+      F32 st         = f32_sin(theta);
+      V3F dir        = v3f_add(v3f_mul(ct, right), v3f_mul(st, up));
+      V3F disk_point = v3f_add(p, v3f_mul(cylinder_radius, dir));
+
+      array_push(&result.vertices, disk_point);
+    }
+  }
+ 
+  // NOTE(cmat): Cylinder indices.
+  For_U64(it, resolution) {
+    U32 b = it;
+    U32 t = resolution + it;
+
+    U32 q0 = b;
+    U32 q1 = (b + 1) % resolution;
+    U32 q2 = resolution + (t + 1) % resolution;
+    U32 q3 = t;
+
+    array_push(&result.indices, q0);
+    array_push(&result.indices, q1);
+    array_push(&result.indices, q2);
+    array_push(&result.indices, q0);
+    array_push(&result.indices, q2);
+    array_push(&result.indices, q3);
+  }
+  
+  // NOTE(cmat): Cone vertices
+  V3F cone_base = v3f_mul(cylinder_length, forward);
+  array_push(&result.vertices, cone_base);
+  array_push(&result.vertices, v3f_add(cone_base, v3f_mul(cone_length, forward)));
+  For_U64(it, resolution) {
+    F32 theta      = (F32)it / (F32)resolution * f32_2pi;
+    F32 ct         = f32_cos(theta);
+    F32 st         = f32_sin(theta);
+    V3F dir        = v3f_add(v3f_mul(ct, right), v3f_mul(st, up));
+    V3F disk_point = v3f_add(cone_base, v3f_mul(cone_radius, dir));
+    array_push(&result.vertices, disk_point);
+
+  }
+
+
+  U32 base_idx = 2 * resolution + 0;
+  U32 top_idx  = 2 * resolution + 1;
+
+  // NOTE(cmat): Cone base indices
+  For_U64(it, resolution) {
+    array_push(&result.indices, top_idx + 1 + it);
+    array_push(&result.indices, top_idx + 1 + ((it + 1) % resolution));
+    array_push(&result.indices, base_idx);
+  }
+
+  // NOTE(cmat): Cone side indices
+  For_U64(it, resolution) {
+    array_push(&result.indices, top_idx + 1 + it);
+    array_push(&result.indices, top_idx + 1 + ((it + 1) % resolution));
+    array_push(&result.indices, top_idx);
+  }
+
+  return result;
+}

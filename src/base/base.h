@@ -6,44 +6,44 @@
 
 #define stack_push(first_, node_) stack_push_ext(first_, node_, next)
 #define stack_push_ext(first_, node_, next_name_)   \
-  do {                                              \
-    (node_)->next_name_ = (first_);                 \
-    (first_) = (node_);                             \
-  } while(0)
+do {                                              \
+(node_)->next_name_ = (first_);                 \
+(first_) = (node_);                             \
+} while(0)
 
 #define stack_pop(first_) stack_pop_ext(first_, next)
 #define stack_pop_ext(first_, next_name_)           \
-  do {                                              \
-    (first_) = (first_)->next_name_;                \
-  } while(0)
+do {                                              \
+(first_) = (first_)->next_name_;                \
+} while(0)
 
 // ------------------------------------------------------------
 // #-- Queue
 
 #define queue_push(first_, last_, node_) queue_push_ext(first_, last_, node_, next)
 #define queue_push_ext(first_, last_, node_, next_name_)  \
-  do {                                                    \
-    if ((first_) == 0) {                                  \
-      (first_) = (node_);                                 \
-      (last_)  = (node_);                                 \
-      (node_)->next_name_ = 0;                            \
-    } else {                                              \
-      (last_)->next_name_  = (node_);                     \
-      (last_)              = (node_);                     \
-      (node_)->next_name_  = 0;                           \
-    }                                                     \
-  } while(0)
+do {                                                    \
+if ((first_) == 0) {                                  \
+(first_) = (node_);                                 \
+(last_)  = (node_);                                 \
+(node_)->next_name_ = 0;                            \
+} else {                                              \
+(last_)->next_name_  = (node_);                     \
+(last_)              = (node_);                     \
+(node_)->next_name_  = 0;                           \
+}                                                     \
+} while(0)
 
 #define queue_pop(first_, last_) queue_pop_ext(first_, last_, next)
 #define queue_pop_ext(first_, last_, next_name_)          \
-  do {                                                    \
-    if ((first_) == (last_)) {                            \
-      (first_) = 0;                                       \
-      (last_)  = 0;                                       \
-    } else {                                              \
-      (first_) = (first_)->next_name_;                    \
-    }                                                     \
-  } while(0)
+do {                                                    \
+if ((first_) == (last_)) {                            \
+(first_) = 0;                                       \
+(last_)  = 0;                                       \
+} else {                                              \
+(first_) = (first_)->next_name_;                    \
+}                                                     \
+} while(0)
 
 // ------------------------------------------------------------
 // #-- Arena
@@ -66,20 +66,20 @@
 
 typedef U32 Arena_Push_Flag;
 enum {
-  Arena_Push_Flag_Zero_Init = 1 << 0
+    Arena_Push_Flag_Zero_Init = 1 << 0
 };
 
 typedef struct { 
-  U32             align;
-  Arena_Push_Flag flags;
+    U32             align;
+    Arena_Push_Flag flags;
 #if BUILD_DEBUG
-  Str             meta_caller_info;
+    Str             meta_caller_info;
 #endif
 } Arena_Push;
 
 enum {
-  Arena_Alignment_Default = sizeof(void*),
-  Arena_Push_Flags_Default = Arena_Push_Flag_Zero_Init,
+    Arena_Alignment_Default = sizeof(void*),
+    Arena_Push_Flags_Default = Arena_Push_Flag_Zero_Init,
 };
 
 var_global U64 arena_chunk_magic = u64_pack('A','R','E','N','A','C','H','K');
@@ -89,41 +89,41 @@ typedef struct Arena_Chunk_Header { U64 magic; } Arena_Chunk_Header;
 #else
 typedef struct Arena_Chunk_Header { } Arena_Chunk_Header;
 #endif
- 
+
 typedef struct Arena_Chunk {
-  Arena_Chunk_Header  header;
-
-  U08                *base_memory;
-  U08                *next_page;
-  U08                *current;
-  U64                 reserved;
-
-  struct Arena_Chunk *prev;
-  struct Arena_Chunk *next;
+    Arena_Chunk_Header  header;
+    
+    U08                *base_memory;
+    U08                *next_page;
+    U08                *current;
+    U64                 reserved;
+    
+    struct Arena_Chunk *prev;
+    struct Arena_Chunk *next;
 } Arena_Chunk;
 
 typedef U32 Arena_Flag;
 enum {
-  // NOTE(cmat): Allows growth of arena beyond initial reserved block of memory.
-  Arena_Flag_Allow_Chaining = 1 << 0,
-
-  // NOTE(cmat): Always reserve and commit the whole chunk upon creation.
-  Arena_Flag_Commit_Whole_Chunk = 1 << 1,
-
-  // NOTE(cmat): If an allocation doesn't fit in the current chunk,
-  // before creating a new chunk, backtrack through previous chunks
-  // to find one which accepts our allocation.
-  // The use-case for this, is for platforms without MMU support (WASM),
-  // or where address space is very limited (32bit).
-  // Chaining must be enabled for this to have effect!
-  Arena_Flag_Backtrack_Before_Chaining = 1 << 2,
-
-  // NOTE(cmat): On WASM, we enable backtracking by default
-  // since wasting "virtual" memory is wasting phyisical committed memory.
+    // NOTE(cmat): Allows growth of arena beyond initial reserved block of memory.
+    Arena_Flag_Allow_Chaining = 1 << 0,
+    
+    // NOTE(cmat): Always reserve and commit the whole chunk upon creation.
+    Arena_Flag_Commit_Whole_Chunk = 1 << 1,
+    
+    // NOTE(cmat): If an allocation doesn't fit in the current chunk,
+    // before creating a new chunk, backtrack through previous chunks
+    // to find one which accepts our allocation.
+    // The use-case for this, is for platforms without MMU support (WASM),
+    // or where address space is very limited (32bit).
+    // Chaining must be enabled for this to have effect!
+    Arena_Flag_Backtrack_Before_Chaining = 1 << 2,
+    
+    // NOTE(cmat): On WASM, we enable backtracking by default
+    // since wasting "virtual" memory is wasting phyisical committed memory.
 #if OS_WASM
-  Arena_Flag_Defaults = Arena_Flag_Allow_Chaining | Arena_Flag_Backtrack_Before_Chaining
+    Arena_Flag_Defaults = Arena_Flag_Allow_Chaining | Arena_Flag_Backtrack_Before_Chaining
 #else
-  Arena_Flag_Defaults = Arena_Flag_Allow_Chaining
+    Arena_Flag_Defaults = Arena_Flag_Allow_Chaining
 #endif
 };
 
@@ -135,14 +135,14 @@ enum {
 
 
 typedef struct Arena_Init {
-  Arena_Flag flags;
-  U64        reserve_initial;
+    Arena_Flag flags;
+    U64        reserve_initial;
 } Arena_Init;
 
 typedef struct Arena {
-  Arena_Flag flags; 
-  Arena_Chunk    *first_chunk;
-  Arena_Chunk    *last_chunk;
+    Arena_Flag flags; 
+    Arena_Chunk    *first_chunk;
+    Arena_Chunk    *last_chunk;
 } Arena;
 
 fn_internal void arena_init_ext (Arena *arena, Arena_Init *init);
@@ -160,26 +160,26 @@ fn_internal void arena_clear    (Arena *arena);
 #define arena_push_count(arena, type, count, ...)   (type *)arena_push_size((arena), (count) * sizeof(type), __VA_ARGS__)
 
 inline fn_internal Str arena_push_str(Arena *arena, Str str) {
-  Str result = { };
-  result.len = str.len;
-  result.txt = arena_push_size(arena, str.len);
-  memory_copy(result.txt, str.txt, str.len);
-
-  return result;
+    Str result = { };
+    result.len = str.len;
+    result.txt = arena_push_size(arena, str.len);
+    memory_copy(result.txt, str.txt, str.len);
+    
+    return result;
 }
 
 typedef struct Arena_Temp {
-  Arena       *arena;
-  Arena_Chunk *rollback_chunk;
-  U08         *rollback_current;
-  U08         *rollback_page;
+    Arena       *arena;
+    Arena_Chunk *rollback_chunk;
+    U08         *rollback_current;
+    U08         *rollback_page;
 } Arena_Temp;
 
 fn_internal Arena_Temp arena_temp_start (Arena *arena);
 fn_internal void       arena_temp_end   (Arena_Temp *temp);
 
 #define Arena_Temp_Scope(arena_, temp_name_) \
-  for (Arena_Temp temp_name_ = arena_temp_start(arena_); temp_name_.arena; arena_temp_end(&temp_name_))
+for (Arena_Temp temp_name_ = arena_temp_start(arena_); temp_name_.arena; arena_temp_end(&temp_name_))
 
 
 // ------------------------------------------------------------
@@ -203,58 +203,58 @@ force_inline fn_internal Scratch  scratch_start (Arena *conflict)     { return a
 force_inline fn_internal void     scratch_end   (Scratch *scratch)    { arena_temp_end(scratch); }
 
 #define Scratch_Scope(scratch_, conflict_) Defer_Scope(*(scratch_) = scratch_start(conflict_), scratch_end(scratch_))
-  
+
 // ------------------------------------------------------------
 // #-- Array
 
 #define Array_Type(type) struct { U64 len; U64 cap; type *dat; }
 typedef struct Array_Header {
-  U64 len;
-  U64 cap;
+    U64 len;
+    U64 cap;
 } Array_Header;
 
 inline fn_internal void array_reserve_ext(Arena *arena, Array_Header *header, void **dat, U64 type_size, U64 reserve_count) {
-  Assert(!header->len && !header->cap, "reserving an array that's already in use");
-  header->cap = reserve_count;
-  *dat        = arena_push_size(arena, type_size * reserve_count);
+    Assert(!header->len && !header->cap, "reserving an array that's already in use");
+    header->cap = reserve_count;
+    *dat        = arena_push_size(arena, type_size * reserve_count);
 }
 
 #define array_reserve(arena_, array_, cap_) \
-  array_reserve_ext(arena_, (Array_Header *)(array_), (void**)&((array_)->dat), sizeof((array_)->dat[0]), cap_)
+array_reserve_ext(arena_, (Array_Header *)(array_), (void**)&((array_)->dat), sizeof((array_)->dat[0]), cap_)
 
 #define array_push(array_, value_)                                    \
-  do {                                                                \
-    Assert((array_)->len != (array_)->cap, "array out of capacity");  \
-    ((array_)->dat[(array_)->len++]) = (value_);                      \
-  } while(0)
+do {                                                                \
+Assert((array_)->len != (array_)->cap, "array out of capacity");  \
+((array_)->dat[(array_)->len++]) = (value_);                      \
+} while(0)
 
 inline fn_internal void array_erase_ext(Array_Header *header, U08 *dat, U64 type_bytes, U64 erase_index, U64 erase_count) {
-  // TODO(cmat): Check why this triggers
-  Assert(erase_index + erase_count <= header->len, "erase out of bounds");
-
-  U64 erase_from_byte = erase_index * type_bytes;
-  U64 erase_bytes     = erase_count * type_bytes;
-  U64 len_bytes       = header->len * type_bytes;
-
-  U64 copy_byte_idx = erase_from_byte + erase_bytes;
-  while (copy_byte_idx < len_bytes) {
-    dat[erase_from_byte++] = dat[copy_byte_idx++];
-  }
-
-  header->len -= erase_count;
+    // TODO(cmat): Check why this triggers
+    Assert(erase_index + erase_count <= header->len, "erase out of bounds");
+    
+    U64 erase_from_byte = erase_index * type_bytes;
+    U64 erase_bytes     = erase_count * type_bytes;
+    U64 len_bytes       = header->len * type_bytes;
+    
+    U64 copy_byte_idx = erase_from_byte + erase_bytes;
+    while (copy_byte_idx < len_bytes) {
+        dat[erase_from_byte++] = dat[copy_byte_idx++];
+    }
+    
+    header->len -= erase_count;
 }
 
 #define array_erase(array_, index_, erase_count_) \
-  array_erase_ext(                                \
-      (Array_Header *)(array_),                   \
-      (U08 *)(array_)->dat,                       \
-      sizeof((array_)->dat[0]),                   \
-      index_,                                     \
-      erase_count_);
+array_erase_ext(                                \
+(Array_Header *)(array_),                   \
+(U08 *)(array_)->dat,                       \
+sizeof((array_)->dat[0]),                   \
+index_,                                     \
+erase_count_);
 
 #define array_clear(array_) ((array_)->len) = 0;
 #define array_from_sarray(array_type_, sarray_) \
-  (array_type_) { .len = sarray_len(sarray_), .cap = sarray_len(sarray_), .dat = sarray_ }
+(array_type_) { .len = sarray_len(sarray_), .cap = sarray_len(sarray_), .dat = sarray_ }
 
 typedef Array_Type(I08) Array_I08;
 typedef Array_Type(I16) Array_I16;
@@ -277,24 +277,24 @@ typedef Array_Type(Str)       Array_Str;
 #if 0
 
 typedef struct Bucket_Node {
-  struct Bucket_Node *next;
-  union {
-    void *key_ptr;
-    Str   key_str;
-    U64   key_u64;
-    I64   key_s64;
-  }
+    struct Bucket_Node *next;
+    union {
+        void *key_ptr;
+        Str   key_str;
+        U64   key_u64;
+        I64   key_s64;
+    }
 } Bucket_Node;
 
 typedef struct Bucket_List {
-  Bucket_Node *first;
-  Bucket_Node *last;
+    Bucket_Node *first;
+    Bucket_Node *last;
 } Bucket_List;
 
 typedef struct Hash_Table {
-  U64          bucket_type_bytes;
-  U64          bucket_list_count;
-  Bucket_List *bucket_list_array;
+    U64          bucket_type_bytes;
+    U64          bucket_list_count;
+    Bucket_List *bucket_list_array;
 } Hash_Table;
 
 fn_internal void hash_table_init_ext(Hash_Table *ht, Arena *arena, U64 bucket_type_bytes, U64 bucket_count);
@@ -308,76 +308,76 @@ fn_internal Bucket_Head *hash_table_add_key_str_ext(Hash_Table *ht, Arena *arena
 // #-- Logging
 
 enum {
-  Logger_Max_Hooks        = 32,
-  Logger_Max_Entry_Length = 1024,
+    Logger_Max_Hooks        = 32,
+    Logger_Max_Entry_Length = 1024,
 };
 
 typedef U32 Logger_Entry_Type;
 enum {
-  Logger_Entry_Info,
-  Logger_Entry_Debug,
-  Logger_Entry_Warning,
-  Logger_Entry_Error,
-  Logger_Entry_Fatal,
-
-  Logger_Entry_Zone_Start,
-  Logger_Entry_Zone_End,
-  
-  Logger_Entry_Type_Count
+    Logger_Entry_Info,
+    Logger_Entry_Debug,
+    Logger_Entry_Warning,
+    Logger_Entry_Error,
+    Logger_Entry_Fatal,
+    
+    Logger_Entry_Zone_Start,
+    Logger_Entry_Zone_End,
+    
+    Logger_Entry_Type_Count
 };
 
 typedef U32 Logger_Filter_Flag;
 enum {
-  Logger_Filter_Info     = 1 << 0,
-  Logger_Filter_Debug    = 1 << 1,
-  Logger_Filter_Warning  = 1 << 2,
-  Logger_Filter_Error    = 1 << 3,
-  Logger_Filter_Fatal    = 1 << 4,
-  Logger_Filter_Zone     = 1 << 5,
-
-  Logger_Filter_Build_Debug =
-    Logger_Filter_Debug   |
-    Logger_Filter_Info    |
-    Logger_Filter_Warning |
-    Logger_Filter_Error   |
-    Logger_Filter_Fatal   |
-    Logger_Filter_Zone,
-
-  Logger_Filter_Build_Release =
-    Logger_Filter_Info     |
-    Logger_Filter_Warning  |
-    Logger_Filter_Error    |
-    Logger_Filter_Fatal    |
-    Logger_Filter_Zone,
-
+    Logger_Filter_Info     = 1 << 0,
+    Logger_Filter_Debug    = 1 << 1,
+    Logger_Filter_Warning  = 1 << 2,
+    Logger_Filter_Error    = 1 << 3,
+    Logger_Filter_Fatal    = 1 << 4,
+    Logger_Filter_Zone     = 1 << 5,
+    
+    Logger_Filter_Build_Debug =
+        Logger_Filter_Debug   |
+        Logger_Filter_Info    |
+        Logger_Filter_Warning |
+        Logger_Filter_Error   |
+        Logger_Filter_Fatal   |
+        Logger_Filter_Zone,
+    
+    Logger_Filter_Build_Release =
+        Logger_Filter_Info     |
+        Logger_Filter_Warning  |
+        Logger_Filter_Error    |
+        Logger_Filter_Fatal    |
+        Logger_Filter_Zone,
+    
 #if BUILD_DEBUG
-  Logger_Filter_Build_Active = Logger_Filter_Build_Debug,
+    Logger_Filter_Build_Active = Logger_Filter_Build_Debug,
 #else
-  Logger_Filter_Build_Active = Logger_Filter_Build_Release,
+    Logger_Filter_Build_Active = Logger_Filter_Build_Release,
 #endif
 };
 
 force_inline fn_internal U32 logger_filter_flag_from_entry_type(U32 entry) {
-  U32 result = 0;
-  switch (entry) {
-    case Logger_Entry_Info:       { result = Logger_Filter_Info; }    break;
-    case Logger_Entry_Debug:      { result = Logger_Filter_Debug; }   break;
-    case Logger_Entry_Warning:    { result = Logger_Filter_Warning; } break;
-    case Logger_Entry_Error:      { result = Logger_Filter_Error; }   break;
-    case Logger_Entry_Fatal:      { result = Logger_Filter_Fatal; }   break;
-    case Logger_Entry_Zone_Start: { result = Logger_Filter_Zone; }    break;
-    case Logger_Entry_Zone_End:   { result = Logger_Filter_Zone; }    break;
-    Invalid_Default;
-  }
-
-  return result;
+    U32 result = 0;
+    switch (entry) {
+        case Logger_Entry_Info:       { result = Logger_Filter_Info; }    break;
+        case Logger_Entry_Debug:      { result = Logger_Filter_Debug; }   break;
+        case Logger_Entry_Warning:    { result = Logger_Filter_Warning; } break;
+        case Logger_Entry_Error:      { result = Logger_Filter_Error; }   break;
+        case Logger_Entry_Fatal:      { result = Logger_Filter_Fatal; }   break;
+        case Logger_Entry_Zone_Start: { result = Logger_Filter_Zone; }    break;
+        case Logger_Entry_Zone_End:   { result = Logger_Filter_Zone; }    break;
+        Invalid_Default;
+    }
+    
+    return result;
 }
 
 typedef struct Logger_Entry {
-  Logger_Entry_Type type;
-  U08               message[Logger_Max_Entry_Length];
-  Local_Time        time;
-  Function_Metadata meta;
+    Logger_Entry_Type type;
+    U08               message[Logger_Max_Entry_Length];
+    Local_Time        time;
+    Function_Metadata meta;
 } Logger_Entry;
 
 // NOTE(cmat): Callback prototypes.
@@ -387,12 +387,12 @@ typedef void Logger_Format_Entry_Hook (Logger_Entry *entry, U08 *entry_buffer, U
 // NOTE(cmat): Each thread shares the same global logger.
 // - Every log function is thread safe (they are all wrapped in a mutex).
 typedef struct Logger_State {
-  volatile Logger_Filter_Flag filter;
-  U32                         zone_depth;
-  U32                         hook_count;
-  Logger_Write_Entry_Hook    *write_hooks [Logger_Max_Hooks];
-  Logger_Format_Entry_Hook   *format_hooks[Logger_Max_Hooks];
-  Mutex                       mutex;
+    volatile Logger_Filter_Flag filter;
+    U32                         zone_depth;
+    U32                         hook_count;
+    Logger_Write_Entry_Hook    *write_hooks [Logger_Max_Hooks];
+    Logger_Format_Entry_Hook   *format_hooks[Logger_Max_Hooks];
+    Mutex                       mutex;
 } Logger_State;
 
 fn_internal void  logger_set_filter            (Logger_Filter_Flag filter);
@@ -415,259 +415,259 @@ fn_internal void  log_message_ext(Logger_Entry_Type type, Function_Metadata func
 #define log_zone_end()                   log_message(Logger_Entry_Zone_End, "");
 
 #define Log_Zone_Scope(format_, ...)     Defer_Scope(log_message_ext(Logger_Entry_Zone_Start, Function_Metadata_Current, format_,##__VA_ARGS__), \
-                                                     log_message_ext(Logger_Entry_Zone_End,   Function_Metadata_Current, ""))
+log_message_ext(Logger_Entry_Zone_End,   Function_Metadata_Current, ""))
 
 // ------------------------------------------------------------
 // #-- Vector Types
 
 typedef union {
-  struct { I32 x, y; };
-  struct { I32 r, g; };
-  struct { I32 u, v; };
-  struct { I32 width, height; };  
-  I32 dat[2];
+    struct { I32 x, y; };
+    struct { I32 r, g; };
+    struct { I32 u, v; };
+    struct { I32 width, height; };  
+    I32 dat[2];
 } V2_I32;
 
 typedef union {
-  struct { U16 x, y; };
-  struct { U16 r, g; };
-  struct { U16 u, v; };
-  struct { U16 width, height; };  
-  U16 dat[2];
+    struct { U16 x, y; };
+    struct { U16 r, g; };
+    struct { U16 u, v; };
+    struct { U16 width, height; };  
+    U16 dat[2];
 } V2_U16;
 
 typedef union {
-  struct { U32 x, y; };
-  struct { U32 r, g; };
-  struct { U32 u, v; };
-  struct { U32 width, height; };  
-  U32 dat[2];
+    struct { U32 x, y; };
+    struct { U32 r, g; };
+    struct { U32 u, v; };
+    struct { U32 width, height; };  
+    U32 dat[2];
 } V2_U32;
 
 typedef union {
-  struct { F32 x, y; };
-  struct { F32 r, g; };
-  struct { F32 u, v; };
-  struct { F32 width, height; };  
-  F32 dat[2];
+    struct { F32 x, y; };
+    struct { F32 r, g; };
+    struct { F32 u, v; };
+    struct { F32 width, height; };  
+    F32 dat[2];
 } V2_F32;
 
 typedef union {
-  struct { F64 x, y; };
-  struct { F64 r, g; };
-  struct { F64 u, v; };
-  struct { F64 width, height; };
-  F64 dat[2];
+    struct { F64 x, y; };
+    struct { F64 r, g; };
+    struct { F64 u, v; };
+    struct { F64 width, height; };
+    F64 dat[2];
 } V2_F64;
 
 typedef union {
-  struct { I32 x, y, z; };
-  struct { I32 r, g, b; };
-  struct { I32 h, s, v; };
-
-  struct { V2_I32 xy; I32 _pad_0; };
-  struct { I32 _pad_1; V2_I32 yz; };
-
-  struct { V2_I32 rg; I32 _pad_2; };
-  struct { I32 _pad_3; V2_I32 gb; };
-
-  struct { V2_I32 hs; I32 _pad_4; };
-  struct { I32 _pad_5; V2_I32 sv; };
-
-  struct { I32 width, height, depth; };
-  I32 dat[3];
+    struct { I32 x, y, z; };
+    struct { I32 r, g, b; };
+    struct { I32 h, s, v; };
+    
+    struct { V2_I32 xy; I32 _pad_0; };
+    struct { I32 _pad_1; V2_I32 yz; };
+    
+    struct { V2_I32 rg; I32 _pad_2; };
+    struct { I32 _pad_3; V2_I32 gb; };
+    
+    struct { V2_I32 hs; I32 _pad_4; };
+    struct { I32 _pad_5; V2_I32 sv; };
+    
+    struct { I32 width, height, depth; };
+    I32 dat[3];
 } V3_I32;
 
 typedef union {
-  struct { U16 x, y, z; };
-  struct { U16 r, g, b; };
-  struct { U16 h, s, v; };
-
-  struct { V2_U16 xy; U16 _pad_0; };
-  struct { U16 _pad_1; V2_U16 yz; };
-
-  struct { V2_U16 rg; U16 _pad_2; };
-  struct { U16 _pad_3; V2_U16 gb; };
-
-  struct { V2_U16 hs; U16 _pad_4; };
-  struct { U16 _pad_5; V2_U16 sv; };
-
-  struct { U16 width, height, depth; };
-  U16 dat[3];
+    struct { U16 x, y, z; };
+    struct { U16 r, g, b; };
+    struct { U16 h, s, v; };
+    
+    struct { V2_U16 xy; U16 _pad_0; };
+    struct { U16 _pad_1; V2_U16 yz; };
+    
+    struct { V2_U16 rg; U16 _pad_2; };
+    struct { U16 _pad_3; V2_U16 gb; };
+    
+    struct { V2_U16 hs; U16 _pad_4; };
+    struct { U16 _pad_5; V2_U16 sv; };
+    
+    struct { U16 width, height, depth; };
+    U16 dat[3];
 } V3_U16;
 
 typedef union {
-  struct { U32 x, y, z; };
-  struct { U32 r, g, b; };
-  struct { U32 h, s, v; };
-
-  struct { V2_U32 xy; U32 _pad_0; };
-  struct { U32 _pad_1; V2_U32 yz; };
-
-  struct { V2_U32 rg; U32 _pad_2; };
-  struct { U32 _pad_3; V2_U32 gb; };
-
-  struct { V2_U32 hs; U32 _pad_4; };
-  struct { U32 _pad_5; V2_U32 sv; };
-
-  struct { U32 width, height, depth; };
-  U32 dat[3];
+    struct { U32 x, y, z; };
+    struct { U32 r, g, b; };
+    struct { U32 h, s, v; };
+    
+    struct { V2_U32 xy; U32 _pad_0; };
+    struct { U32 _pad_1; V2_U32 yz; };
+    
+    struct { V2_U32 rg; U32 _pad_2; };
+    struct { U32 _pad_3; V2_U32 gb; };
+    
+    struct { V2_U32 hs; U32 _pad_4; };
+    struct { U32 _pad_5; V2_U32 sv; };
+    
+    struct { U32 width, height, depth; };
+    U32 dat[3];
 } V3_U32;
 
 typedef union {
-  struct { F32 x, y, z; };
-  struct { F32 r, g, b; };
-  struct { F32 h, s, v; };
-
-  struct { V2_F32 xy; F32 _pad_0; };
-  struct { F32 _pad_1; V2_F32 yz; };
-
-  struct { V2_F32 rg; F32 _pad_2; };
-  struct { F32 _pad_3; V2_F32 gb; };
-
-  struct { V2_F32 hs; F32 _pad_4; };
-  struct { F32 _pad_5; V2_F32 sv; };
-
-  struct { F32 width, height, depth; };
-  F32 dat[3];
+    struct { F32 x, y, z; };
+    struct { F32 r, g, b; };
+    struct { F32 h, s, v; };
+    
+    struct { V2_F32 xy; F32 _pad_0; };
+    struct { F32 _pad_1; V2_F32 yz; };
+    
+    struct { V2_F32 rg; F32 _pad_2; };
+    struct { F32 _pad_3; V2_F32 gb; };
+    
+    struct { V2_F32 hs; F32 _pad_4; };
+    struct { F32 _pad_5; V2_F32 sv; };
+    
+    struct { F32 width, height, depth; };
+    F32 dat[3];
 } V3_F32;
 
 typedef union {
-  struct { F64 x, y, z; };
-  struct { F64 r, g, b; };
-  struct { F64 h, s, v; };
-
-  struct { V2_F64 xy; };
-  struct { F64 _pad_1; V2_F64 yz; };
-
-  struct { V2_F64 rg; F64 _pad_2; };
-  struct { F64 _pad_3; V2_F64 gb; };
-
-  struct { V2_F64 hs; F64 _pad_4; };
-  struct { F64 _pad_5; V2_F64 sv; };
-
-  struct { F64 width, height, depth; };
-  F64 dat[3];
+    struct { F64 x, y, z; };
+    struct { F64 r, g, b; };
+    struct { F64 h, s, v; };
+    
+    struct { V2_F64 xy; };
+    struct { F64 _pad_1; V2_F64 yz; };
+    
+    struct { V2_F64 rg; F64 _pad_2; };
+    struct { F64 _pad_3; V2_F64 gb; };
+    
+    struct { V2_F64 hs; F64 _pad_4; };
+    struct { F64 _pad_5; V2_F64 sv; };
+    
+    struct { F64 width, height, depth; };
+    F64 dat[3];
 } V3_F64;
 
 typedef union {
-  struct { I32 x, y, z, w; };
-  struct { I32 r, g, b, a; };
-
-  struct { V2_I32 xy; V2_I32 _pad_0; };
-  struct { V2_I32 _pad_1; V2_I32 zw; };
-
-  struct { V2_I32 rg; V2_I32 _pad_2; };
-  struct { V2_I32 _pad_3; V2_I32 ba; };
-
-  struct { V2_I32 hs; V2_I32 _pad_4; };
-  struct { V2_I32 _pad_5; V2_I32 va; };
-
-  struct { I32 _pad_6;  V2_I32 yz; I32 _pad_7; };
-  struct { I32 _pad_8;  V2_I32 gb; I32 _pad_9; };
-  struct { I32 _pad_10; V2_I32 sv; I32 _pad_11; };
-
-  struct { V3_I32 xyz; I32 _pad_12; };
-  struct { V3_I32 rgb; I32 _pad_13; };
-  struct { V3_I32 hsv; I32 _pad_14; };
-
-  I32 dat[4];
+    struct { I32 x, y, z, w; };
+    struct { I32 r, g, b, a; };
+    
+    struct { V2_I32 xy; V2_I32 _pad_0; };
+    struct { V2_I32 _pad_1; V2_I32 zw; };
+    
+    struct { V2_I32 rg; V2_I32 _pad_2; };
+    struct { V2_I32 _pad_3; V2_I32 ba; };
+    
+    struct { V2_I32 hs; V2_I32 _pad_4; };
+    struct { V2_I32 _pad_5; V2_I32 va; };
+    
+    struct { I32 _pad_6;  V2_I32 yz; I32 _pad_7; };
+    struct { I32 _pad_8;  V2_I32 gb; I32 _pad_9; };
+    struct { I32 _pad_10; V2_I32 sv; I32 _pad_11; };
+    
+    struct { V3_I32 xyz; I32 _pad_12; };
+    struct { V3_I32 rgb; I32 _pad_13; };
+    struct { V3_I32 hsv; I32 _pad_14; };
+    
+    I32 dat[4];
 } V4_I32;
 
 typedef union {
-  struct { U16 x, y, z, w; };
-  struct { U16 r, g, b, a; };
-
-  struct { V2_U16 xy; V2_U16 _pad_0; };
-  struct { V2_U16 _pad_1; V2_U16 zw; };
-
-  struct { V2_U16 rg; V2_U16 _pad_2; };
-  struct { V2_U16 _pad_3; V2_U16 ba; };
-
-  struct { V2_U16 hs; V2_U16 _pad_4; };
-  struct { V2_U16 _pad_5; V2_U16 va; };
-
-  struct { U16 _pad_6;  V2_U16 yz; U16 _pad_7; };
-  struct { U16 _pad_8;  V2_U16 gb; U16 _pad_9; };
-  struct { U16 _pad_10; V2_U16 sv; U16 _pad_11; };
-
-  struct { V3_U16 xyz; U16 _pad_12; };
-  struct { V3_U16 rgb; U16 _pad_13; };
-  struct { V3_U16 hsv; U16 _pad_14; };
-
-  U16 dat[4];
+    struct { U16 x, y, z, w; };
+    struct { U16 r, g, b, a; };
+    
+    struct { V2_U16 xy; V2_U16 _pad_0; };
+    struct { V2_U16 _pad_1; V2_U16 zw; };
+    
+    struct { V2_U16 rg; V2_U16 _pad_2; };
+    struct { V2_U16 _pad_3; V2_U16 ba; };
+    
+    struct { V2_U16 hs; V2_U16 _pad_4; };
+    struct { V2_U16 _pad_5; V2_U16 va; };
+    
+    struct { U16 _pad_6;  V2_U16 yz; U16 _pad_7; };
+    struct { U16 _pad_8;  V2_U16 gb; U16 _pad_9; };
+    struct { U16 _pad_10; V2_U16 sv; U16 _pad_11; };
+    
+    struct { V3_U16 xyz; U16 _pad_12; };
+    struct { V3_U16 rgb; U16 _pad_13; };
+    struct { V3_U16 hsv; U16 _pad_14; };
+    
+    U16 dat[4];
 } V4_U16;
 
 typedef union {
-  struct { U32 x, y, z, w; };
-  struct { U32 r, g, b, a; };
-
-  struct { V2_U32 xy; V2_U32 _pad_0; };
-  struct { V2_U32 _pad_1; V2_U32 zw; };
-
-  struct { V2_U32 rg; V2_U32 _pad_2; };
-  struct { V2_U32 _pad_3; V2_U32 ba; };
-
-  struct { V2_U32 hs; V2_U32 _pad_4; };
-  struct { V2_U32 _pad_5; V2_U32 va; };
-
-  struct { U32 _pad_6;  V2_U32 yz; U32 _pad_7; };
-  struct { U32 _pad_8;  V2_U32 gb; U32 _pad_9; };
-  struct { U32 _pad_10; V2_U32 sv; U32 _pad_11; };
-
-  struct { V3_U32 xyz; U32 _pad_12; };
-  struct { V3_U32 rgb; U32 _pad_13; };
-  struct { V3_U32 hsv; U32 _pad_14; };
-
-  U32 dat[4];
+    struct { U32 x, y, z, w; };
+    struct { U32 r, g, b, a; };
+    
+    struct { V2_U32 xy; V2_U32 _pad_0; };
+    struct { V2_U32 _pad_1; V2_U32 zw; };
+    
+    struct { V2_U32 rg; V2_U32 _pad_2; };
+    struct { V2_U32 _pad_3; V2_U32 ba; };
+    
+    struct { V2_U32 hs; V2_U32 _pad_4; };
+    struct { V2_U32 _pad_5; V2_U32 va; };
+    
+    struct { U32 _pad_6;  V2_U32 yz; U32 _pad_7; };
+    struct { U32 _pad_8;  V2_U32 gb; U32 _pad_9; };
+    struct { U32 _pad_10; V2_U32 sv; U32 _pad_11; };
+    
+    struct { V3_U32 xyz; U32 _pad_12; };
+    struct { V3_U32 rgb; U32 _pad_13; };
+    struct { V3_U32 hsv; U32 _pad_14; };
+    
+    U32 dat[4];
 } V4_U32;
 
 typedef union {
-  struct { F32 x, y, z, w; };
-  struct { F32 r, g, b, a; };
-
-  struct { V2_F32 xy; V2_F32 _pad_0; };
-  struct { V2_F32 _pad_1; V2_F32 zw; };
-
-  struct { V2_F32 rg; V2_F32 _pad_2; };
-  struct { V2_F32 _pad_3; V2_F32 ba; };
-
-  struct { V2_F32 hs; V2_F32 _pad_4; };
-  struct { V2_F32 _pad_5; V2_F32 va; };
-
-  struct { F32 _pad_6;  V2_F32 yz; F32 _pad_7; };
-  struct { F32 _pad_8;  V2_F32 gb; F32 _pad_9; };
-  struct { F32 _pad_10; V2_F32 sv; F32 _pad_11; };
-
-  struct { V3_F32 xyz; F32 _pad_12; };
-  struct { V3_F32 rgb; F32 _pad_13; };
-  struct { V3_F32 hsv; F32 _pad_14; };
-
-  F32 dat[4];
+    struct { F32 x, y, z, w; };
+    struct { F32 r, g, b, a; };
+    
+    struct { V2_F32 xy; V2_F32 _pad_0; };
+    struct { V2_F32 _pad_1; V2_F32 zw; };
+    
+    struct { V2_F32 rg; V2_F32 _pad_2; };
+    struct { V2_F32 _pad_3; V2_F32 ba; };
+    
+    struct { V2_F32 hs; V2_F32 _pad_4; };
+    struct { V2_F32 _pad_5; V2_F32 va; };
+    
+    struct { F32 _pad_6;  V2_F32 yz; F32 _pad_7; };
+    struct { F32 _pad_8;  V2_F32 gb; F32 _pad_9; };
+    struct { F32 _pad_10; V2_F32 sv; F32 _pad_11; };
+    
+    struct { V3_F32 xyz; F32 _pad_12; };
+    struct { V3_F32 rgb; F32 _pad_13; };
+    struct { V3_F32 hsv; F32 _pad_14; };
+    
+    F32 dat[4];
 } V4_F32;
 
 typedef union {
-  struct { F64 x, y, z, w; };
-  struct { F64 r, g, b, a; };
-
-  struct { V2_F64 xy; V2_F64 _pad_0; };
-  struct { V2_F64 _pad_1; V2_F64 zw; };
-
-  struct { V2_F64 rg; V2_F64 _pad_2; };
-  struct { V2_F64 _pad_3; V2_F64 ba; };
-
-  struct { V2_F64 hs; V2_F64 _pad_4; };
-  struct { V2_F64 _pad_5; V2_F64 va; };
-
-  struct { F64 _pad_6;  V2_F64 yz; F64 _pad_7; };
-  struct { F64 _pad_8;  V2_F64 gb; F64 _pad_9; };
-  struct { F64 _pad_10; V2_F64 sv; F64 _pad_11; };
-
-  struct { V3_F64 xyz; F64 _pad_12; };
-  struct { V3_F64 rgb; F64 _pad_13; };
-  struct { V3_F64 hsv; F64 _pad_14; };
-
-  F64 dat[4];
+    struct { F64 x, y, z, w; };
+    struct { F64 r, g, b, a; };
+    
+    struct { V2_F64 xy; V2_F64 _pad_0; };
+    struct { V2_F64 _pad_1; V2_F64 zw; };
+    
+    struct { V2_F64 rg; V2_F64 _pad_2; };
+    struct { V2_F64 _pad_3; V2_F64 ba; };
+    
+    struct { V2_F64 hs; V2_F64 _pad_4; };
+    struct { V2_F64 _pad_5; V2_F64 va; };
+    
+    struct { F64 _pad_6;  V2_F64 yz; F64 _pad_7; };
+    struct { F64 _pad_8;  V2_F64 gb; F64 _pad_9; };
+    struct { F64 _pad_10; V2_F64 sv; F64 _pad_11; };
+    
+    struct { V3_F64 xyz; F64 _pad_12; };
+    struct { V3_F64 rgb; F64 _pad_13; };
+    struct { V3_F64 hsv; F64 _pad_14; };
+    
+    F64 dat[4];
 } V4_F64;
 
 typedef V2_F32 V2F;
@@ -922,97 +922,97 @@ inline fn_internal V4F v4f_rcp          (V4F x)                { return v4f(1.f 
 
 // NOTE(cmat): Cross only works in 3 and 5 dimensions.
 inline fn_internal V3F v3f_cross(V3F lhs, V3F rhs) {
-  return (V3F) {
-    .x = lhs.y * rhs.z - lhs.z * rhs.y,
-    .y = lhs.z * rhs.x - lhs.x * rhs.z,
-    .z = lhs.x * rhs.y - lhs.y * rhs.x
-  };
+    return (V3F) {
+        .x = lhs.y * rhs.z - lhs.z * rhs.y,
+        .y = lhs.z * rhs.x - lhs.x * rhs.z,
+        .z = lhs.x * rhs.y - lhs.y * rhs.x
+    };
 }
 
 // ------------------------------------------------------------
 // #-- Matrix Types
 
 typedef union {
-  struct { V2_I32 row_1, row_2; };
-  struct { I32  e11, e12,
-                e21, e22; };
-  I32 ele[2][2];
-  I32 dat[2 * 2];
+    struct { V2_I32 row_1, row_2; };
+    struct { I32  e11, e12,
+        e21, e22; };
+    I32 ele[2][2];
+    I32 dat[2 * 2];
 } M2_I32;
 
 typedef union {
-  struct { V2_F32 row_1, row_2; };
-  struct { F32  e11, e12,
-                e21, e22; };
-  F32 ele[2][2];
-  F32 dat[2 * 2];
+    struct { V2_F32 row_1, row_2; };
+    struct { F32  e11, e12,
+        e21, e22; };
+    F32 ele[2][2];
+    F32 dat[2 * 2];
 } M2_F32;
 
 typedef union {
-  struct { V2_F64 row_1, row_2; };
-  struct { F64  e11, e12,
-                e21, e22; };
-  F64 ele[2][2];
-  F64 dat[2 * 2];
+    struct { V2_F64 row_1, row_2; };
+    struct { F64  e11, e12,
+        e21, e22; };
+    F64 ele[2][2];
+    F64 dat[2 * 2];
 } M2_F64;
 
 typedef union {
-  struct { V3_I32 row_1, row_2, row_3; };
-  struct { I32  e11, e12, e13,
-                e21, e22, e23,
-                e31, e32, e33; };
-  I32 ele[3][3];
-  U32 dat[3 * 3];
+    struct { V3_I32 row_1, row_2, row_3; };
+    struct { I32  e11, e12, e13,
+        e21, e22, e23,
+        e31, e32, e33; };
+    I32 ele[3][3];
+    U32 dat[3 * 3];
 } M3_I32;
 
 typedef union {
-  struct { V3_F32 row_1, row_2, row_3; };
-  struct { F32  e11, e12, e13,
-                e21, e22, e23,
-                e31, e32, e33; };
-  F32 ele[3][3];
-  F32 dat[3 * 3];
+    struct { V3_F32 row_1, row_2, row_3; };
+    struct { F32  e11, e12, e13,
+        e21, e22, e23,
+        e31, e32, e33; };
+    F32 ele[3][3];
+    F32 dat[3 * 3];
 } M3_F32;
 
 typedef union {
-  struct { V3_F64 row_1, row_2, row_3; };
-  struct { F64  e11, e12, e13,
-                e21, e22, e23,
-                e31, e32, e33; };
-  F64 ele[3][3];
-  F64 dat[3 * 3];
+    struct { V3_F64 row_1, row_2, row_3; };
+    struct { F64  e11, e12, e13,
+        e21, e22, e23,
+        e31, e32, e33; };
+    F64 ele[3][3];
+    F64 dat[3 * 3];
 } M3_F64;
 
 typedef union {
-  struct { V4_I32 row_1, row_2, row_3, row_4; };
-  struct { I32  e11, e12, e13, e14,
-                e21, e22, e23, e24,
-                e31, e32, e33, e34,
-                e41, e42, e43, e44; };
-  I32 ele[4][4];
-  I32 dat[4 * 4];
+    struct { V4_I32 row_1, row_2, row_3, row_4; };
+    struct { I32  e11, e12, e13, e14,
+        e21, e22, e23, e24,
+        e31, e32, e33, e34,
+        e41, e42, e43, e44; };
+    I32 ele[4][4];
+    I32 dat[4 * 4];
 } M4_I32;
 
 typedef union {
-  struct { V4_F32 row_1, row_2, row_3, row_4; };
-
-  struct { F32  e11, e12, e13, e14,
-                e21, e22, e23, e24,
-                e31, e32, e33, e34,
-                e41, e42, e43, e44; };
-  F32 ele[4][4];
-  F32 dat[4 * 4];
+    struct { V4_F32 row_1, row_2, row_3, row_4; };
+    
+    struct { F32  e11, e12, e13, e14,
+        e21, e22, e23, e24,
+        e31, e32, e33, e34,
+        e41, e42, e43, e44; };
+    F32 ele[4][4];
+    F32 dat[4 * 4];
 } M4_F32;
 
 typedef union {
-  struct { V4_F64 row_1, row_2, row_3, row_4; };
-
-  struct { F64  e11, e12, e13, e14,
-                e21, e22, e23, e24,
-                e31, e32, e33, e34,
-                e41, e42, e43, e44; };
-  F64 ele[4][4];
-  F64 dat[4 * 4];
+    struct { V4_F64 row_1, row_2, row_3, row_4; };
+    
+    struct { F64  e11, e12, e13, e14,
+        e21, e22, e23, e24,
+        e31, e32, e33, e34,
+        e41, e42, e43, e44; };
+    F64 ele[4][4];
+    F64 dat[4 * 4];
 } M4_F64;
 
 typedef M2_I32 M2I;
@@ -1048,56 +1048,56 @@ Assert_Compiler(sizeof(M4_F64) == 4 * 4 * sizeof(F64));
 
 typedef U32 Axis2;
 enum {
-  Axis2_X = 0,
-  Axis2_Y = 1,
-
-  Axis2_Count = 2,
+    Axis2_X = 0,
+    Axis2_Y = 1,
+    
+    Axis2_Count = 2,
 };
 
 typedef I32 Align2;
 enum {
-  Align2_Min    = 0,
-  Align2_Max    = 1,
-  Align2_Center = 2,
-
-  Align2_Left   = Align2_Min,
-  Align2_Right  = Align2_Max,
-
-  Align2_Bottom = Align2_Min,
-  Align2_Top    = Align2_Max,
+    Align2_Min    = 0,
+    Align2_Max    = 1,
+    Align2_Center = 2,
+    
+    Align2_Left   = Align2_Min,
+    Align2_Right  = Align2_Max,
+    
+    Align2_Bottom = Align2_Min,
+    Align2_Top    = Align2_Max,
 };
 
 
 #pragma pack(push, 1)
 
 typedef union Region2_I32 {
-  struct { I32 x0, y0, x1, y1; };
-  struct { V2I min, max;       };
+    struct { I32 x0, y0, x1, y1; };
+    struct { V2I min, max;       };
 } Region2_I32;
 
 typedef union Region2_F32 {
-  struct { F32 x0, y0, x1, y1; };
-  struct { V2F min, max;       };
+    struct { F32 x0, y0, x1, y1; };
+    struct { V2F min, max;       };
 } Region2_F32;
 
 typedef union Region2_F64 {
-  struct { F64 x0, y0, x1, y1; };
-  struct { V2F min, max;       };
+    struct { F64 x0, y0, x1, y1; };
+    struct { V2F min, max;       };
 } Region2_F64;
 
 typedef union Region3_I32 {
-  struct { I32 x0, y0, z0, x1, y1, z1;  };
-  struct { V3I min, max;                };
+    struct { I32 x0, y0, z0, x1, y1, z1;  };
+    struct { V3I min, max;                };
 } Region3_I32;
 
 typedef union Region3_F32 {
-  struct { F32 x0, y0, z0, x1, y1, z1;  };
-  struct { V3F min, max;                };
+    struct { F32 x0, y0, z0, x1, y1, z1;  };
+    struct { V3F min, max;                };
 } Region3_F32;
 
 typedef union Region3_F64 {
-  struct { F64 x0, y0, z0, x1, y1, z1;  };
-  struct { V3F min, max;                };
+    struct { F64 x0, y0, z0, x1, y1, z1;  };
+    struct { V3F min, max;                };
 } Region3_F64;
 
 #pragma pack(pop)
@@ -1144,311 +1144,316 @@ force_inline fn_internal R3I r3i_v  (V3I min, V3I max)                          
 force_inline fn_internal R3F r3f_v  (V3F min, V3F max)                                { return (R3F) { .min = min, .max = max };                                      }
 
 inline fn_internal R2I r2i_from_r2f(R2F region) {
-  R2I result = { };
-  result.x0 = (I32)region.x0;
-  result.y0 = (I32)region.y0;
-  result.x1 = (I32)region.x1;
-  result.y1 = (I32)region.y1;
-
-  return result;
+    R2I result = { };
+    result.x0 = (I32)region.x0;
+    result.y0 = (I32)region.y0;
+    result.x1 = (I32)region.x1;
+    result.y1 = (I32)region.y1;
+    
+    return result;
 }
 
 
 inline fn_internal B32 r2i_contains_v2i(R2I region, V2I point) {
-  return (point.x >= region.x0) && (point.y >= region.y0) && (point.x <= region.x1) && (point.y <= region.y1);
+    return (point.x >= region.x0) && (point.y >= region.y0) && (point.x <= region.x1) && (point.y <= region.y1);
 }
 
 inline fn_internal B32 r2f_contains_v2f(R2F region, V2F point) {
-  return (point.x >= region.x0) && (point.y >= region.y0) && (point.x <= region.x1) && (point.y <= region.y1);
+    return (point.x >= region.x0) && (point.y >= region.y0) && (point.x <= region.x1) && (point.y <= region.y1);
+}
+
+inline fn_internal V2I r2i_size(R2I region) {
+    V2I result = v2i(region.x1 - region.x0, region.y1 - region.y0);
+    return result;
 }
 
 inline fn_internal V2F r2f_size(R2F region) {
-  V2F result = v2f(region.x1 - region.x0, region.y1 - region.y0);
-  return result;
+    V2F result = v2f(region.x1 - region.x0, region.y1 - region.y0);
+    return result;
 }
 
 inline fn_internal V3F r3f_size(R3F region) {
-  V3F result = v3f(region.x1 - region.x0, region.y1 - region.y0, region.z1 - region.z0);
-  return result;
+    V3F result = v3f(region.x1 - region.x0, region.y1 - region.y0, region.z1 - region.z0);
+    return result;
 }
 
 inline fn_internal V2F r2f_clip(R2F region, V2F point) {
-  V2F result = v2f(f32_clamp(point.x, region.x0, region.x1), f32_clamp(point.y, region.y0, region.y1));
-  return result;
+    V2F result = v2f(f32_clamp(point.x, region.x0, region.x1), f32_clamp(point.y, region.y0, region.y1));
+    return result;
 }
 
 // ------------------------------------------------------------
 // #-- Matrix Ops
 
 inline fn_internal M2F m2f_id(void) {
-  M2F result;
-  zero_fill(&result);
-  result.e11 = 1;
-  result.e22 = 1;
-  return result;
+    M2F result;
+    zero_fill(&result);
+    result.e11 = 1;
+    result.e22 = 1;
+    return result;
 }
 
 inline fn_internal M3F m3f_id(void) {
-  M3F result;
-  zero_fill(&result);
-  result.e11 = 1;
-  result.e22 = 1;
-  result.e33 = 1;
-  return result;
+    M3F result;
+    zero_fill(&result);
+    result.e11 = 1;
+    result.e22 = 1;
+    result.e33 = 1;
+    return result;
 }
 
 inline fn_internal M4F m4f_id(void) {
-  M4F result;
-  zero_fill(&result);
-  result.e11 = 1;
-  result.e22 = 1;
-  result.e33 = 1;
-  result.e44 = 1;
-  return result;
+    M4F result;
+    zero_fill(&result);
+    result.e11 = 1;
+    result.e22 = 1;
+    result.e33 = 1;
+    result.e44 = 1;
+    return result;
 }
 
 inline fn_internal M4F m4f_diag(V4F diag) {
-  M4F result;
-  zero_fill(&result);
-  result.e11 = diag.dat[0];
-  result.e22 = diag.dat[1];
-  result.e33 = diag.dat[2];
-  result.e44 = diag.dat[3];
-  return result;
+    M4F result;
+    zero_fill(&result);
+    result.e11 = diag.dat[0];
+    result.e22 = diag.dat[1];
+    result.e33 = diag.dat[2];
+    result.e44 = diag.dat[3];
+    return result;
 }
 
 
 M2F m2f_mul(M2F lhs, M2F rhs) {
-  M2F result;
-  zero_fill(&result);
-
-  For_U32(row, 2) {
-    For_U32(col, 2) {
-      result.ele[row][col] = rhs.ele[row][0] * lhs.ele[0][col] +
-                             rhs.ele[row][1] * lhs.ele[1][col];
+    M2F result;
+    zero_fill(&result);
+    
+    For_U32(row, 2) {
+        For_U32(col, 2) {
+            result.ele[row][col] = rhs.ele[row][0] * lhs.ele[0][col] +
+                rhs.ele[row][1] * lhs.ele[1][col];
+        }
     }
-  }
-
-  return result;
+    
+    return result;
 }
 
 M3F m3f_mul(M3F lhs, M3F rhs) {
-  M3F result;
-  zero_fill(&result);
-
-  For_U32(row, 3) {
-    For_U32(col, 3) {
-      result.ele[row][col] = rhs.ele[row][0] * lhs.ele[0][col] +
-                             rhs.ele[row][1] * lhs.ele[1][col] +
-                             rhs.ele[row][2] * lhs.ele[2][col];
+    M3F result;
+    zero_fill(&result);
+    
+    For_U32(row, 3) {
+        For_U32(col, 3) {
+            result.ele[row][col] = rhs.ele[row][0] * lhs.ele[0][col] +
+                rhs.ele[row][1] * lhs.ele[1][col] +
+                rhs.ele[row][2] * lhs.ele[2][col];
+        }
     }
-  }
-
-  return result;
+    
+    return result;
 }
 
 M4F m4f_mul(M4F lhs, M4F rhs) {
-  M4F result;
-  zero_fill(&result);
-
-  For_U32(row, 4) {
-    For_U32(col, 4) {
-      result.ele[row][col] = rhs.ele[row][0] * lhs.ele[0][col] +
-                             rhs.ele[row][1] * lhs.ele[1][col] +
-                             rhs.ele[row][2] * lhs.ele[2][col] +
-                             rhs.ele[row][3] * lhs.ele[3][col];
+    M4F result;
+    zero_fill(&result);
+    
+    For_U32(row, 4) {
+        For_U32(col, 4) {
+            result.ele[row][col] = rhs.ele[row][0] * lhs.ele[0][col] +
+                rhs.ele[row][1] * lhs.ele[1][col] +
+                rhs.ele[row][2] * lhs.ele[2][col] +
+                rhs.ele[row][3] * lhs.ele[3][col];
+        }
     }
-  }
-
-  return result;
+    
+    return result;
 }
 
 V4F m4f_mul_v4f(V4F lhs, M4F rhs) {
-  V4F result;
-  zero_fill(&result);
-
-  For_U32(row, 4) {
-    result.dat[row] = rhs.ele[row][0] * lhs.dat[0] +
-                      rhs.ele[row][1] * lhs.dat[1] +
-                      rhs.ele[row][2] * lhs.dat[2] +
-                      rhs.ele[row][3] * lhs.dat[3];
-  }
-
-  return result;
+    V4F result;
+    zero_fill(&result);
+    
+    For_U32(row, 4) {
+        result.dat[row] = rhs.ele[row][0] * lhs.dat[0] +
+            rhs.ele[row][1] * lhs.dat[1] +
+            rhs.ele[row][2] * lhs.dat[2] +
+            rhs.ele[row][3] * lhs.dat[3];
+    }
+    
+    return result;
 }
 
 inline fn_internal M2F m2f_trans(M2F x) {
-  M2F result = {};
-  zero_fill(&result);
-
-  For_U32(col, 2) {
-    For_U32(row, 2) {
-      result.ele[col][row] = x.ele[row][col];
+    M2F result = {};
+    zero_fill(&result);
+    
+    For_U32(col, 2) {
+        For_U32(row, 2) {
+            result.ele[col][row] = x.ele[row][col];
+        }
     }
-  }
-
-  return result;
+    
+    return result;
 }
 
 inline fn_internal M3F m3f_trans(M3F x) {
-  M3F result = {};
-  zero_fill(&result);
-
-  For_U32(col, 3) {
-    For_U32(row, 3) {
-      result.ele[col][row] = x.ele[row][col];
+    M3F result = {};
+    zero_fill(&result);
+    
+    For_U32(col, 3) {
+        For_U32(row, 3) {
+            result.ele[col][row] = x.ele[row][col];
+        }
     }
-  }
-
-  return result;
+    
+    return result;
 }
 
 inline fn_internal M4F m4f_trans(M4F x) {
-  M4F result = {};
-  zero_fill(&result);
-
-  For_U32(col, 4) {
-    For_U32(row, 4) {
-      result.ele[col][row] = x.ele[row][col];
+    M4F result = {};
+    zero_fill(&result);
+    
+    For_U32(col, 4) {
+        For_U32(row, 4) {
+            result.ele[col][row] = x.ele[row][col];
+        }
     }
-  }
-
-  return result;
+    
+    return result;
 }
 
 inline fn_internal M2F m2f_add(M2F lhs, M2F rhs) {
-  M2F result = { };
-  For_U32(it, 2*2) {
-    result.dat[it] = lhs.dat[it] + rhs.dat[it];
-  }
-
-  return result;
+    M2F result = { };
+    For_U32(it, 2*2) {
+        result.dat[it] = lhs.dat[it] + rhs.dat[it];
+    }
+    
+    return result;
 }
 
 inline fn_internal M3F m3f_add(M3F lhs, M3F rhs) {
-  M3F result = { };
-  For_U32(it, 3*3) {
-    result.dat[it] = lhs.dat[it] + rhs.dat[it];
-  }
-
-  return result;
+    M3F result = { };
+    For_U32(it, 3*3) {
+        result.dat[it] = lhs.dat[it] + rhs.dat[it];
+    }
+    
+    return result;
 }
 
 inline fn_internal M4F m4f_add(M4F lhs, M4F rhs) {
-  M4F result = { };
-  For_U32(it, 4*4) {
-    result.dat[it] = lhs.dat[it] + rhs.dat[it];
-  }
-
-  return result;
+    M4F result = { };
+    For_U32(it, 4*4) {
+        result.dat[it] = lhs.dat[it] + rhs.dat[it];
+    }
+    
+    return result;
 }
 
 inline fn_internal M2F m2f_sub(M2F lhs, M2F rhs) {
-  M2F result = { };
-  For_U32(it, 2*2) {
-    result.dat[it] = lhs.dat[it] - rhs.dat[it];
-  }
-
-  return result;
+    M2F result = { };
+    For_U32(it, 2*2) {
+        result.dat[it] = lhs.dat[it] - rhs.dat[it];
+    }
+    
+    return result;
 }
 
 inline fn_internal M3F m3f_sub(M3F lhs, M3F rhs) {
-  M3F result = { };
-  For_U32(it, 3*3) {
-    result.dat[it] = lhs.dat[it] - rhs.dat[it];
-  }
-
-  return result;
+    M3F result = { };
+    For_U32(it, 3*3) {
+        result.dat[it] = lhs.dat[it] - rhs.dat[it];
+    }
+    
+    return result;
 }
 
 inline fn_internal M4F m4f_sub(M4F lhs, M4F rhs) {
-  M4F result = { };
-  For_U32(it, 4*4) {
-    result.dat[it] = lhs.dat[it] - rhs.dat[it];
-  }
-
-  return result;
+    M4F result = { };
+    For_U32(it, 4*4) {
+        result.dat[it] = lhs.dat[it] - rhs.dat[it];
+    }
+    
+    return result;
 }
 
 inline fn_internal M2F m2f_had(M2F lhs, M2F rhs) {
-  M2F result = { };
-  For_U32(it, 2*2) {
-    result.dat[it] = lhs.dat[it] * rhs.dat[it];
-  }
-
-  return result;
+    M2F result = { };
+    For_U32(it, 2*2) {
+        result.dat[it] = lhs.dat[it] * rhs.dat[it];
+    }
+    
+    return result;
 }
 
 inline fn_internal M3F m3f_had(M3F lhs, M3F rhs) {
-  M3F result = { };
-  For_U32(it, 3*3) {
-    result.dat[it] = lhs.dat[it] * rhs.dat[it];
-  }
-
-  return result;
+    M3F result = { };
+    For_U32(it, 3*3) {
+        result.dat[it] = lhs.dat[it] * rhs.dat[it];
+    }
+    
+    return result;
 }
 
 inline fn_internal M4F m4f_had(M4F lhs, M4F rhs) {
-  M4F result = { };
-  For_U32(it, 4*4) {
-    result.dat[it] = lhs.dat[it] * rhs.dat[it];
-  }
-
-  return result;
+    M4F result = { };
+    For_U32(it, 4*4) {
+        result.dat[it] = lhs.dat[it] * rhs.dat[it];
+    }
+    
+    return result;
 }
 
 inline fn_internal M2F m2f_mul_f32(F32 lhs, M2F rhs) {
-  M2F result = { };
-  For_U32(it, 2*2) {
-    result.dat[it] = lhs * rhs.dat[it];
-  }
-
-  return result;
+    M2F result = { };
+    For_U32(it, 2*2) {
+        result.dat[it] = lhs * rhs.dat[it];
+    }
+    
+    return result;
 }
 
 inline fn_internal M3F m3f_mul_f32(F32 lhs, M3F rhs) {
-  M3F result = { };
-  For_U32(it, 3*3) {
-    result.dat[it] = lhs * rhs.dat[it];
-  }
-
-  return result;
+    M3F result = { };
+    For_U32(it, 3*3) {
+        result.dat[it] = lhs * rhs.dat[it];
+    }
+    
+    return result;
 }
 
 inline fn_internal M4F m4f_mul_f32(F32 lhs, M4F rhs) {
-  M4F result = { };
-  For_U32(it, 4*4) {
-    result.dat[it] = lhs * rhs.dat[it];
-  }
-
-  return result;
+    M4F result = { };
+    For_U32(it, 4*4) {
+        result.dat[it] = lhs * rhs.dat[it];
+    }
+    
+    return result;
 }
 
 inline fn_internal M2F m2f_div_f32(M2F lhs, F32 rhs) {
-  M2F result = { };
-  For_U32(it, 2*2) {
-    result.dat[it] = lhs.dat[it] / rhs;
-  }
-
-  return result;
+    M2F result = { };
+    For_U32(it, 2*2) {
+        result.dat[it] = lhs.dat[it] / rhs;
+    }
+    
+    return result;
 }
 
 inline fn_internal M3F m3f_div_f32(M3F lhs, F32 rhs) {
-  M3F result = { };
-  For_U32(it, 3*3) {
-    result.dat[it] = lhs.dat[it] / rhs;
-  }
-
-  return result;
+    M3F result = { };
+    For_U32(it, 3*3) {
+        result.dat[it] = lhs.dat[it] / rhs;
+    }
+    
+    return result;
 }
 
 inline fn_internal M4F m4f_div_f32(M4F lhs, F32 rhs) {
-  M4F result = { };
-  For_U32(it, 4*4) {
-    result.dat[it] = lhs.dat[it] / rhs;
-  }
-
-  return result;
+    M4F result = { };
+    For_U32(it, 4*4) {
+        result.dat[it] = lhs.dat[it] / rhs;
+    }
+    
+    return result;
 }
 
 inline fn_internal F32 m2f_trace(M2F x) { return x.e11 + x.e22; }
@@ -1464,75 +1469,139 @@ fn_internal B32 m4f_inv(M4F x, M4F *solved);
 // #-- Homogeneous matrix ops
 
 fn_internal M4F m4f_hom_scale(V3F scale) {
-  M4F result = {
-    .e11 = scale.x,
-    .e22 = scale.y,
-    .e33 = scale.z,
-    .e44 = 1,
-  };
-
-  return result;
+    M4F result = {
+        .e11 = scale.x,
+        .e22 = scale.y,
+        .e33 = scale.z,
+        .e44 = 1,
+    };
+    
+    return result;
 }
 
 fn_internal M4F m4f_hom_translate(V3F translate) {
-  M4F result = {
-    .e11 = 1,
-    .e22 = 1,
-    .e33 = 1,
-    .e44 = 1,
+    M4F result = {
+        .e11 = 1,
+        .e22 = 1,
+        .e33 = 1,
+        .e44 = 1,
+        
+        .e14 = translate.x,
+        .e24 = translate.y,
+        .e34 = translate.z,
+    };
+    
+    return result;
+}
 
-    .e14 = translate.x,
-    .e24 = translate.y,
-    .e34 = translate.z,
-  };
+fn_internal M4F m4f_hom_rotate_x(F32 angle) {
+    F32 c = f32_cos(angle);
+    F32 s = f32_sin(angle);
 
-  return result;
+    M4F result = {
+        .e11 = 1,
+
+        .e22 =  c,
+        .e23 = -s,
+
+        .e32 =  s,
+        .e33 =  c,
+
+        .e44 = 1,
+    };
+
+    return result;
+}
+
+fn_internal M4F m4f_hom_rotate_y(F32 angle) {
+    F32 c = f32_cos(angle);
+    F32 s = f32_sin(angle);
+
+    M4F result = {
+        .e11 =  c,
+        .e13 =  s,
+
+        .e22 =  1,
+
+        .e31 = -s,
+        .e33 =  c,
+
+        .e44 = 1,
+    };
+
+    return result;
+}
+
+fn_internal M4F m4f_hom_rotate_z(F32 angle) {
+    F32 c = f32_cos(angle);
+    F32 s = f32_sin(angle);
+
+    M4F result = {
+        .e11 =  c,
+        .e12 = -s,
+
+        .e21 =  s,
+        .e22 =  c,
+
+        .e33 =  1,
+        .e44 =  1,
+    };
+
+    return result;
+}
+
+fn_internal M4F m4f_hom_rotate_xyz(V3F angles) {
+    M4F rx = m4f_hom_rotate_x(angles.x);
+    M4F ry = m4f_hom_rotate_y(angles.y);
+    M4F rz = m4f_hom_rotate_z(angles.z);
+
+    return m4f_mul(rx, m4f_mul(ry, rz));
 }
 
 fn_internal M4F m4f_hom_look_at(V3F up, V3F eye, V3F look_at) {
-  V3F z_axis = v3f_noz(v3f_sub(eye, look_at));
-  V3F x_axis = v3f_noz(v3f_cross(up, z_axis));
-  V3F y_axis = v3f_noz(v3f_cross(z_axis, x_axis));
-
-  M4F result = {
-    .e11 = x_axis.x, .e12 = x_axis.y, .e13 = x_axis.z, .e14 = -v3f_dot(x_axis, eye),
-    .e21 = y_axis.x, .e22 = y_axis.y, .e23 = y_axis.z, .e24 = -v3f_dot(y_axis, eye),
-    .e31 = z_axis.x, .e32 = z_axis.y, .e33 = z_axis.z, .e34 = -v3f_dot(z_axis, eye),
-    .e41 = 0,        .e42 = 0,        .e43 = 0,        .e44 = 1,
-  };
-
-  return result;
+    V3F z_axis = v3f_noz(v3f_sub(eye, look_at));
+    V3F x_axis = v3f_noz(v3f_cross(up, z_axis));
+    V3F y_axis = v3f_noz(v3f_cross(z_axis, x_axis));
+    
+    M4F result = {
+        .e11 = x_axis.x, .e12 = x_axis.y, .e13 = x_axis.z, .e14 = -v3f_dot(x_axis, eye),
+        .e21 = y_axis.x, .e22 = y_axis.y, .e23 = y_axis.z, .e24 = -v3f_dot(y_axis, eye),
+        .e31 = z_axis.x, .e32 = z_axis.y, .e33 = z_axis.z, .e34 = -v3f_dot(z_axis, eye),
+        .e41 = 0,        .e42 = 0,        .e43 = 0,        .e44 = 1,
+    };
+    
+    return result;
 }
 
 fn_internal M4F m4f_hom_perspective(F32 aspect_ratio, F32 field_of_view, F32 near_plane, F32 far_plane) {
-  F32 tan_fov_by_2 = f32_tan(.5f * field_of_view);
-  F32 plane_dist   = far_plane - near_plane;
-
-  M4F result = {
-    .e11 = f32_div_safe(1.f, aspect_ratio * tan_fov_by_2),
-    .e22 = f32_div_safe(1.f, tan_fov_by_2),
-    .e33 = -f32_div_safe(far_plane + near_plane, plane_dist),
-    .e34 = -f32_div_safe(2.f * far_plane * near_plane, plane_dist),
-    .e43 = -1,
-  };
-
-  return result;
+    F32 tan_fov_by_2 = f32_tan(.5f * field_of_view);
+    F32 plane_dist   = far_plane - near_plane;
+    
+    M4F result = {
+        .e11 = f32_div_safe(1.f, aspect_ratio * tan_fov_by_2),
+        .e22 = f32_div_safe(1.f, tan_fov_by_2),
+        .e33 = -f32_div_safe(far_plane + near_plane, plane_dist),
+        .e34 = -f32_div_safe(2.f * far_plane * near_plane, plane_dist),
+        .e43 = -1,
+    };
+    
+    return result;
 }
 
 fn_internal M4F m4f_hom_orthographic(V2F bottom_left, V2F top_right, F32 near_plane, F32 far_plane) {
-
-  M4F result = {
-    .e11 = f32_div_safe(2.f, top_right.x - bottom_left.x),
-    .e22 = f32_div_safe(2.f, top_right.y - bottom_left.y),
-    .e33 = f32_div_safe(-2.f, far_plane - near_plane),
-    .e44 = 1.f,
-
-    .e41 = -f32_div_safe(top_right.x + bottom_left.x, top_right.x - bottom_left.x),
-    .e42 = -f32_div_safe(top_right.y + bottom_left.y, top_right.y - bottom_left.y),
-    .e43 = -f32_div_safe(far_plane + near_plane,      far_plane - near_plane),
-  };
-
-  return result;
+    
+    M4F result = {
+        .e11 = f32_div_safe(2.f, top_right.x - bottom_left.x),
+        .e22 = f32_div_safe(2.f, top_right.y - bottom_left.y),
+        .e33 = f32_div_safe(-2.f, far_plane - near_plane),
+        .e44 = 1.f,
+        
+        .e41 = -f32_div_safe(top_right.x + bottom_left.x, top_right.x - bottom_left.x),
+        .e42 = -f32_div_safe(top_right.y + bottom_left.y, top_right.y - bottom_left.y),
+        .e43 = -f32_div_safe(far_plane + near_plane,      far_plane - near_plane),
+    };
+    
+    return result;
 }
 
 // ------------------------------------------------------------
@@ -1578,11 +1647,11 @@ inline fn_internal V3F v3f_lerp  (F32 t, V3F a, V3F b)  { return v3f_add(v3f_mul
 inline fn_internal V4F v4f_lerp  (F32 t, V4F a, V4F b)  { return v4f_add(v4f_mul((1.f - t), a), v4f_mul(t, b)); }
 
 inline fn_internal M4F m4f_lerp  (F32 t, M4F a, M4F b) {
-  M4F result = { };
-  For_U32(it, 4 * 4) {
-    result.dat[it] = f32_lerp(t, a.dat[it], b.dat[it]);
-  }
-  return result;
+    M4F result = { };
+    For_U32(it, 4 * 4) {
+        result.dat[it] = f32_lerp(t, a.dat[it], b.dat[it]);
+    }
+    return result;
 }
 
 #define rgb_lerp  v3f_lerp
@@ -1591,20 +1660,20 @@ inline fn_internal M4F m4f_lerp  (F32 t, M4F a, M4F b) {
 #define hsva_lerp v4f_lerp
 
 inline fn_internal F32 f32_smoothstep (F32 t, F32 a, F32 b) {
-  t = f32_clamp((t - a) / (b - a), 0, 1);
-  return t * t * (3.f - 2.f * t);
+    t = f32_clamp((t - a) / (b - a), 0, 1);
+    return t * t * (3.f - 2.f * t);
 }
 
 inline fn_internal V2F v2f_smoothstep (F32 t, V2F a, V2F b) {
-  return v2f(f32_smoothstep(t, a.x, b.x), f32_smoothstep(t, a.y, b.y));
+    return v2f(f32_smoothstep(t, a.x, b.x), f32_smoothstep(t, a.y, b.y));
 }
 
 inline fn_internal V3F v3f_smoothstep (F32 t, V3F a, V3F b) {
-  return v3f(f32_smoothstep(t, a.x, b.x), f32_smoothstep(t, a.y, b.y), f32_smoothstep(t, a.z, b.z));
+    return v3f(f32_smoothstep(t, a.x, b.x), f32_smoothstep(t, a.y, b.y), f32_smoothstep(t, a.z, b.z));
 }
 
 inline fn_internal V4F v4f_smoothstep (F32 t, V4F a, V4F b) {
-  return v4f(f32_smoothstep(t, a.x, b.x), f32_smoothstep(t, a.y, b.y), f32_smoothstep(t, a.z, b.z), f32_smoothstep(t, a.w, b.w));
+    return v4f(f32_smoothstep(t, a.x, b.x), f32_smoothstep(t, a.y, b.y), f32_smoothstep(t, a.z, b.z), f32_smoothstep(t, a.w, b.w));
 }
 
 // ------------------------------------------------------------
@@ -1625,19 +1694,19 @@ typedef U64 Random_Seed;
 
 // NOTE(cmat): XORSHIFT implementation.
 inline fn_internal U64 random_next (Random_Seed *seed) {
-  U64 x = *seed;
-  x ^= x << 13;
-  x ^= x >> 7;
-  x ^= x << 17;
-
-  *seed = x;
-  return x;
+    U64 x = *seed;
+    x ^= x << 13;
+    x ^= x >> 7;
+    x ^= x << 17;
+    
+    *seed = x;
+    return x;
 }
 
 // NOTE(cmat): Random values in the range: [min, max].
 inline fn_internal U64 i64_random            (Random_Seed *seed, I64 min, I64 max) { return min + (I64)(random_next(seed) % (U64)(max - min + 1)); }
 inline fn_internal U64 u64_random            (Random_Seed *seed, U64 min, U64 max) { return min + (U64)(random_next(seed) % (U64)(max - min + 1)); }
- 
+
 // NOTE(cmat): Random unilateral values (between [0, 1]).
 inline fn_internal F32 f32_random_unilateral (Random_Seed *seed) { return (F32)random_next(seed) / (F32)u64_limit_max;                                                                               }
 inline fn_internal F64 f64_random_unilateral (Random_Seed *seed) { return (F64)random_next(seed) / (F64)u64_limit_max;                                                                               }
@@ -1661,12 +1730,12 @@ inline fn_internal V4F v4f_random_bilateral  (Random_Seed *seed) { return v4f(f3
 // NOTE(cmat): Basic 4x wide types
 
 typedef union {
-  float32x4_t simd;
-  F32      data[4];
+    float32x4_t simd;
+    F32      data[4];
 } F32_X04;
 
 typedef struct {
-  uint32x4_t simd;
+    uint32x4_t simd;
 } Mask_X04;
 
 // NOTE(cmat): Basic 4x wide ops
@@ -1688,12 +1757,12 @@ force_inline fn_internal F32_X04  f32_x04_blend                       (F32_X04 a
 
 // NOTE(cmat): Basic 4x wide types
 typedef union {
-  __m128 simd;
-  F32 data[4];
+    __m128 simd;
+    F32 data[4];
 } F32_X04;
 
 typedef struct {
-  __mmask8 simd;
+    __mmask8 simd;
 } Mask_X04;
 
 // NOTE(cmat): Basic 4x wide ops
@@ -1722,29 +1791,29 @@ force_inline fn_internal U32 str_crc32(Str str) { return crc32(str.len, str.txt)
 // #-- String ops
 
 fn_internal Str str_cat(Arena *arena, Str lhs, Str rhs) {
-  Str result = { .len = lhs.len + rhs.len, .txt = 0 };
-  result.txt = arena_push_size(arena, lhs.len + rhs.len);
-  memory_copy(result.txt,           lhs.txt, lhs.len);
-  memory_copy(result.txt + lhs.len, rhs.txt, rhs.len);
-
-  return result;
+    Str result = { .len = lhs.len + rhs.len, .txt = 0 };
+    result.txt = arena_push_size(arena, lhs.len + rhs.len);
+    memory_copy(result.txt,           lhs.txt, lhs.len);
+    memory_copy(result.txt + lhs.len, rhs.txt, rhs.len);
+    
+    return result;
 }
 
 fn_internal Str str_replace(Arena *arena, Str base_string, Str find, Str replace) {
-  Str result = base_string;
-
-  I64 find_at = str_find(base_string, find);
-  if (find_at != -1) {
-    U64 new_len = base_string.len - find.len + replace.len;
-    U08 *buffer = arena_push_size(arena, new_len);
-    memory_copy(buffer,                           base_string.txt,                              find_at);
-    memory_copy(buffer + find_at,                 replace.txt,                                  replace.len);
-    memory_copy(buffer + find_at + replace.len,   base_string.txt + find_at + find.len,         base_string.len - find_at - replace.len);
-
-    result = str(new_len, buffer);
-  }
-
-  return result;
+    Str result = base_string;
+    
+    I64 find_at = str_find(base_string, find);
+    if (find_at != -1) {
+        U64 new_len = base_string.len - find.len + replace.len;
+        U08 *buffer = arena_push_size(arena, new_len);
+        memory_copy(buffer,                           base_string.txt,                              find_at);
+        memory_copy(buffer + find_at,                 replace.txt,                                  replace.len);
+        memory_copy(buffer + find_at + replace.len,   base_string.txt + find_at + find.len,         base_string.len - find_at - find.len);
+        
+        result = str(new_len, buffer);
+    }
+    
+    return result;
 }
 
 
@@ -1752,41 +1821,41 @@ fn_internal Str str_replace(Arena *arena, Str base_string, Str find, Str replace
 // #-- Radix Sort.
 
 fn_internal void u64_sort_radix(U64 array_len, U64 array_stride, U64 *array_dat) {
-  Scratch scratch = { };
-  Scratch_Scope(&scratch, 0) {
-
-    U64 *temp_array = arena_push_count(scratch.arena, U64, array_len);
-    U64 count [256] = { };
-
-    For_U64(it_byte, 8) {
-      sarray_zero(count);
-
-      // NOTE(cmat): Build histogram.
-      For_U64(it, array_len) {
-        U08 byte = (array_dat[it * array_stride] >> (it_byte * 8)) & 0xFF;
-        count[byte] += 1;
-      }
-      
-      // NOTE(cmat): Convert to offsets (prefix sum)
-      U64 sum = 0;
-      For_U64(it, 256) {
-        U64 c     = count[it];
-        count[it] = sum;
-        sum      += c;
-      }
-
-      // NOTE(cmat): Stable placement into temporary buffer.
-      For_U64(it, array_len) {
-        U08 byte = (array_dat[it * array_stride] >> (it_byte * 8)) & 0xFF;
-        temp_array[count[byte]++] = array_dat[it * array_stride];
-      }
-
-      // NOTE(cmat): Copy back to input buffer.
-      For_U64 (it, array_len) {
-        array_dat[it * array_stride] = temp_array[it];
-      }
+    Scratch scratch = { };
+    Scratch_Scope(&scratch, 0) {
+        
+        U64 *temp_array = arena_push_count(scratch.arena, U64, array_len);
+        U64 count [256] = { };
+        
+        For_U64(it_byte, 8) {
+            sarray_zero(count);
+            
+            // NOTE(cmat): Build histogram.
+            For_U64(it, array_len) {
+                U08 byte = (array_dat[it * array_stride] >> (it_byte * 8)) & 0xFF;
+                count[byte] += 1;
+            }
+            
+            // NOTE(cmat): Convert to offsets (prefix sum)
+            U64 sum = 0;
+            For_U64(it, 256) {
+                U64 c     = count[it];
+                count[it] = sum;
+                sum      += c;
+            }
+            
+            // NOTE(cmat): Stable placement into temporary buffer.
+            For_U64(it, array_len) {
+                U08 byte = (array_dat[it * array_stride] >> (it_byte * 8)) & 0xFF;
+                temp_array[count[byte]++] = array_dat[it * array_stride];
+            }
+            
+            // NOTE(cmat): Copy back to input buffer.
+            For_U64 (it, array_len) {
+                array_dat[it * array_stride] = temp_array[it];
+            }
+        }
     }
-  }
 }
 
 
@@ -1794,20 +1863,20 @@ fn_internal void u64_sort_radix(U64 array_len, U64 array_stride, U64 *array_dat)
 // #-- Scan String
 
 typedef struct Scan_Error {
-  struct Scan_Error  *next;
-  U08                     line_at;
-  U08                     char_at;
-  Str                     message;
+    struct Scan_Error  *next;
+    U08                 line_at;
+    U08                 char_at;
+    Str                 message;
 } Scan_Error;
 
 typedef struct Scan {
-  Arena          *arena;
-  Str             stream;
-  U32             at;
-  U32             line_at;
-  U32             char_at;
-  Scan_Error     *error_first;
-  Scan_Error     *error_last;
+    Arena          *arena;
+    Str             stream;
+    U32             at;
+    U32             line_at;
+    U32             char_at;
+    Scan_Error     *error_first;
+    Scan_Error     *error_last;
 } Scan;
 
 
@@ -1820,6 +1889,7 @@ fn_internal void        scan_skip_whitespace (Scan *scan);
 fn_internal void        scan_skip_line       (Scan *scan);
 fn_internal B32         scan_end             (Scan *scan);
 fn_internal Str         scan_identifier      (Scan *scan);
+fn_internal Str         scan_str             (Scan *scan);
 fn_internal U64         scan_u64             (Scan *scan);
 fn_internal F64         scan_f64             (Scan *scan);
 fn_internal B32         scan_require         (Scan *scan, Str match);

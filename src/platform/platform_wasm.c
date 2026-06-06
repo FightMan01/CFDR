@@ -65,7 +65,7 @@ fn_internal void wasm_update_input(PL_Input *input) {
 
   input->mouse.left.down    = WASM_Shared_Frame_State.mouse_button_left;
   input->mouse.right.down   = WASM_Shared_Frame_State.mouse_button_right;
-  input->mouse.middle.down  = WASM_Shared_Frame_State.mouse_button_left;
+  input->mouse.middle.down  = WASM_Shared_Frame_State.mouse_button_middle;
 
   For_U32 (it, PL_KB_Count) {
     input->keyboard.state[it].press = !input->keyboard.state[it].down && WASM_Shared_Frame_State.keyboard_state[it];

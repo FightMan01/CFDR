@@ -13,5 +13,5 @@ fn_internal void cfdr_state_init(CFDR_State *state) {
   cfdr_render_init(&state->render);
   cfdr_cmap_table_init(&state->cmap_table);
   cfdr_overlay_init(&state->overlay);
-  cfdr_scene_init(&state->scene);
+  cfdr_scene_init(&state->render, &state->scene);
 }
