@@ -145,21 +145,63 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
 
     Scratch scratch = { };
     Scratch_Scope(&scratch, 0) {
-      U08 *data_view = data.bytes_data;
+      U08 *data_view       = data.bytes_data;
+      U08 *data_compressed = 0;
+      U64 compressed_size   = 0;
+      U64 decompressed_size = 0;
+      U32 flags             = 0;
+      U32 X = 0, Y = 0, Z = 0;
+      F32 min_range = 0.0f, max_range = 0.0f;
 
-      U32 magic_number      = *(U64 *)(data_view); data_view += sizeof(U32);
-      U32 format_type       = *(U64 *)(data_view); data_view += sizeof(U32);
-      U64 compressed_size   = *(U64 *)(data_view); data_view += sizeof(U64);
-      U64 decompressed_size = *(U64 *)(data_view); data_view += sizeof(U64);
-      U32 flags             = *(U32 *)(data_view); data_view += sizeof(U32);
-      U32 Y                 = *(U32 *)(data_view); data_view += sizeof(U32);
-      U32 X                 = *(U32 *)(data_view); data_view += sizeof(U32);
-      U32 Z                 = *(U32 *)(data_view); data_view += sizeof(U32);
-      F32 min_range         = *(F32 *)(data_view); data_view += sizeof(F32);
-      F32 max_range         = *(F32 *)(data_view); data_view += sizeof(F32);
-      V3F min_bounds        = *(V3F *)(data_view); data_view += sizeof(V3F);
-      V3F max_bounds        = *(V3F *)(data_view); data_view += sizeof(V3F);
-      U08 *data_compressed  = data_view;
+      // NOTE(aron): vol header is either 72 bytes (new: magic+fmt+csz+dsz+flg+Y+X+Z+lo+hi+bounds)
+      // or 64 bytes (old: csz+dsz+flg+Y+X+Z+lo+hi+bounds). the new format requires
+      // compressed data to fit after the 72-byte header; the old format stores it
+      // after 64 bytes. peek the new header and use it only if its compressed size
+      // actually fits, otherwise fall back to the old layout.
+      U08 *peek = data.bytes_data;
+      U32 pe_magic = *(U32 *)peek; peek += 4;
+      U32 pe_fmt   = *(U32 *)peek; peek += 4;
+      U64 pe_csz   = *(U64 *)peek; peek += 8;
+      U64 pe_dsz   = *(U64 *)peek; peek += 8;
+      U32 pe_flg   = *(U32 *)peek; peek += 4;
+      U32 pe_Y     = *(U32 *)peek; peek += 4;
+      U32 pe_X     = *(U32 *)peek; peek += 4;
+      U32 pe_Z     = *(U32 *)peek; peek += 4;
+      F32 pe_lo    = *(F32 *)peek; peek += 4;
+      F32 pe_hi    = *(F32 *)peek; peek += 4;
+      peek += 12; /* min_bounds */
+      peek += 12; /* max_bounds */
+
+      B32 new_ok = pe_X && pe_Y && pe_Z && pe_dsz == (U64)pe_X * pe_Y * pe_Z &&
+                   pe_csz && 72 + pe_csz <= data.bytes_total;
+
+      if (new_ok) {
+        data_view       += 4;             /* magic */
+        data_view       += 4;             /* format_type */
+        compressed_size   = pe_csz;
+        decompressed_size = pe_dsz;
+        flags             = pe_flg;
+        Y                 = pe_Y;
+        X                 = pe_X;
+        Z                 = pe_Z;
+        min_range         = pe_lo;
+        max_range         = pe_hi;
+        data_view        += 12;           /* min_bounds */
+        data_view        += 12;           /* max_bounds */
+      } else {
+        data_view = data.bytes_data;
+        compressed_size   = *(U64 *)data_view; data_view += 8;
+        decompressed_size = *(U64 *)data_view; data_view += 8;
+        flags             = *(U32 *)data_view; data_view += 4;
+        Y                 = *(U32 *)data_view; data_view += 4;
+        X                 = *(U32 *)data_view; data_view += 4;
+        Z                 = *(U32 *)data_view; data_view += 4;
+        min_range         = *(F32 *)data_view; data_view += 4;
+        max_range         = *(F32 *)data_view; data_view += 4;
+        data_view        += 12;           /* min_bounds */
+        data_view        += 12;           /* max_bounds */
+      }
+      data_compressed = data_view;
 
       log_info("Compressed Size   : %llu", compressed_size);
       log_info("Decompressed Size : %llu", decompressed_size);
