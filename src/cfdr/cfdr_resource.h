@@ -176,8 +176,7 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
                    pe_csz && 72 + pe_csz <= data.bytes_total;
 
       if (new_ok) {
-        data_view       += 4;             /* magic */
-        data_view       += 4;             /* format_type */
+        data_view         = data.bytes_data + 72;  /* skip whole new-format header */
         compressed_size   = pe_csz;
         decompressed_size = pe_dsz;
         flags             = pe_flg;
@@ -186,8 +185,6 @@ fn_internal void cfdr_resource_volume_update(CFDR_Resource_Volume *volume) {
         Z                 = pe_Z;
         min_range         = pe_lo;
         max_range         = pe_hi;
-        data_view        += 12;           /* min_bounds */
-        data_view        += 12;           /* max_bounds */
       } else {
         data_view = data.bytes_data;
         compressed_size   = *(U64 *)data_view; data_view += 8;
